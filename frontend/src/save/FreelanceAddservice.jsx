@@ -1,11 +1,11 @@
 // AddServiceForm.jsx
-// NOTE: Firebase config and initializeApp separate file la irukkanum.
-// Example: src/firebase.js la app initialize panni db export pannu.
-// Ithu la config paste pannadha.
+// NOTE: Firebase config should be in a separate file like src/firebase.js
+// Example:
+//   import { db, auth } from "../firebase";
+// Here we just import db & auth and use them.
 
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import {
   collection,
@@ -14,1195 +14,670 @@ import {
   updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
+import { db } from "../firbase/Firebase"; // 👉 adjust path to your firebase file
 
-// 🔹 IMPORT YOUR FIREBASE INSTANCE HERE (update path according to your project)
-import { db } from "../firbase/Firebase"; // <-- unga project path ku match pannunga
-
-// -------------------- CONSTANT DATA (same as Flutter) -------------------- //
-
-const deliveryOptions = [
-  "1-7 days",
-  "7-15 days",
-  "15-30 days",
-  "1-2 months",
-  "2-3 months",
-  "3-6 months",
-  "6+ months",
-];
-
-const expertiseOptions = {
-  "Graphics & Design": [],
-  "Programming & Tech": [],
-  "Digital Marketing": [],
-  "Writing & Translation": [],
-  "Video & Animation": [],
-  "Music & Audio": [],
-  "AI Services": [],
-  Data: [],
-  Business: [],
-  Finance: [],
-  Photography: [],
-  Lifestyle: [],
-  Consulting: [],
-  "Personal Growth & Hobbies": [],
-};
-
-const skillOptions = [
-  "Logo Design",
-  "Brand Style Guides",
-  "Business Cards & Stationery",
-  "Illustration",
-  "Pattern Design",
-  "Website Design",
-  "App Design",
-  "UX Design",
-  "Game Art",
-  "NFTs & Collectibles",
-  "Industrial & Product Design",
-  "Architecture & Interior Design",
-  "Landscape Design",
-  "Fashion Design",
-  "Jewelry Design",
-  "Presentation Design",
-  "Infographic Design",
-  "Vector Tracing",
-  "Car Wraps",
-  "Image Editing",
-  "Photoshop Editing",
-  "T-Shirts & Merchandise",
-  "Packaging Design",
-  "Book Design",
-  "Album Cover Design",
-  "Podcast Cover Art",
-  "Menu Design",
-  "Invitation Design",
-  "Brochure Design",
-  "Poster Design",
-  "Signage Design",
-  "Flyer Design",
-  "Social Media Design",
-  "Print Design",
-  "Website Development",
-  "Website Builders & CMS",
-  "Web Programming",
-  "E-Commerce Development",
-  "Game Development",
-  "Mobile Apps (iOS & Android)",
-  "Desktop Applications",
-  "Chatbots",
-  "QA & Review",
-  "User Testing",
-  "Support & IT",
-  "Data Analysis & Reports",
-  "Convert Files",
-  "Databases",
-  "Cybersecurity & Data Protection",
-  "Cloud Computing",
-  "DevOps",
-  "AI Development",
-  "Machine Learning Models",
-  "Blockchain & NFTs",
-  "Scripts & Automation",
-  "Software Customization",
-  "Social Media Marketing",
-  "SEO",
-  "Content Marketing",
-  "Video Marketing",
-  "Email Marketing",
-  "SEM (Search Engine Marketing)",
-  "Influencer Marketing",
-  "Local SEO",
-  "Affiliate Marketing",
-  "Mobile Marketing & Advertising",
-  "Display Advertising",
-  "E-Commerce Marketing",
-  "Text Message Marketing",
-  "Crowdfunding",
-  "Web Analytics",
-  "Domain Research",
-  "Music Promotion",
-  "Book & eBook Marketing",
-  "Podcast Marketing",
-  "Community Management",
-  "Marketing Consulting",
-  "Articles & Blog Posts",
-  "Proofreading & Editing",
-  "Translation",
-  "Website Content",
-  "Technical Writing",
-  "Copywriting",
-  "Brand Voice & Tone",
-  "Resume Writing",
-  "Cover Letters",
-  "LinkedIn Profiles",
-  "Press Releases",
-  "Product Descriptions",
-  "Case Studies",
-  "White Papers",
-  "Scriptwriting",
-  "Speechwriting",
-  "Creative Writing",
-  "Book Editing",
-  "Beta Reading",
-  "Grant Writing",
-  "UX Writing",
-  "Email Copy",
-  "Business Names & Slogans",
-  "Transcription",
-  "Legal Writing",
-  "Whiteboard & Animated Explainers",
-  "Video Editing",
-  "Short Video Ads",
-  "Logo Animation",
-  "Character Animation",
-  "2D/3D Animation",
-  "Intros & Outros",
-  "Lyric & Music Videos",
-  "Visual Effects",
-  "Spokesperson Videos",
-  "App & Website Previews",
-  "Product Photography & Demos",
-  "Subtitles & Captions",
-  "Live Action Explainers",
-  "Unboxing Videos",
-  "Slideshow Videos",
-  "Animation for Kids",
-  "Trailers & Teasers",
-  "Voice Over",
-  "Mixing & Mastering",
-  "Producers & Composers",
-  "Singers & Vocalists",
-  "Session Musicians",
-  "Songwriters",
-  "Audiobook Production",
-  "Sound Design",
-  "Audio Editing",
-  "Jingles & Intros",
-  "Podcast Editing",
-  "Music Transcription",
-  "Dialogue Editing",
-  "DJ Drops & Tags",
-  "AI Artists",
-  "AI Applications",
-  "AI Video Generators",
-  "AI Music Generation",
-  "AI Chatbot Development",
-  "AI Website Builders",
-  "Custom GPT & LLMs",
-  "AI Training Data Preparation",
-  "Text-to-Speech / Voice Cloning",
-  "Prompt Engineering",
-  "Data Entry",
-  "Data Mining & Scraping",
-  "Database Design",
-  "Data Visualization",
-  "Dashboards",
-  "Excel / Google Sheets",
-  "Statistical Analysis",
-  "Data Engineering",
-  "Data Cleaning",
-  "Business Plans",
-  "Market Research",
-  "Branding Services",
-  "Financial Consulting",
-  "Career Counseling",
-  "Project Management",
-  "Supply Chain Management",
-  "HR Consulting",
-  "E-Commerce Management",
-  "Business Consulting",
-  "Presentations",
-  "Virtual Assistant",
-  "Accounting & Bookkeeping",
-  "Financial Forecasting",
-  "Financial Modeling",
-  "Tax Consulting",
-  "Crypto & NFT Consulting",
-  "Business Valuation",
-  "Pitch Decks",
-  "Product Photography",
-  "Real Estate Photography",
-  "Portraits",
-  "Image Retouching",
-  "Food Photography",
-  "Drone Photography",
-  "Lifestyle Photography",
-  "AI Image Enhancement",
-  "Gaming",
-  "Astrology & Psychics",
-  "Online Tutoring",
-  "Arts & Crafts",
-  "Fitness Lessons",
-  "Nutrition",
-  "Relationship Advice",
-  "Personal Styling",
-  "Cooking Lessons",
-  "Life Coaching",
-  "Travel Advice",
-  "Wellness & Meditation",
-  "Language Lessons",
-  "Management Consulting",
-  "Business Strategy",
-  "HR & Leadership",
-  "Financial Advisory",
-  "Technology Consulting",
-  "Cybersecurity Consulting",
-  "Productivity Coaching",
-  "Study Skills",
-  "Language Learning",
-  "Public Speaking",
-  "Career Mentoring",
-  "Mindfulness & Meditation",
-  "Confidence Coaching",
-];
-
-const toolOptions = [
-  "Adobe Illustrator",
-  "CorelDRAW",
-  "Affinity Designer",
-  "Canva",
-  "Figma",
-  "Gravit Designer",
-  "Inkscape",
-  "Adobe InDesign",
-  "Notion",
-  "Milanote",
-  "Frontify",
-  "VistaCreate",
-  "Procreate",
-  "Clip Studio Paint",
-  "Corel Painter",
-  "Krita",
-  "Repper",
-  "Patterninja",
-  "Adobe XD",
-  "Sketch",
-  "Webflow",
-  "Framer",
-  "InVision Studio",
-  "ProtoPie",
-  "Marvel",
-  "Miro",
-  "Balsamiq",
-  "Axure RP",
-  "Lucidchart",
-  "Adobe Photoshop",
-  "Blender",
-  "ZBrush",
-  "Substance Painter",
-  "Unity",
-  "Unreal Engine",
-  "NFT Art Generator",
-  "SolidWorks",
-  "Autodesk Fusion 360",
-  "Rhino 3D",
-  "KeyShot",
-  "AutoCAD",
-  "SketchUp",
-  "Revit",
-  "Lumion",
-  "3ds Max",
-  "CLO 3D",
-  "Marvelous Designer",
-  "TUKAcad",
-  "RhinoGold",
-  "MatrixGold",
-  "PowerPoint",
-  "Google Slides",
-  "Prezi",
-  "Keynote",
-  "Piktochart",
-  "Visme",
-  "Venngage",
-  "Vector Magic",
-  "FlexiSIGN",
-  "SAi Sign Design Software",
-  "Easysign Studio",
-  "Adobe Express",
-  "Crello",
-  "Buffer Pablo",
-  "QuarkXPress",
-  "Visual Studio Code",
-  "Sublime Text",
-  "Atom",
-  "Git",
-  "GitHub",
-  "GitLab",
-  "Node.js",
-  "React",
-  "Angular",
-  "Vue.js",
-  "HTML",
-  "CSS",
-  "JavaScript",
-  "Bootstrap",
-  "Tailwind CSS",
-  "WordPress",
-  "Elementor",
-  "Divi",
-  "Wix",
-  "Squarespace",
-  "Shopify",
-  "Joomla",
-  "Drupal",
-  "IntelliJ IDEA",
-  "PyCharm",
-  "PHPStorm",
-  "Django",
-  "Flask",
-  "Laravel",
-  "ASP.NET Core",
-  "Express.js",
-  "WooCommerce",
-  "Magento",
-  "BigCommerce",
-  "OpenCart",
-  "PrestaShop",
-  "Stripe",
-  "PayPal",
-  "Godot",
-  "C#",
-  "C++",
-  "Android Studio",
-  "Xcode",
-  "Flutter",
-  "React Native",
-  "Kotlin",
-  "Java",
-  "Swift",
-  "SwiftUI",
-  "Firebase",
-  "Expo",
-  "Electron.js",
-  "PyQt",
-  "Tkinter",
-  ".NET",
-  "WPF",
-  "JavaFX",
-  "C++ with Qt",
-  "Dialogflow",
-  "Microsoft Bot Framework",
-  "Rasa",
-  "IBM Watson Assistant",
-  "Botpress",
-  "ChatGPT API",
-  "ManyChat",
-  "Selenium",
-  "Postman",
-  "JMeter",
-  "Cypress",
-  "TestRail",
-  "Bugzilla",
-  "Jira",
-  "Appium",
-  "Hotjar",
-  "Maze",
-  "UserTesting.com",
-  "Lookback",
-  "Zendesk",
-  "Freshdesk",
-  "Jira Service Management",
-  "ServiceNow",
-  "TeamViewer",
-  "AnyDesk",
-  "Microsoft Intune",
-  "Python",
-  "Pandas",
-  "NumPy",
-  "Matplotlib",
-  "R Studio",
-  "Power BI",
-  "Tableau",
-  "Excel",
-  "Google Sheets",
-  "SQL",
-  "Jupyter Notebook",
-  "Pandoc",
-  "FFmpeg",
-  "ImageMagick",
-  "CloudConvert",
-  "Adobe Acrobat",
-  "MySQL",
-  "PostgreSQL",
-  "MongoDB",
-  "SQLite",
-  "Firebase Firestore",
-  "Redis",
-  "Microsoft SQL Server",
-  "phpMyAdmin",
-  "Wireshark",
-  "Metasploit",
-  "Burp Suite",
-  "Nessus",
-  "Kali Linux",
-  "OWASP ZAP",
-  "Nmap",
-  "Bitdefender",
-  "Kaspersky",
-  "AWS",
-  "Microsoft Azure",
-  "Google Cloud Platform",
-  "DigitalOcean",
-  "Heroku",
-  "IBM Cloud",
-  "Docker",
-  "Kubernetes",
-  "Jenkins",
-  "GitHub Actions",
-  "GitLab CI/CD",
-  "Terraform",
-  "Ansible",
-  "Prometheus",
-  "Grafana",
-  "TensorFlow",
-  "PyTorch",
-  "OpenAI API",
-  "Hugging Face Transformers",
-  "LangChain",
-  "Google Vertex AI",
-  "Azure AI Studio",
-  "Scikit-learn",
-  "XGBoost",
-  "LightGBM",
-  "Solidity",
-  "Remix IDE",
-  "Hardhat",
-  "Truffle",
-  "Web3.js",
-  "Ethers.js",
-  "Metamask",
-  "Alchemy",
-  "Python Automation Scripts",
-  "PowerShell",
-  "Bash",
-  "AutoHotkey",
-  "Puppeteer",
-  "Playwright",
-  "Zapier",
-  "Make",
-  "Visual Studio",
-  "Eclipse",
-  "API Integration Tools",
-  "Low-code platforms",
-  "Electron.js",
-  "MadCap Flare",
-  "Adobe FrameMaker",
-  "Typora",
-  "Obsidian",
-  "DITA XML tools",
-  "Confluence",
-  "GitBook",
-  "Frase.io",
-  "Wordtune",
-  "Headlime",
-  "Novorésumé",
-  "Resume.io",
-  "Zety",
-  "Enhancv",
-  "ChatGPT",
-  "Jasper",
-  "SurferSEO",
-  "NeuronWriter",
-  "Grammarly",
-  "Hemingway Editor",
-  "ProWritingAid",
-  "Ginger Software",
-  "LanguageTool",
-  "QuillBot",
-  "DeepL Translator",
-  "Microsoft Translator",
-  "Smartcat",
-  "memoQ",
-  "SDL Trados Studio",
-  "Crowdin",
-  "Vyond",
-  "Animaker",
-  "Doodly",
-  "VideoScribe",
-  "Renderforest",
-  "Powtoon",
-  "Adobe After Effects",
-  "Adobe Premiere Pro",
-  "Final Cut Pro",
-  "DaVinci Resolve",
-  "CapCut",
-  "Filmora",
-  "Vegas Pro",
-  "Shotcut",
-  "OpenShot",
-  "InVideo",
-  "Adobe Premiere Rush",
-  "VN Video Editor",
-  "Blender",
-  "Cinema 4D",
-  "Panzoid",
-  "Adobe Character Animator",
-  "Toon Boom Harmony",
-  "Moho",
-  "Reallusion iClone",
-  "CrazyTalk Animator",
-  "Synfig Studio",
-  "OpenToonz",
-  "Autodesk Maya",
-  "ScreenFlow",
-  "Loom",
-  "Adobe Lightroom",
-  "VEED.io",
-  "Kapwing",
-  "Rev.com",
-  "Subtitle Edit",
-  "Camtasia",
-  "Synthesia",
-  "Pictory.ai",
-  "Lumen5",
-  "OBS Studio",
-  "Alitu",
-  "Hindenburg Journalist",
-  "Animoto",
-  "FlexClip",
-  "Audacity",
-  "Adobe Audition",
-  "GarageBand",
-  "Logic Pro X",
-  "Pro Tools",
-  "Reaper",
-  "iZotope RX",
-  "FL Studio",
-  "Ableton Live",
-  "Cubase",
-  "Studio One",
-  "iZotope Ozone",
-  "Waves Plugins",
-  "Reason Studios",
-  "Bitwig Studio",
-  "Native Instruments Komplete",
-  "Melodyne",
-  "Antares Auto-Tune",
-  "Soundtrap",
-  "MasterWriter",
-  "Hookpad",
-  "Sibelius",
-  "Finale",
-  "MuseScore",
-  "Noteflight",
-  "Dorico",
-  "Transcribe!",
-  "Spotify for Artists",
-  "SoundCloud",
-  "DistroKid",
-  "TuneCore",
-  "ReverbNation",
-  "SubmitHub",
-  "Linktree",
-  "DALL·E",
-  "MidJourney",
-  "Stable Diffusion",
-  "Adobe Firefly",
-  "Leonardo AI",
-  "Runway ML",
-  "Lobe AI",
-  "Pictory",
-  "Kaiber",
-  "DeepBrain AI",
-  "Soundraw",
-  "AIVA",
-  "Amper Music",
-  "Jukedeck",
-  "Boomy",
-  "Endel",
-  "Tidio",
-  "Wix ADI",
-  "Bookmark",
-  "Zyro AI",
-  "Jimdo Dolphin",
-  "Durable",
-  "GPT-4",
-  "GPT-3",
-  "LLaMA",
-  "MPT Models",
-  "Claude",
-  "Labelbox",
-  "Supervisely",
-  "Scale AI",
-  "CVAT",
-  "Dataloop",
-  "Roboflow",
-  "ElevenLabs",
-  "Descript Overdub",
-  "Murf AI",
-  "Resemble AI",
-  "Replica Studios",
-  "LOVO AI",
-  "ChatGPT Playground",
-  "FlowGPT",
-  "Promptable",
-  "SuperPrompt",
-  "PromptLayer",
-  "Airtable",
-  "Zoho Creator",
-  "Smartsheet",
-  "RoboTask",
-  "Octoparse",
-  "ParseHub",
-  "WebHarvy",
-  "Import.io",
-  "Apify",
-  "Looker",
-  "Qlik Sense",
-  "D3.js",
-  "Klipfolio",
-  "Zoho Analytics",
-  "Databox",
-  "OpenRefine",
-  "SPSS",
-  "SAS",
-  "Stata",
-  "Minitab",
-  "Apache Spark",
-  "Apache Airflow",
-  "Talend",
-  "Hadoop",
-  "dbt",
-  "H2O.ai",
-  "RapidMiner",
-  "Weka",
-  "Google Cloud AI Platform",
-  "Trifacta",
-  "LivePlan",
-  "Bizplan",
-  "Enloop",
-  "StratPad",
-  "PlanGuru",
-  "Statista",
-  "Nielsen",
-  "SurveyMonkey",
-  "Typeform",
-  "Google Trends",
-  "SEMrush",
-  "Looka",
-  "Brandfolder",
-  "Clio",
-  "MyCase",
-  "LegalZoom",
-  "Lawcus",
-  "Rocket Lawyer",
-  "DocuSign",
-  "Tally",
-  "Xero",
-  "Wave Accounting",
-  "Microsoft Office",
-  "Google Workspace",
-  "Slack",
-  "Teams",
-  "Zoom",
-  "Trello",
-  "Asana",
-  "Monday.com",
-  "ClickUp",
-  "Wrike",
-  "SAP SCM",
-  "Oracle SCM Cloud",
-  "Odoo",
-  "NetSuite",
-  "Microsoft Dynamics 365",
-  "Fishbowl Inventory",
-  "BambooHR",
-  "Zoho People",
-  "Workday",
-  "Gusto",
-  "SAP SuccessFactors",
-  "ADP Workforce Now",
-  "Coursera",
-  "Udemy",
-  "Indeed Career Guides",
-  "Glassdoor",
-  "Mettl Assessments",
-  "Skillshare",
-  "MyFitnessPal",
-  "Nike Training Club",
-  "Fitbod",
-  "Peloton App",
-  "Cronometer",
-  "Yazio",
-  "Eat This Much",
-  "Lifesum",
-  "BetterHelp",
-  "Talkspace",
-  "ReGain",
-  "Couple Counseling Apps",
-  "Lasting",
-  "Polyvore",
-  "Pinterest",
-  "Tasty App",
-  "MasterClass",
-  "Mindvalley App",
-  "CoachAccountable",
-  "TripAdvisor",
-  "Google Maps",
-  "Lonely Planet Guides",
-  "Airbnb",
-  "Booking.com",
-  "Rome2Rio",
-  "Headspace",
-  "Calm",
-  "Insight Timer",
-  "Waking Up App",
-  "Aura",
-  "Duolingo",
-  "Babbel",
-  "Rosetta Stone",
-  "LingQ",
-  "iTalki",
-  "Toastmasters Resources",
-  "TED Talks",
-];
-
-// -------------------- Styles -------------------- //
-
-const styles = {
-  page: {
-    backgroundColor: "#FFFFFF",
-    minHeight: "100vh",
-    fontFamily:
-      "'Rubik', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-  },
-  scroll: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "0 16px 32px",
-  },
-  headerContainer: {
-    height: 140,
-    position: "relative",
-    marginBottom: 16,
-  },
-  headerBackground: {
-    width: "100%",
-    height: 130,
-    backgroundColor: "#FDFD96",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    padding: "24px 16px 0",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 500,
-  },
-  headerIconButton: {
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    padding: 4,
-  },
-  headerIconPlaceholder: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#FDFD96",
-  },
-  backIcon: {
-    fontSize: 20,
-  },
-  tabsRow: {
-    display: "flex",
-    alignItems: "flex-end",
-    paddingLeft: 16,
-    marginBottom: 4,
-    gap: 30,
-  },
-  tabLabel: (active) => ({
-    fontSize: 16,
-    fontWeight: "bold",
-    color: active ? "#000000" : "#9E9E9E",
-  }),
-  tabUnderline: (active) => ({
-    height: 2,
-    width: 40,
-    backgroundColor: active ? "#FBC02D" : "transparent",
-  }),
-  divider: {
-    height: 1,
-    backgroundColor: "#E0E0E0",
-    margin: "5px 16px 16px",
-  },
-  card: {
-    borderRadius: 20,
-    border: "1px solid #BDBDBD",
-    backgroundColor: "#FFFFFF",
-    padding: 16,
-  },
-  label: {
-    fontSize: 16,
-    color: "#000000",
-    marginBottom: 6,
-  },
-  textFieldContainer: {
-    border: "1px solid #E0E0E0",
-    borderRadius: 10,
-    backgroundColor: "#FFFFFF",
-    padding: "0 14px",
-  },
-  textField: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-    fontSize: 14,
-    padding: "10px 0",
-    resize: "vertical",
-    fontFamily: "inherit",
-  },
-  row: {
-    display: "flex",
-    gap: 12,
-  },
-  flex1: { flex: 1 },
-  helperText: {
-    fontSize: 14,
-    color: "#5D5454",
-  },
-  chipsWrap: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  chip: {
-    display: "inline-flex",
-    alignItems: "center",
-    borderRadius: 20,
-    padding: "6px 12px",
-    border: "1px solid #BDBDBD",
-    fontSize: 14,
-    backgroundColor: "#FFFFFF",
-  },
-  chipText: {
-    marginRight: 6,
-  },
-  chipClose: {
-    cursor: "pointer",
-    fontSize: 14,
-  },
-  dropdownWrapper: {
-    position: "relative",
-    marginBottom: 12,
-  },
-  dropdownDisplay: {
-    borderRadius: 10,
-    border: "1px solid #D0D0D0",
-    padding: "10px 12px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    cursor: "pointer",
-    backgroundColor: "#FFFFFF",
-    fontSize: 14,
-  },
-  dropdownPlaceholder: {
-    color: "#9E9E9E",
-  },
-  dropdownList: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    right: 0,
-    zIndex: 20,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
-    maxHeight: 260,
-    overflow: "hidden",
-    marginTop: 4,
-  },
-  dropdownSearch: {
-    padding: 8,
-    borderBottom: "1px solid #EEEEEE",
-  },
-  dropdownSearchInput: {
-    width: "100%",
-    borderRadius: 10,
-    border: "1px solid #E0E0E0",
-    padding: "6px 10px",
-    outline: "none",
-    fontSize: 14,
-  },
-  dropdownOptions: {
-    maxHeight: 220,
-    overflowY: "auto",
-  },
-  dropdownOption: {
-    padding: "8px 12px",
-    fontSize: 14,
-    cursor: "pointer",
-  },
-  dropdownOptionHover: {
-    backgroundColor: "#F5F5F5",
-  },
-  sectionTitleRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  smallCounterText: {
-    fontSize: 14,
-    color: "#757575",
-  },
-  buttonsRow: {
-    display: "flex",
-    gap: 16,
-    marginTop: 20,
-  },
-  cancelBtn: {
-    flex: 1,
-    padding: "14px 0",
-    borderRadius: 30,
-    border: "1px solid #BDBDBD",
-    backgroundColor: "#FFFFFF",
-    fontSize: 16,
-    cursor: "pointer",
-  },
-  saveBtn: {
-    flex: 1,
-    padding: "14px 0",
-    borderRadius: 30,
-    backgroundColor: "#FFF59D",
-    border: "none",
-    fontSize: 16,
-    cursor: "pointer",
-  },
-  disabledBtn: {
-    opacity: 0.6,
-    cursor: "default",
-  },
-};
-
-// -------------------- Helper: word count -------------------- //
-
-const countWords = (text) =>
-  text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
-
-// -------------------- Dropdown Component -------------------- //
-
-function SearchableDropdown({
-  hint,
-  value,
-  options,
-  onChange,
-  disabled = false,
-}) {
-  const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-
-  const filtered = options.filter((opt) =>
-    opt.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  const handleSelect = (val) => {
-    onChange(val);
-    setOpen(false);
-    setSearchValue("");
-  };
-
-  return (
-    <div style={styles.dropdownWrapper}>
-      <div
-        style={{
-          ...styles.dropdownDisplay,
-          ...(disabled ? { opacity: 0.5, cursor: "default" } : {}),
-        }}
-        onClick={() => {
-          if (!disabled) setOpen((prev) => !prev);
-        }}
-      >
-        <span
-          style={!value ? styles.dropdownPlaceholder : undefined}
-        >
-          {value || hint}
-        </span>
-        <span>▾</span>
-      </div>
-      {open && !disabled && (
-        <div style={styles.dropdownList}>
-          <div style={styles.dropdownSearch}>
-            <input
-              style={styles.dropdownSearchInput}
-              placeholder="Search..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-          </div>
-          <div style={styles.dropdownOptions}>
-            {filtered.length === 0 && (
-              <div style={styles.dropdownOption}>No results</div>
-            )}
-            {filtered.map((opt) => (
-              <div
-                key={opt}
-                style={styles.dropdownOption}
-                onClick={() => handleSelect(opt)}
-              >
-                {opt}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// -------------------- Chip Box -------------------- //
-
-function ChipBox({ items, type, onRemove }) {
-  return (
-    <div style={styles.chipsWrap}>
-      {items.map((text) => (
-        <div key={text} style={styles.chip}>
-          <span style={styles.chipText}>{text}</span>
-          <span
-            style={styles.chipClose}
-            onClick={() => onRemove(text, type)}
-          >
-            ✕
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// -------------------- Main Component -------------------- //
-
-export default function AddServiceForm() {
+export default function AddServiceForm({ jobData = null, jobId = null }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const auth = getAuth();
+  const currentUser = auth.currentUser;
 
-  // jobData & jobId from route (ServiceScreenOne la navigate panniruppom)
-  const fromState = location.state || {};
-  const initialJobData = fromState.jobData || null;
-  const initialJobId = fromState.jobId || null;
-
-  const [selectedTab, setSelectedTab] = useState("Works");
-
-  // form states
+  // -------------------- BASIC STATE -------------------- //
+  const [selectedTab, setSelectedTab] = useState("Work"); // "Work" | "24 hours"
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [price, setPrice] = useState("");
+  const [budgetFrom, setBudgetFrom] = useState("");
+  const [budgetTo, setBudgetTo] = useState("");
   const [sampleUrl, setSampleUrl] = useState("");
   const [clientReq, setClientReq] = useState("");
-
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDuration, setSelectedDuration] = useState("");
+
   const [selectedSkill, setSelectedSkill] = useState("");
   const [selectedTool, setSelectedTool] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [selectedTools, setSelectedTools] = useState([]);
 
   const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
-  const jobId = initialJobId;
+  // Search text for dropdown filter
+  const [skillSearch, setSkillSearch] = useState("");
+  const [toolSearch, setToolSearch] = useState("");
 
-  // -------------------- Prefill for edit -------------------- //
+  // -------------------- CONSTANTS -------------------- //
 
+  const deliveryOptions = [
+    "1-7 days",
+    "7-15 days",
+    "15-30 days",
+    "1-2 months",
+    "2-3 months",
+    "3-6 months",
+    "6+ months",
+  ];
+
+  const expertiseOptions = [
+    "Graphics & Design",
+    "Programming & Tech",
+    "Digital Marketing",
+    "Writing & Translation",
+    "Video & Animation",
+    "Music & Audio",
+    "AI Services",
+    "Data",
+    "Business",
+    "Finance",
+    "Photography",
+    "Lifestyle",
+    "Consulting",
+    "Personal Growth & Hobbies",
+  ];
+
+  // BIG SKILL LIST (sample – you can add all remaining items same as Flutter list)
+  const skillOptions = [
+    // Graphics & Design
+    "Logo Design",
+    "Brand Style Guides",
+    "Business Cards & Stationery",
+    "Illustration",
+    "Pattern Design",
+    "Website Design",
+    "App Design",
+    "UX Design",
+    "Game Art",
+    "NFTs & Collectibles",
+    "Industrial & Product Design",
+    "Architecture & Interior Design",
+    "Landscape Design",
+    "Fashion Design",
+    "Jewelry Design",
+    "Presentation Design",
+    "Infographic Design",
+    "Vector Tracing",
+    "Car Wraps",
+    "Image Editing",
+    "Photoshop Editing",
+    "T-Shirts & Merchandise",
+    "Packaging Design",
+    "Book Design",
+    "Album Cover Design",
+    "Podcast Cover Art",
+    "Menu Design",
+    "Invitation Design",
+    "Brochure Design",
+    "Poster Design",
+    "Signage Design",
+    "Flyer Design",
+    "Social Media Design",
+    "Print Design",
+
+    // Programming & Tech
+    "Website Development",
+    "Website Builders & CMS",
+    "Web Programming",
+    "E-Commerce Development",
+    "Game Development",
+    "Mobile Apps (iOS & Android)",
+    "Desktop Applications",
+    "Chatbots",
+    "QA & Review",
+    "User Testing",
+    "Support & IT",
+    "Data Analysis & Reports",
+    "Convert Files",
+    "Databases",
+    "Cybersecurity & Data Protection",
+    "Cloud Computing",
+    "DevOps",
+    "AI Development",
+    "Machine Learning Models",
+    "Blockchain & NFTs",
+    "Scripts & Automation",
+    "Software Customization",
+
+    // Digital Marketing
+    "Social Media Marketing",
+    "SEO",
+    "Content Marketing",
+    "Video Marketing",
+    "Email Marketing",
+    "SEM (Search Engine Marketing)",
+    "Influencer Marketing",
+    "Local SEO",
+    "Affiliate Marketing",
+    "Mobile Marketing & Advertising",
+    "Display Advertising",
+    "E-Commerce Marketing",
+    "Text Message Marketing",
+    "Crowdfunding",
+    "Web Analytics",
+    "Domain Research",
+    "Music Promotion",
+    "Book & eBook Marketing",
+    "Podcast Marketing",
+    "Community Management",
+    "Marketing Consulting",
+
+    // Writing & Translation
+    "Articles & Blog Posts",
+    "Proofreading & Editing",
+    "Translation",
+    "Website Content",
+    "Technical Writing",
+    "Copywriting",
+    "Brand Voice & Tone",
+    "Resume Writing",
+    "Cover Letters",
+    "LinkedIn Profiles",
+    "Press Releases",
+    "Product Descriptions",
+    "Case Studies",
+    "White Papers",
+    "Scriptwriting",
+    "Speechwriting",
+    "Creative Writing",
+    "Book Editing",
+    "Beta Reading",
+    "Grant Writing",
+    "UX Writing",
+    "Email Copy",
+    "Business Names & Slogans",
+    "Transcription",
+    "Legal Writing",
+
+    // Video & Animation
+    "Whiteboard & Animated Explainers",
+    "Video Editing",
+    "Short Video Ads",
+    "Logo Animation",
+    "Character Animation",
+    "2D/3D Animation",
+    "Intros & Outros",
+    "Lyric & Music Videos",
+    "Visual Effects",
+    "Spokesperson Videos",
+    "App & Website Previews",
+    "Product Photography & Demos",
+    "Subtitles & Captions",
+    "Live Action Explainers",
+    "Unboxing Videos",
+    "Slideshow Videos",
+    "Animation for Kids",
+    "Trailers & Teasers",
+
+    // Music & Audio
+    "Voice Over",
+    "Mixing & Mastering",
+    "Producers & Composers",
+    "Singers & Vocalists",
+    "Session Musicians",
+    "Songwriters",
+    "Audiobook Production",
+    "Sound Design",
+    "Audio Editing",
+    "Jingles & Intros",
+    "Podcast Editing",
+    "Music Transcription",
+    "Dialogue Editing",
+    "DJ Drops & Tags",
+
+    // AI Services (sample)
+    "AI Artists",
+    "AI Applications",
+    "AI Video Generators",
+    "AI Music Generation",
+    "AI Chatbot Development",
+    "AI Website Builders",
+    "Custom GPT & LLMs",
+    "AI Training Data Preparation",
+    "Text-to-Speech / Voice Cloning",
+    "Prompt Engineering",
+
+    // Data (sample)
+    "Data Entry",
+    "Data Mining & Scraping",
+    "Database Design",
+    "Data Visualization",
+    "Dashboards",
+    "Excel / Google Sheets",
+    "Statistical Analysis",
+    "Data Engineering",
+    "Data Cleaning",
+
+    // Business / Finance / Consulting / Lifestyle (sample)
+    "Business Plans",
+    "Market Research",
+    "Branding Services",
+    "Financial Consulting",
+    "Career Counseling",
+    "Project Management",
+    "Supply Chain Management",
+    "HR Consulting",
+    "E-Commerce Management",
+    "Business Consulting",
+    "Presentations",
+    "Virtual Assistant",
+    "Accounting & Bookkeeping",
+    "Financial Forecasting",
+    "Financial Modeling",
+    "Tax Consulting",
+    "Crypto & NFT Consulting",
+    "Business Valuation",
+    "Pitch Decks",
+    "Product Photography",
+    "Real Estate Photography",
+    "Portraits",
+    "Image Retouching",
+    "Food Photography",
+    "Drone Photography",
+    "Lifestyle Photography",
+    "AI Image Enhancement",
+    "Gaming",
+    "Astrology & Psychics",
+    "Online Tutoring",
+    "Arts & Crafts",
+    "Fitness Lessons",
+    "Nutrition",
+    "Relationship Advice",
+    "Personal Styling",
+    "Cooking Lessons",
+    "Life Coaching",
+    "Travel Advice",
+    "Wellness & Meditation",
+    "Language Lessons",
+    "Management Consulting",
+    "Business Strategy",
+    "HR & Leadership",
+    "Financial Advisory",
+    "Technology Consulting",
+    "Cybersecurity Consulting",
+    "Productivity Coaching",
+    "Study Skills",
+    "Language Learning",
+    "Public Speaking",
+    "Career Mentoring",
+    "Mindfulness & Meditation",
+    "Confidence Coaching",
+    // 👉 You can continue to add the rest of the Flutter list here...
+  ];
+
+  const toolOptions = [
+    // Design tools
+    "Adobe Illustrator",
+    "CorelDRAW",
+    "Affinity Designer",
+    "Canva",
+    "Figma",
+    "Gravit Designer",
+    "Inkscape",
+    "Adobe InDesign",
+    "Notion",
+    "Milanote",
+    "Frontify",
+    "VistaCreate",
+    "Procreate",
+    "Clip Studio Paint",
+    "Corel Painter",
+    "Krita",
+    "Repper",
+    "Patterninja",
+    "Adobe XD",
+    "Sketch",
+    "Webflow",
+    "Framer",
+    "InVision Studio",
+    "ProtoPie",
+    "Marvel",
+    "Miro",
+    "Balsamiq",
+    "Axure RP",
+    "Lucidchart",
+    "Adobe Photoshop",
+    "Blender",
+    "ZBrush",
+    "Substance Painter",
+    "Unity",
+    "Unreal Engine",
+    "NFT Art Generator",
+    "SolidWorks",
+    "Autodesk Fusion 360",
+    "Rhino 3D",
+    "KeyShot",
+    "AutoCAD",
+    "SketchUp",
+    "Revit",
+    "Lumion",
+    "3ds Max",
+    "CLO 3D",
+    "Marvelous Designer",
+    "TUKAcad",
+    "RhinoGold",
+    "MatrixGold",
+    "PowerPoint",
+    "Google Slides",
+    "Prezi",
+    "Keynote",
+    "Piktochart",
+    "Visme",
+    "Venngage",
+    "Vector Magic",
+    "FlexiSIGN",
+    "SAi Sign Design Software",
+    "Easysign Studio",
+    "Adobe Express",
+    "Crello",
+    "Buffer Pablo",
+    "QuarkXPress",
+
+    // Dev tools
+    "Visual Studio Code",
+    "Sublime Text",
+    "Atom",
+    "Git",
+    "GitHub",
+    "GitLab",
+    "Node.js",
+    "React",
+    "Angular",
+    "Vue.js",
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "Bootstrap",
+    "Tailwind CSS",
+    "WordPress",
+    "Elementor",
+    "Divi",
+    "Wix",
+    "Squarespace",
+    "Shopify",
+    "Joomla",
+    "Drupal",
+    "IntelliJ IDEA",
+    "PyCharm",
+    "PHPStorm",
+    "Django",
+    "Flask",
+    "Laravel",
+    "ASP.NET Core",
+    "Express.js",
+    "WooCommerce",
+    "Magento",
+    "BigCommerce",
+    "OpenCart",
+    "PrestaShop",
+    "Stripe",
+    "PayPal",
+    "Godot",
+    "C#",
+    "C++",
+    "Android Studio",
+    "Xcode",
+    "Flutter",
+    "React Native",
+    "Kotlin",
+    "Java",
+    "Swift",
+    "SwiftUI",
+    "Firebase",
+    "Expo",
+    "Electron.js",
+    "PyQt",
+    "Tkinter",
+    ".NET",
+    "WPF",
+    "JavaFX",
+    "C++ with Qt",
+
+    // Testing / QA
+    "Selenium",
+    "Postman",
+    "JMeter",
+    "Cypress",
+    "TestRail",
+    "Bugzilla",
+    "Jira",
+    "Appium",
+    "Hotjar",
+    "Maze",
+    "UserTesting.com",
+    "Lookback",
+    "Zendesk",
+    "Freshdesk",
+    "Jira Service Management",
+    "ServiceNow",
+    "TeamViewer",
+    "AnyDesk",
+    "Microsoft Intune",
+
+    // Data / ML
+    "Python",
+    "Pandas",
+    "NumPy",
+    "Matplotlib",
+    "R Studio",
+    "Power BI",
+    "Tableau",
+    "Excel",
+    "Google Sheets",
+    "SQL",
+    "Jupyter Notebook",
+    "MySQL",
+    "PostgreSQL",
+    "MongoDB",
+    "SQLite",
+    "Firebase Firestore",
+    "Redis",
+    "Microsoft SQL Server",
+    "TensorFlow",
+    "PyTorch",
+    "OpenAI API",
+    "Hugging Face Transformers",
+    "LangChain",
+    "Google Vertex AI",
+    "Azure AI Studio",
+    "Scikit-learn",
+    "XGBoost",
+    "LightGBM",
+
+    // Cloud / DevOps
+    "AWS",
+    "Microsoft Azure",
+    "Google Cloud Platform",
+    "DigitalOcean",
+    "Heroku",
+    "IBM Cloud",
+    "Docker",
+    "Kubernetes",
+    "Jenkins",
+    "GitHub Actions",
+    "GitLab CI/CD",
+    "Terraform",
+    "Ansible",
+    "Prometheus",
+    "Grafana",
+
+    // Automation / Scraping
+    "Python Automation Scripts",
+    "PowerShell",
+    "Bash",
+    "AutoHotkey",
+    "Puppeteer",
+    "Playwright",
+    "Zapier",
+    "Make",
+
+    // AI / Content / Tools (sample)
+    "ChatGPT",
+    "Jasper",
+    "SurferSEO",
+    "Grammarly",
+    "Hemingway Editor",
+    "ProWritingAid",
+    "LanguageTool",
+    "QuillBot",
+    "DeepL Translator",
+    "Vyond",
+    "Animaker",
+    "Adobe After Effects",
+    "Adobe Premiere Pro",
+    "Final Cut Pro",
+    "DaVinci Resolve",
+    "CapCut",
+    "Filmora",
+    "Vegas Pro",
+    "Audacity",
+    "Adobe Audition",
+    "GarageBand",
+    "FL Studio",
+    "Ableton Live",
+    "Cubase",
+    "Studio One",
+    "Spotify for Artists",
+    "SoundCloud",
+    "DALL·E",
+    "MidJourney",
+    "Stable Diffusion",
+    "Adobe Firefly",
+    "Leonardo AI",
+    "Runway ML",
+    "Descript",
+    "ElevenLabs",
+    "Trello",
+    "Asana",
+    "ClickUp",
+    "Slack",
+    "Zoom",
+    "Teams",
+    "Xero",
+    "Tally",
+    "Notion",
+    // 👉 You can continue to add the remaining tools from your Flutter list...
+  ];
+
+  // -------------------- PREFILL (EDIT MODE) -------------------- //
   useEffect(() => {
-    if (!initialJobData) return;
-    const data = initialJobData;
+    if (jobData) {
+      setTitle(jobData.title || "");
+      setDesc(jobData.description || "");
+      setBudgetFrom(
+        jobData.budget_from != null ? String(jobData.budget_from) : ""
+      );
+      setBudgetTo(
+        jobData.budget_to != null ? String(jobData.budget_to) : ""
+      );
+      setSampleUrl(jobData.sampleProjectUrl || "");
+      setClientReq(jobData.clientRequirements || "");
+      setSelectedCategory(jobData.category || "");
+      setSelectedDuration(jobData.deliveryDuration || "");
+      setSelectedSkills(Array.isArray(jobData.skills) ? jobData.skills : []);
+      setSelectedTools(Array.isArray(jobData.tools) ? jobData.tools : []);
+      // Optional: set tab based on is24Hour flag
+      if (jobData.is24Hour) {
+        setSelectedTab("24 hours");
+      }
+    }
+  }, [jobData]);
 
-    setTitle(data.title || "");
-    setDesc(data.description || "");
-    setPrice(
-      data.price !== undefined && data.price !== null
-        ? String(data.price)
-        : ""
-    );
-    setSampleUrl(data.sampleProjectUrl || "");
-    setClientReq(data.clientRequirements || "");
-    setSelectedCategory(data.category || "");
-    setSelectedDuration(data.deliveryDuration || "");
-    setSelectedSkills(Array.isArray(data.skills) ? data.skills : []);
-    setSelectedTools(Array.isArray(data.tools) ? data.tools : []);
-  }, [initialJobData]);
+  // -------------------- HELPERS -------------------- //
 
-  // -------------------- Validation & Save -------------------- //
+  const addSkill = (skill) => {
+    if (!skill) return;
+    if (!selectedSkills.includes(skill)) {
+      setSelectedSkills((prev) => [...prev, skill]);
+    }
+    setSelectedSkill("");
+    setSkillSearch("");
+  };
 
-  const validateForm = () => {
-    // title, desc, price, sampleUrl required
+  const addTool = (tool) => {
+    if (!tool) return;
+    if (!selectedTools.includes(tool)) {
+      setSelectedTools((prev) => [...prev, tool]);
+    }
+    setSelectedTool("");
+    setToolSearch("");
+  };
+
+  const removeSkill = (skill) => {
+    setSelectedSkills((prev) => prev.filter((s) => s !== skill));
+  };
+
+  const removeTool = (tool) => {
+    setSelectedTools((prev) => prev.filter((t) => t !== tool));
+  };
+
+  const filteredSkills = skillOptions.filter((s) =>
+    s.toLowerCase().includes(skillSearch.toLowerCase())
+  );
+
+  const filteredTools = toolOptions.filter((t) =>
+    t.toLowerCase().includes(toolSearch.toLowerCase())
+  );
+
+  // -------------------- VALIDATION + SAVE -------------------- //
+
+  const handleSave = async () => {
+    setErrorMsg("");
+    setSuccessMsg("");
+
     if (!title.trim()) {
-      alert("Service Title is required");
-      return false;
+      setErrorMsg("Please enter a service title");
+      return;
     }
-    if (countWords(title) < 2) {
-      alert("Title must be at least 2 words");
-      return false;
-    }
-
     if (!desc.trim()) {
-      alert("Description is required");
-      return false;
+      setErrorMsg("Please enter a description");
+      return;
     }
-    if (countWords(desc) < 40) {
-      alert("Description must be at least 40 words");
-      return false;
+    if (!budgetFrom.trim() || isNaN(Number(budgetFrom))) {
+      setErrorMsg("Please enter a valid 'from' price");
+      return;
     }
-
-    if (!selectedCategory) {
-      alert("Please select a category");
-      return false;
-    }
-
-    if (!price.trim()) {
-      alert("Price is required");
-      return false;
-    }
-    if (isNaN(Number(price.trim()))) {
-      alert("Enter a valid price");
-      return false;
+    if (!budgetTo.trim() || isNaN(Number(budgetTo))) {
+      setErrorMsg("Please enter a valid 'to' price");
+      return;
     }
 
-    if (!selectedDuration) {
-      alert("Please select delivery duration");
-      return false;
+    if (selectedTab === "Work") {
+      if (!selectedCategory) {
+        setErrorMsg("Please select a category");
+        return;
+      }
+      if (!selectedDuration) {
+        setErrorMsg("Please select delivery duration");
+        return;
+      }
     }
 
     if (selectedSkills.length < 3) {
-      alert("Please select at least 3 skills");
-      return false;
+      setErrorMsg("Please select at least 3 skills");
+      return;
     }
-
     if (selectedTools.length < 3) {
-      alert("Please select at least 3 tools");
-      return false;
+      setErrorMsg("Please select at least 3 tools");
+      return;
     }
 
-    if (!sampleUrl.trim()) {
-      alert("Enter project URL");
-      return false;
-    }
     if (!sampleUrl.trim().startsWith("https://")) {
-      alert("Please enter a valid https:// project URL");
-      return false;
+      setErrorMsg("Please enter a valid https:// project URL");
+      return;
     }
 
-    return true;
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+    const user = currentUser || auth.currentUser;
+    if (!user) {
+      setErrorMsg("User not logged in");
+      return;
+    }
 
     setSaving(true);
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("User not logged in");
-
-      const serviceData = {
+      const data = {
         title: title.trim(),
         description: desc.trim(),
-        price: Number(price.trim()) || 0,
-        deliveryDuration: selectedDuration,
-        category: selectedCategory,
+        budget_from: Number(budgetFrom.trim()),
+        budget_to: Number(budgetTo.trim()),
+        category: selectedCategory || null,
         skills: selectedSkills,
         tools: selectedTools,
         sampleProjectUrl: sampleUrl.trim(),
@@ -1211,290 +686,399 @@ export default function AddServiceForm() {
         userId: user.uid,
       };
 
-      if (jobId) {
-        // UPDATE existing
-        const mainDocRef = doc(db, "services", jobId);
-        const userDocRef = doc(db, "users", user.uid, "services", jobId);
+      let collectionName = "services";
 
-        await Promise.all([
-          updateDoc(mainDocRef, serviceData),
-          updateDoc(userDocRef, serviceData),
-        ]);
-
-        alert("Service updated successfully");
+      if (selectedTab === "24 hours") {
+        data.is24Hour = true;
+        data.timeline = "24 Hours";
+        collectionName = "service_24h";
       } else {
-        // ADD new
-        const mainDocRef = doc(collection(db, "services"));
-        const id = mainDocRef.id;
-        const dataWithCreated = {
-          ...serviceData,
-          createdAt: serverTimestamp(),
-        };
-
-        await setDoc(mainDocRef, dataWithCreated);
-        const userDocRef = doc(db, "users", user.uid, "services", id);
-        await setDoc(userDocRef, dataWithCreated);
-
-        alert("Service added successfully");
+        data.deliveryDuration = selectedDuration || null;
       }
 
+      if (jobId) {
+        // EDIT MODE
+        const mainRef = doc(collection(db, collectionName), jobId);
+        const userRef = doc(
+          collection(db, "users", user.uid, collectionName),
+          jobId
+        );
+
+        await updateDoc(mainRef, data);
+        await updateDoc(userRef, data);
+        setSuccessMsg("Service updated successfully");
+      } else {
+        // ADD MODE
+        data.createdAt = serverTimestamp();
+        const mainRef = doc(collection(db, collectionName));
+        await setDoc(mainRef, data);
+
+        const userRef = doc(
+          collection(db, "users", user.uid, collectionName),
+          mainRef.id
+        );
+        await setDoc(userRef, data);
+        setSuccessMsg("Service added successfully");
+      }
+
+      // Small delay + go back
       setTimeout(() => {
         navigate(-1);
-      }, 500);
+      }, 800);
     } catch (err) {
-      console.error("Save error:", err);
-      alert("Failed: " + (err.message || String(err)));
+      console.error(err);
+      setErrorMsg("Failed to save service: " + err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  // -------------------- Chip callbacks -------------------- //
-
-  const handleRemoveChip = (value, type) => {
-    if (type === "skills") {
-      setSelectedSkills((prev) => prev.filter((x) => x !== value));
-    } else {
-      setSelectedTools((prev) => prev.filter((x) => x !== value));
-    }
-  };
-
-  const handleAddSkill = (value) => {
-    if (
-      value &&
-      !selectedSkills.includes(value) &&
-      selectedSkills.length < 3
-    ) {
-      setSelectedSkill(value);
-      setSelectedSkills((prev) => [...prev, value]);
-    }
-  };
-
-  const handleAddTool = (value) => {
-    if (
-      value &&
-      !selectedTools.includes(value) &&
-      selectedTools.length < 5
-    ) {
-      setSelectedTool(value);
-      setSelectedTools((prev) => [...prev, value]);
-    }
-  };
-
-  // -------------------- Render -------------------- //
+  // -------------------- RENDER -------------------- //
 
   return (
-    <div style={styles.page}>
-      <div style={styles.scroll}>
-        {/* HEADER */}
-        <div style={styles.headerContainer}>
-          <div style={styles.headerBackground}>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-6 pb-3 border-b border-gray-200">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <span className="material-icons text-xl">arrow_back_ios_new</span>
+        </button>
+
+        <h1 className="text-lg sm:text-xl font-semibold text-black">
+          Create Service
+        </h1>
+
+        {/* spacer to balance back icon */}
+        <div className="w-8" />
+      </div>
+
+      {/* Tabs */}
+      <div className="px-5 pt-3 border-b border-gray-200">
+        <div className="flex gap-10">
+          <button
+            onClick={() => setSelectedTab("Work")}
+            className="flex flex-col items-center"
+          >
+            <span
+              className={`text-base sm:text-lg font-medium ${
+                selectedTab === "Work" ? "text-black" : "text-gray-500"
+              }`}
+            >
+              Work
+            </span>
+            <span
+              className={`mt-1 h-1 rounded-full ${
+                selectedTab === "Work" ? "w-12 bg-black" : "w-12 bg-transparent"
+              }`}
+            />
+          </button>
+
+          <button
+            onClick={() => setSelectedTab("24 hours")}
+            className="flex flex-col items-center"
+          >
+            <span
+              className={`text-base sm:text-lg font-medium ${
+                selectedTab === "24 hours" ? "text-black" : "text-gray-500"
+              }`}
+            >
+              24 hours
+            </span>
+            <span
+              className={`mt-1 h-1 rounded-full ${
+                selectedTab === "24 hours"
+                  ? "w-16 bg-black"
+                  : "w-16 bg-transparent"
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Error / Success messages */}
+      {(errorMsg || successMsg) && (
+        <div className="px-5 pt-3">
+          {errorMsg && (
+            <div className="mb-2 rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">
+              {errorMsg}
+            </div>
+          )}
+          {successMsg && (
+            <div className="mb-2 rounded-lg bg-green-50 text-green-700 text-sm px-3 py-2">
+              {successMsg}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Form */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+        <div className="max-w-3xl mx-auto">
+          {/* Service Title */}
+          <SectionLabel label="Service Title" />
+          <YellowBox>
+            <input
+              type="text"
+              className="w-full bg-transparent outline-none text-sm sm:text-base text-black placeholder:text-gray-500"
+              placeholder="e.g. Logo Design That Pops and Defines Your Brand"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </YellowBox>
+
+          {/* Description */}
+          <SectionLabel label="Description" className="mt-4" />
+          <YellowBox>
+            <textarea
+              className="w-full bg-transparent outline-none text-sm sm:text-base text-black placeholder:text-gray-500 resize-none"
+              placeholder="Describe your service and showcase your uniqueness"
+              rows={4}
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+          </YellowBox>
+
+          {/* Category */}
+          <SectionLabel label="Category" className="mt-4" />
+          <YellowBox>
+            <select
+              className="w-full bg-transparent outline-none text-sm sm:text-base text-black"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">Select Category</option>
+              {expertiseOptions.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </YellowBox>
+
+          {/* Price Range */}
+          <SectionLabel label="Price Range" className="mt-4" />
+          <div className="flex items-center gap-2">
+            <YellowBox className="flex-1">
+              <input
+                type="number"
+                className="w-full bg-transparent outline-none text-sm sm:text-base text-black"
+                value={budgetFrom}
+                onChange={(e) => setBudgetFrom(e.target.value)}
+              />
+            </YellowBox>
+            <span className="text-sm sm:text-base font-medium text-black">
+              To
+            </span>
+            <YellowBox className="flex-1">
+              <input
+                type="number"
+                className="w-full bg-transparent outline-none text-sm sm:text-base text-black"
+                value={budgetTo}
+                onChange={(e) => setBudgetTo(e.target.value)}
+              />
+            </YellowBox>
+          </div>
+
+          {/* Delivery Days (for Work tab only) */}
+          {selectedTab === "Work" && (
+            <>
+              <SectionLabel label="Delivery Days" className="mt-4" />
+              <YellowBox>
+                <select
+                  className="w-full bg-transparent outline-none text-sm sm:text-base text-black"
+                  value={selectedDuration}
+                  onChange={(e) => setSelectedDuration(e.target.value)}
+                >
+                  <option value="">In days</option>
+                  {deliveryOptions.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </YellowBox>
+            </>
+          )}
+
+          {/* Skills */}
+          <SectionLabel label="Skills" className="mt-4" />
+          <div className="space-y-2">
+            <YellowBox>
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                <input
+                  type="text"
+                  className="flex-1 bg-transparent outline-none text-sm sm:text-base text-black placeholder:text-gray-500"
+                  placeholder="Search or select a skill"
+                  value={skillSearch}
+                  onChange={(e) => setSkillSearch(e.target.value)}
+                />
+                <select
+                  className="w-full sm:w-56 bg-white/60 rounded-md border border-gray-300 px-2 py-1 text-sm outline-none"
+                  value={selectedSkill}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedSkill(val);
+                    if (val) addSkill(val);
+                  }}
+                >
+                  <option value="">Add Skill</option>
+                  {filteredSkills.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </YellowBox>
+            <p className="text-right text-xs text-gray-600">
+              Add at least 3 skills
+            </p>
+            <ChipWrap
+              items={selectedSkills}
+              onRemove={removeSkill}
+            />
+          </div>
+
+          {/* Tools */}
+          <SectionLabel label="Tools" className="mt-4" />
+          <div className="space-y-2">
+            <YellowBox>
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                <input
+                  type="text"
+                  className="flex-1 bg-transparent outline-none text-sm sm:text-base text-black placeholder:text-gray-500"
+                  placeholder="Search or select a tool"
+                  value={toolSearch}
+                  onChange={(e) => setToolSearch(e.target.value)}
+                />
+                <select
+                  className="w-full sm:w-56 bg-white/60 rounded-md border border-gray-300 px-2 py-1 text-sm outline-none"
+                  value={selectedTool}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedTool(val);
+                    if (val) addTool(val);
+                  }}
+                >
+                  <option value="">Add Tool</option>
+                  {filteredTools.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </YellowBox>
+            <p className="text-right text-xs text-gray-600">
+              Add at least 3 tools
+            </p>
+            <ChipWrap
+              items={selectedTools}
+              onRemove={removeTool}
+            />
+          </div>
+
+          {/* Sample Project */}
+          <SectionLabel label="Sample Project" className="mt-4" />
+          <YellowBox>
+            <input
+              type="url"
+              className="w-full bg-transparent outline-none text-sm sm:text-base text-black placeholder:text-gray-500"
+              placeholder="https://your-project-url.com"
+              value={sampleUrl}
+              onChange={(e) => setSampleUrl(e.target.value)}
+            />
+          </YellowBox>
+
+          {/* Client Requirements */}
+          <div className="mt-4 flex items-center gap-1">
+            <SectionLabel label="Client Requirements" />
+            <span className="text-xs text-gray-500">(Optional)</span>
+          </div>
+          <YellowBox>
+            <textarea
+              className="w-full bg-transparent outline-none text-sm sm:text-base text-black placeholder:text-gray-500 resize-none"
+              placeholder="Describe what you need and specific details"
+              rows={4}
+              value={clientReq}
+              onChange={(e) => setClientReq(e.target.value)}
+            />
+          </YellowBox>
+
+          {/* Buttons */}
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <button
               type="button"
-              style={styles.headerIconButton}
               onClick={() => navigate(-1)}
+              className="flex-1 border border-gray-300 rounded-full py-2.5 text-sm sm:text-base font-medium hover:bg-gray-50 transition"
             >
-              <span style={styles.backIcon}>‹</span>
+              Cancel
             </button>
-
-            <div style={styles.headerTitle}>Your Service</div>
-
-            {/* Placeholder notification icon */}
-            <div style={styles.headerIconPlaceholder} />
+            <button
+              type="button"
+              disabled={saving}
+              onClick={handleSave}
+              className={`flex-1 rounded-full py-2.5 text-sm sm:text-base font-semibold border border-yellow-200 bg-yellow-100 text-black flex items-center justify-center gap-2 ${
+                saving ? "opacity-70 cursor-not-allowed" : "hover:bg-yellow-200"
+              } transition`}
+            >
+              {saving && (
+                <span className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              )}
+              <span>{saving ? "Saving..." : "Save"}</span>
+            </button>
           </div>
+
+          <div className="h-6" />
         </div>
-
-        {/* TABS (Works + 24 Hours) – same look, but only Works active in this form */}
-        <div style={styles.tabsRow}>
-          <div
-            onClick={() => setSelectedTab("Works")}
-            style={{ cursor: "pointer" }}
-          >
-            <div style={styles.tabLabel(selectedTab === "Works")}>
-              Works
-            </div>
-            <div style={styles.tabUnderline(selectedTab === "Works")} />
-          </div>
-
-          <div
-            onClick={() => setSelectedTab("24h")}
-            style={{ cursor: "pointer" }}
-          >
-            <div style={styles.tabLabel(selectedTab === "24h")}>
-              24 Hours
-            </div>
-            <div style={styles.tabUnderline(selectedTab === "24h")} />
-          </div>
-        </div>
-
-        <div style={styles.divider} />
-
-        {/* FORM CARD */}
-        <form onSubmit={handleSave}>
-          <div style={styles.card}>
-            {/* Title */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={styles.label}>Service Title</div>
-              <div style={styles.textFieldContainer}>
-                <textarea
-                  style={styles.textField}
-                  rows={1}
-                  placeholder="e.g. Logo Design That Pops and Defines Your Brand"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Description */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={styles.label}>Description</div>
-              <div style={styles.textFieldContainer}>
-                <textarea
-                  style={styles.textField}
-                  rows={4}
-                  placeholder="Describe your service..."
-                  value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Category */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={styles.label}>Category</div>
-              <SearchableDropdown
-                hint="Select a Category"
-                value={selectedCategory}
-                options={Object.keys(expertiseOptions)}
-                onChange={(val) => setSelectedCategory(val)}
-              />
-            </div>
-
-            {/* Price + Delivery Duration */}
-            <div style={{ ...styles.row, marginBottom: 20 }}>
-              <div style={styles.flex1}>
-                <div style={styles.label}>Price</div>
-                <div style={styles.textFieldContainer}>
-                  <textarea
-                    style={styles.textField}
-                    rows={1}
-                    placeholder="₹"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div style={styles.flex1}>
-                <div style={styles.label}>Delivery Duration</div>
-                <SearchableDropdown
-                  hint="Select Duration"
-                  value={selectedDuration}
-                  options={deliveryOptions}
-                  onChange={(val) => setSelectedDuration(val)}
-                />
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={styles.sectionTitleRow}>
-                <div style={styles.label}>Skills</div>
-                <div style={styles.smallCounterText}>
-                  {selectedSkills.length}/3
-                </div>
-              </div>
-              <ChipBox
-                items={selectedSkills}
-                type="skills"
-                onRemove={handleRemoveChip}
-              />
-              <div style={{ height: 12 }} />
-              <SearchableDropdown
-                hint="Select skill"
-                value={selectedSkill}
-                options={skillOptions}
-                onChange={handleAddSkill}
-              />
-            </div>
-
-            {/* Tools */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={styles.sectionTitleRow}>
-                <div style={styles.label}>Tools</div>
-                <div style={styles.smallCounterText}>
-                  {selectedTools.length}/5
-                </div>
-              </div>
-              <ChipBox
-                items={selectedTools}
-                type="tools"
-                onRemove={handleRemoveChip}
-              />
-              <div style={{ height: 12 }} />
-              <SearchableDropdown
-                hint="Select tool"
-                value={selectedTool}
-                options={toolOptions}
-                onChange={handleAddTool}
-              />
-            </div>
-
-            {/* Sample Project URL */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={styles.label}>Sample Project</div>
-              <div style={styles.textFieldContainer}>
-                <textarea
-                  style={styles.textField}
-                  rows={1}
-                  placeholder="Project URL"
-                  value={sampleUrl}
-                  onChange={(e) => setSampleUrl(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Client Requirements */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={styles.label}>Client Requirements</span>
-                <span style={styles.helperText}>(Optional)</span>
-              </div>
-              <div style={styles.textFieldContainer}>
-                <textarea
-                  style={styles.textField}
-                  rows={4}
-                  placeholder="Describe what you need and specific details"
-                  value={clientReq}
-                  onChange={(e) => setClientReq(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div style={styles.buttonsRow}>
-              <button
-                type="button"
-                style={styles.cancelBtn}
-                onClick={() => navigate(-1)}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{
-                  ...styles.saveBtn,
-                  ...(saving ? styles.disabledBtn : {}),
-                }}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
-        </form>
       </div>
+    </div>
+  );
+}
+
+/* -------------------- SMALL UI SUBCOMPONENTS -------------------- */
+
+function SectionLabel({ label, className = "" }) {
+  return (
+    <p
+      className={`text-sm sm:text-base font-medium text-black ${className}`}
+    >
+      {label}
+    </p>
+  );
+}
+
+function YellowBox({ children, className = "" }) {
+  return (
+    <div
+      className={`mt-1 rounded-xl bg-[#FFFCCF] px-4 py-2.5 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ChipWrap({ items, onRemove }) {
+  if (!items?.length) return null;
+  return (
+    <div className="mt-1 flex flex-wrap gap-2">
+      {items.map((item) => (
+        <div
+          key={item}
+          className="inline-flex items-center gap-2 rounded-full bg-white border border-gray-300 px-3 py-1 text-xs sm:text-sm"
+        >
+          <span>{item}</span>
+          <button
+            type="button"
+            onClick={() => onRemove(item)}
+            className="text-gray-500 hover:text-black"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

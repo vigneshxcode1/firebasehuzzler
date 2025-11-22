@@ -4,7 +4,7 @@
 // Ithu la config paste pannadha.
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   getAuth,
   onAuthStateChanged,
@@ -21,9 +21,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-// 🔹 IMPORT YOUR FIREBASE INSTANCE HERE (adjust path)
-// Example:
-// import { db } from "../firebase";
+
 import { db } from "../firbase/Firebase"; // 👉 path unga project ku match pannunga
 
 // 🔔 Simple Notification Service (placeholder for Firebase Messaging etc.)
@@ -923,6 +921,7 @@ export default function ServiceScreenOne() {
             </div>
             <div style={styles.headerTitleWrapper}>
               <div style={styles.headerTitle}>Your Service</div>
+              <Link to={"/freelance-dashboard/add-service-form"}>Puls</Link>
             </div>
             {/* Right side empty spacer to center title */}
             <div style={{ width: "24px" }} />
