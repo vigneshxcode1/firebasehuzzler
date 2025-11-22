@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // NOTE: Firebase config must NOT be inside this file.
 // Create `src/firebase.js` that exports { db, auth } using Firebase v9 modular SDK.
 // Example (do this in src/firebase.js):
@@ -292,6 +292,8 @@ export default function ClientJobSearchPage() {
         <button className="filter-btn" onClick={() => setShowFilters(true)}>⚙️</button>
       </div>
 
+
+<Link to={"/client-dashbroad2/AddJobScreen"}>+plus</Link>
       {/* chips */}
       <div style={{height:12}} />
       <ChipsRow
@@ -371,7 +373,16 @@ function ChipsRow({ selectedCategory, selectedTimeline, budgetMin, budgetMax, on
     </div>
   );
 }
+ function timeAgo(date) {
+    if (!date) return "N/A";
+    const diff = (Date.now() - date.toDate()) / 1000;
+    if (diff < 60) return `${Math.floor(diff)} sec ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
+    return `${Math.floor(diff / 86400)} days ago`;
+  }
 
+  
 function JobCard({ job, onOpen }) {
   const budget = parseIntSafe(job.price ?? job.budget ?? job.budget_from ?? job.budgetFrom) || 0;
   const delivery = job.deliveryDuration || job.timeline || (job._source === 'service_24h' ? '24 Hours' : '');
@@ -387,7 +398,8 @@ function JobCard({ job, onOpen }) {
             </div>
             <div style={{display:'flex',alignItems:'center',gap:6}}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5v14" stroke="#ccc" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <div>{job.views || job.impressions || 0} views</div>
+              <div>{job.views || job.impressions || 0} impiression</div>
+                <div>{timeAgo(job.created_at)}</div>
             </div>
           </div>
           <div className="desc">{job.description}</div>

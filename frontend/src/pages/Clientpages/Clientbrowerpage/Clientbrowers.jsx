@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import img from "../../assets/profile.png";
+// import img from "../../assets/profile.png";
 import { useNavigate } from "react-router-dom";
 
-export default function FreelanceCategoryPage() {
+export default function ClientCategoryPage() {
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
 
@@ -88,17 +88,17 @@ export default function FreelanceCategoryPage() {
             key={index}
             className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
             onClick={() =>
-              navigate("/freelance-dashboard/categories", {
+              navigate("/client-dashbroad2/clientcategories", {
                 state: { category: cat },
               })
             }
           >
             <div className="w-full h-32 bg-purple-500 flex items-center justify-center">
-              <img
+              {/* <img
                 src={img}
                 className="w-full h-full object-cover opacity-90"
                 alt={cat}
-              />
+              /> */}
             </div>
 
             <div className="py-3 text-center">

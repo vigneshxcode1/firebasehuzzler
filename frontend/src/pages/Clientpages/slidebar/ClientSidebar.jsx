@@ -28,7 +28,7 @@ export default function Sidebar() {
             </button>
 
             {/* BROWSE PROJECTS */}
-            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/categories")}>
+            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/clientbrowesproject")}>
               <Search size={18} /> Browse Projects
             </button>
 

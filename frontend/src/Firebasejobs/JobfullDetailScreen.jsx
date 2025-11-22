@@ -154,10 +154,14 @@ return (
       <p style={{ margin: 0, fontSize: "16px", color: "#333" }}>
         💰 <strong>Budget:</strong> ₹{job.budget_from} - ₹{job.budget_to}
       </p>
+
+       <p style={{ margin: 0, fontSize: "16px", color: "#333" }}>
+         <strong>Time line:</strong> ₹{job.timeline}</p>
     </div>
 
     {/* Description */}
     <h3 style={{ marginTop: "16px", color: "#333" }}>Job Description</h3>
+    <h3 style={{ marginTop: "16px", color: "#333" }}>location - remote</h3>
     <p
       style={{
         fontSize: "16px",

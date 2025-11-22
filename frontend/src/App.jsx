@@ -129,6 +129,11 @@ import FreelanceCategoryPage from "./pages/Freelancerpage/FreelancerbrowesPage";
 import Clientsavedjob from "./pages/Clientpages/ClientSavedpage/Clientsavedjob"
 
 import Clientdslidesave from "./save/ClientSavedsilde"
+import Clientbrowerpage from "./pages/Clientpages/Clientbrowerpage/Clientbrowercategory"
+import Clientbrowers from "./pages/Clientpages/Clientbrowerpage/Clientbrowers"
+
+
+
 
 export default function App() {
   
@@ -171,7 +176,11 @@ const location = useLocation();
         <Route path="ClientProfile" element={<ClientProfileMenuScreen userType={"client"} />} />
         {/* <Route path="exploreclientjob" element={<ExploreClientJobScreen/>}/> */}
         <Route path="AddJobScreen" element={<AddJobScreen/>}/>
-        <Route path="categories" element={<Categories />} />
+
+       
+    <Route path="clientbrowesproject" element={<Clientbrowers/>}/>
+ <Route path="clientcategories" element={<Clientbrowerpage/>} />
+        
         <Route path="clientservicelistpage" element={<ClientServiceListPage />} />
         <Route path="serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
         <Route path="account-details" element={<AccountDetails />} />
@@ -224,9 +233,10 @@ const location = useLocation();
 
         <Route path="/freelance-dashboard/saved" element={<ExploreJobScreen/>} />
          <Route path="/freelance-dashboard/sidebarsaved" element={<Sidebarsave/>} />
+      <Route path="/freelance-dashboard/job-full/:id" element={<ClientJobFullDetailJobScreen/>} />
 
-     *    <Route path="add-service-form" element={<Freelanceaddservice/>} />
-      *   <Route path="add-24h-service" element={<Add24HoursScreen/>} />
+       <Route path="add-service-form" element={<Freelanceaddservice/>} />
+        <Route path="add-24h-service" element={<Add24HoursScreen/>} />
      
    
       </Route>

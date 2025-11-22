@@ -34,11 +34,13 @@ export default function Service24hPage() {
     }}>
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
         <h1 style={{fontSize:28, fontWeight:700}}>{job.title}</h1>
+         <h1 style={{fontSize:28, fontWeight:700}}>remote - location</h1>
         <button style={{background:'transparent', border:'none', fontSize:18, cursor:'pointer'}} onClick={() => navigate(-1)}>← Back</button>
       </div>
       <div style={{fontSize:14, color:'#555', marginTop:8}}>
         <strong>Category:</strong> {job.category || "Uncategorized"}<br/>
         <strong>Views:</strong> {job.views || 0}
+        <strong>created at:{job.created_at}</strong>
       </div>
       <p style={{marginTop:16, lineHeight:1.5, color:'#333'}}>{job.description}</p>
       <div style={{

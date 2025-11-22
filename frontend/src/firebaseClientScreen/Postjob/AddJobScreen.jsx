@@ -1,6 +1,6 @@
 // src/pages/AddJobScreen.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   collection,
   query,
@@ -169,6 +169,7 @@ export default function AddJobScreen() {
           <div className="ajs-title">Job Section</div>
         </div>
 
+        <Link to={"/client-dashbroad2/AddJobScreen"}>plus</Link>
         <div className="ajs-search-wrap">
           <div className="ajs-search" onClick={onSearchClick}>
             <span className="ajs-search-icon">🔍</span>
