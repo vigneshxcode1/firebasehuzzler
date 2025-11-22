@@ -733,9 +733,9 @@ export default function ServiceScreenOne() {
         key={job.id}
         style={styles.jobCard}
         onClick={() =>
-          navigate("/job-detail", {
+          navigate(`/freelance-dashboard/job-full/${job.id}`, {
             state: { job },
-          }) // 👉 unga route ku match pannunga
+          })
         }
       >
         {/* TOP ROW */}
@@ -1227,9 +1227,8 @@ export default function ServiceScreenOne() {
                       marginBottom: "2px",
                     }}
                   >
-                    {`${profileData.firstName || ""} ${
-                      profileData.lastName || ""
-                    }`.trim() || "User"}
+                    {`${profileData.firstName || ""} ${profileData.lastName || ""
+                      }`.trim() || "User"}
                   </div>
                   <div style={{ fontSize: "13px", color: "#757575" }}>
                     {profileData.location || "Unknown"}

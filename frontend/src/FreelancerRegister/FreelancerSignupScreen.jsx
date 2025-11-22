@@ -15,7 +15,7 @@ const Signup = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role] = useState("freelancer"); // fixed
+  const [role] = useState("freelancer");
   const [loading, setLoading] = useState(false);
 
   const showMsg = (msg) => alert(msg);
@@ -29,15 +29,18 @@ const Signup = () => {
     try {
       setLoading(true);
 
+      // Encode password BEFORE saving
+      const encodedPassword = btoa(password);
+
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const user = result.user;
 
-      // Temporary user entry
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email,
         firstName,
         lastName,
+        password: encodedPassword,   // <-- encoded password stored
         role: "freelancer",
         profileCompleted: false,
       });
@@ -48,7 +51,7 @@ const Signup = () => {
           email,
           firstName,
           lastName,
-          password,
+          password: encodedPassword,  // send encoded version
           role: "freelancer",
         },
       });

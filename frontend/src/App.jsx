@@ -205,6 +205,7 @@ const location = useLocation();
 
 
        <Route path="freelance-dashboard/job-full/:id" element={<ClientJobFullDetailJobScreen/>} />
+       
        <Route path="freelancermyworks" element={<MyWorksScreen/>}/>
       <Route path="/freelance-dashboard/jobdetailsscreen/:id" element={<FreelancerviewJobDetailScreen />} />
 
@@ -212,7 +213,8 @@ const location = useLocation();
          <Route path="/freelance-dashboard/sidebarsaved" element={<Sidebarsave/>} />
 
      *    <Route path="add-service-form" element={<Freelanceaddservice/>} />
-      *   <Route path="add-24h-service" element={<Freelanceaddservice/>} />
+      *   <Route path="add-24h-service" element={<Add24HoursScreen/>} />
+     
    
       </Route>
 

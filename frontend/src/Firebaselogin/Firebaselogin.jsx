@@ -100,7 +100,7 @@ const handleEmailLogin = async (e) => {
       });
     } 
     else if (role === "freelancer") {
-      navigate("/freelancer-loginotp", {
+      navigate("/freelancer-otp", {
         state: { email: normalizedEmail, uid },
       });
     } 

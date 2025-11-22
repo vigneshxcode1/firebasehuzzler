@@ -57,7 +57,7 @@ export default function FreelancerOtpScreen() {
     const result = await signInWithCustomToken(auth, res.data.token);
     const user = result.user;
 
-    navigate("/freelance-dashboard");
+    navigate("/freelancer-details");
 
   } catch (err) {
     alert(err?.response?.data?.message || "OTP verification failed");
