@@ -125,6 +125,7 @@ import Sidebarsave from "./save/slidebarSaved"
 import Freelancermyjob from "./Firebasejobs/Myjob/FreelancerMyjob"
 import Freelanceaddservice from "./save/FreelanceAddservice"
 import FreelancerOtpVerify from "./Firebaselogin/FreelancerOtpVerify";
+import FreelanceCategoryPage from "./pages/Freelancerpage/FreelancerbrowesPage";
 
 
 export default function App() {
@@ -194,6 +195,8 @@ const location = useLocation();
         <Route index element={<FreelanceHome />} />
          <Route path="freelanceHome" element={<FreelanceHome />} />
         <Route path="browse-projects" element={<BrowseProjects />} />
+        <Route path="freelancebrowesproject" element={<FreelanceCategoryPage/>}/>
+        
         <Route path="account-details" element={<AccountDetails />} />
         <Route path="settings" element={<Settings />} />
         <Route path="categories" element={<Categories />} />

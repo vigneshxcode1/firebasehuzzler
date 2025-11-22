@@ -125,7 +125,8 @@ useEffect(() => {
 
       <h1 style={{ marginTop: 20 }}>Recommended Projects for you</h1>
       <Link to={"/freelance-dashboard/add-service-form"}>plus</Link>
-
+      <br />
+ 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {filteredJobs.map(job => (
           <div

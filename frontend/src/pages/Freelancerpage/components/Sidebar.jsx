@@ -44,9 +44,9 @@ export default function FreelanceSideBar() {
             {/* BROWSE PROJECTS */}
             <button
               className={`nav-btn ${
-                isActive("/freelance-dashboard/categories") ? "active" : ""
+                isActive("/freelance-dashboard/freelancebrowesproject") ? "active" : ""
               }`}
-              onClick={() => navigate("/freelance-dashboard/categories")}
+              onClick={() => navigate("/freelance-dashboard/freelancebrowesproject")}
             >
               <Search size={18} /> Browse Projects
             </button>
