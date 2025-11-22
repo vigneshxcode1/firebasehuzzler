@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import img from "../../assets/profile.png";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function FreelanceCategoryPage() {
   const [searchText, setSearchText] = useState("");
+  const navigate = useNavigate();
 
   const categories = [
     "Graphic Designer",
@@ -16,7 +17,6 @@ export default function FreelanceCategoryPage() {
     "3D Artist",
   ];
 
-  // Filter categories based on search input
   const filteredCategories = searchText.trim()
     ? categories.filter((cat) =>
         cat.toLowerCase().includes(searchText.toLowerCase())
@@ -67,7 +67,8 @@ export default function FreelanceCategoryPage() {
       </div>
 
       {/* =================== BACK TO BROWSE =================== */}
-      <div className="px-6 mt-10 flex items-center gap-2 cursor-pointer w-fit">
+      <div className="px-6 mt-10 flex items-center gap-2 cursor-pointer w-fit"
+           onClick={() => navigate("/freelance-dashboard")}>
         <span className="material-icons text-gray-700">arrow_back</span>
         <p className="text-lg font-medium text-gray-700">Browse Projects</p>
       </div>
@@ -86,6 +87,11 @@ export default function FreelanceCategoryPage() {
           <div
             key={index}
             className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+            onClick={() =>
+              navigate("/freelance-dashboard/categories", {
+                state: { category: cat },
+              })
+            }
           >
             <div className="w-full h-32 bg-purple-500 flex items-center justify-center">
               <img
@@ -103,11 +109,12 @@ export default function FreelanceCategoryPage() {
           </div>
         ))}
 
-        {/* + BUTTON CARD */}
+        {/* + BUTTON */}
         <div className="bg-white rounded-full shadow-md w-12 h-12 flex items-center justify-center mt-5 ml-auto cursor-pointer hover:bg-gray-100 transition">
           <span className="material-icons text-purple-600 text-2xl">add</span>
         </div>
       </div>
+
     </div>
   );
 }

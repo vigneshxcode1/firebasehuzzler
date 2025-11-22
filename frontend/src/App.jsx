@@ -126,7 +126,9 @@ import Freelancermyjob from "./Firebasejobs/Myjob/FreelancerMyjob"
 import Freelanceaddservice from "./save/FreelanceAddservice"
 import FreelancerOtpVerify from "./Firebaselogin/FreelancerOtpVerify";
 import FreelanceCategoryPage from "./pages/Freelancerpage/FreelancerbrowesPage";
+import Clientsavedjob from "./pages/Clientpages/ClientSavedpage/Clientsavedjob"
 
+import Clientdslidesave from "./save/ClientSavedsilde"
 
 export default function App() {
   
@@ -175,7 +177,12 @@ const location = useLocation();
         <Route path="account-details" element={<AccountDetails />} />
         <Route path="PostJob" element={<PostJob/>}/>
         <Route path="add-24hours" element={<Add24HoursScreen/>}/>
-        <Route path="saved" element={<SaveJobButton/>}/>
+{/* 
+        <Route path="saved" element={<SaveJobButton/>}/> */}
+
+         <Route path="saved" element={<Clientsavedjob/>}/>
+          <Route path="Clientsaved" element={<Clientdslidesave/>}/>
+        
         <Route path="client-job-search" element={<ExploreJobs/>}/>
         <Route path="CompanyProfileScreen" element={<CompanyProfileScreen/>}/>
 

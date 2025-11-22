@@ -43,8 +43,11 @@ export default function Sidebar() {
               <User size={18} /> Profile
             </button>
 
+            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/Clientsaved")}>
+              <User size={18} /> saved
+            </button>
             {/* SETTINGS */}
-            <button className="nav-btn" onClick={() => navigate("/client-dashbroad2/settings")}>
+            <button className="nav-btn" onClick={() => navigate()}>
               <Settings size={18} /> Settings
             </button>
 
