@@ -89,20 +89,14 @@ const handleEmailLogin = async (e) => {
 
     showMsg(`OTP sent to ${normalizedEmail}`, false);
 
-    // -------------------------------------------------------
-    // 🔥 ROLE-BASED OTP PAGE REDIRECT
-    // -------------------------------------------------------
-    const role = userData.role?.toLowerCase();
+    // --------- ROLE-BASED REDIRECT ---------
+    const role = (userData.role || "").trim().toLowerCase();
 
     if (role === "client") {
-      navigate("/clientloginotp", {
-        state: { email: normalizedEmail, uid },
-      });
+      navigate("/clientloginotp", { state: { email: normalizedEmail, uid } });
     } 
     else if (role === "freelancer") {
-      navigate("/freelancer-otp", {
-        state: { email: normalizedEmail, uid },
-      });
+      navigate("/freelancer-loginotp", { state: { email: normalizedEmail, uid } });
     } 
     else {
       showMsg("User role undefined. Contact support.");

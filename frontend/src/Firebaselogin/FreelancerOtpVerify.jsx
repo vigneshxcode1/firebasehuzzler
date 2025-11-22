@@ -72,7 +72,7 @@ const FreelancerOtpVerify = () => {
       localStorage.removeItem("freelancerOtpUser");
 
       // Redirect to freelancer dashboard
-      navigate("/freelance-dashboard", {
+      navigate("/freelance-dashboard/freelanceHome", {
         state: { uid },
       });
 

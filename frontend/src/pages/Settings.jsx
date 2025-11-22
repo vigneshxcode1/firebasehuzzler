@@ -435,7 +435,7 @@ export default function AccountDetails() {
         const user = auth.currentUser;
         if (!user) {
           // if not logged in, go login
-          navigate("/login");
+          navigate("/firelogin");
           return;
         }
 

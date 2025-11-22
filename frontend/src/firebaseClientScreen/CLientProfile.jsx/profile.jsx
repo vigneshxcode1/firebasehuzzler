@@ -141,7 +141,7 @@ export default function ClientProfileMenuScreen() {
         <MenuItem
           icon="/assets/profile_icon/User_03.svg"
           title="Profile"
-          onClick={() => navigate("/CompanyProfileScreen")}
+          onClick={() => navigate("/client-dashbroad2/CompanyProfileScreen")}
         />
 
         <MenuItem

@@ -65,7 +65,7 @@ import ClientDetails2 from "./pages/Clientpages/ClientDetaildashpage/ClientDetai
 import Firelogin from "./Firebaselogin/Firebaselogin"
 import Firebaseregister from "./Firebaseregister/Firebaseregister"
 import FreelancerSignup from "./FreelancerRegister/FreelancerSignupScreen";
-import FreelancerOtp from "./FreelancerRegister/FreelancerOtpScreen";
+// import FreelancerOtp from "./FreelancerRegister/FreelancerOtpScreen";
 import FreelancerDetails from "./FreelancerRegister/FreelancerDetailsScreen";
 import SignUpClient from "./ClientRegister/signinClient";
 import OtpScreen from "./ClientRegister/otp_service";
@@ -124,6 +124,7 @@ import ExploreJobScreen from "./save/ExploreJobScreen";
 import Sidebarsave from "./save/slidebarSaved"
 import Freelancermyjob from "./Firebasejobs/Myjob/FreelancerMyjob"
 import Freelanceaddservice from "./save/FreelanceAddservice"
+import FreelancerOtpVerify from "./Firebaselogin/FreelancerOtpVerify";
 
 
 export default function App() {
@@ -175,6 +176,7 @@ const location = useLocation();
         <Route path="add-24hours" element={<Add24HoursScreen/>}/>
         <Route path="saved" element={<SaveJobButton/>}/>
         <Route path="client-job-search" element={<ExploreJobs/>}/>
+        <Route path="CompanyProfileScreen" element={<CompanyProfileScreen/>}/>
 
         <Route path="clientserachbar" element={<Clientsearchpage/>}/>
        
@@ -200,6 +202,7 @@ const location = useLocation();
         <Route path="job-24/:id" element={<JobDetail24hoursScreen />} />
         <Route path="job-full/:id" element={<JobFullDetailJobScreen />} />
        <Route path="job-full/:id" element={<JobFullDetailJobScreen />} />
+      <Route path="CompanyProfileScreen" element={<CompanyProfileScreen/>}/>
 
       <Route path="myjobs" element={<Freelancermyjob/>} />
 
@@ -263,7 +266,7 @@ const location = useLocation();
 
       {/* ========== freelance reg ========== */}
       <Route path="/freelancer-signup" element={<FreelancerSignup />} />
-      <Route path="/freelancer-otp" element={<FreelancerOtp />} />
+      <Route path="/freelancer-otp" element={<FreelancerOtpVerify/>} />
       <Route path="/freelancer-loginotp" element={<FreelancerOtpScreen/>} />
       <Route path="/freelancer-details" element={<FreelancerDetails />} />
      <Route path="/professional-status" element={<ProfessionalStatus/>} />

@@ -93,7 +93,7 @@ export default function ProfesionalStatusScreen(props) {
 
       // 🔹 After success, go to your main navigation screen route
       // Update route as per your app (e.g. "/home" or "/freelance-dashboard")
-      navigate("/freelance-dashboard", {
+      navigate("/freelance-dashboard/freelanceHome", {
         replace: true,
         state: { uid: user.uid },
       });
