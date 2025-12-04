@@ -684,7 +684,7 @@ export default function ServicePage() {
           <div className="sub-text">Timeline: {job.deliveryDuration || "no timeline"}</div>
           <div className="sub-text">Location: Remote</div>
         </div>
-        <button className="view-btn">View Profile</button>
+        <button className="view-btn" onClick={handleConnect}>View Profile</button>
       </div>
 
       {/* SKILLS */}
@@ -705,7 +705,7 @@ export default function ServicePage() {
 
       {/* BUTTONS */}
       <div className="footer-actions">
-        <button className="cancel-btn"onClick={() => navigate(-1)}style={{ cursor: "pointer" }}>
+        <button className="cancel-btn" onClick={() => navigate(-1)}style={{ cursor: "pointer" }}>
           Cancel
         </button>
         <button className="connect-btn" style={{cursor: "pointer",}} onClick={handleConnect}>

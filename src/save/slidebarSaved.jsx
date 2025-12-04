@@ -997,7 +997,7 @@ export default function ServiceScreenOne() {
       <div style={styles.cardsWrap}>{renderCards()}</div>
 
       {/* FAB */}
-      <button style={styles.fab} onClick={() => navigate("/create-service")}>+</button>
+      <button style={styles.fab} onClick={() => navigate("/freelance-dashboard/add-service-form")}>+</button>
     </div>
   );
 }
