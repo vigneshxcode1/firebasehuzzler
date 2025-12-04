@@ -313,18 +313,14 @@ import backarrow from "../assets/backarrow.png";
 import arrow from "../assets/arrow.png";
 import serviceEmpty from "../assets/service.png"; // EMPTY IMAGE
 
-//---------------------------------------------------------------
-// NOTIFICATIONS
-//---------------------------------------------------------------
+
 const NotificationService = {
   notifications: [],
   addNotification(item) { this.notifications.push(item); },
   clearAll() { this.notifications = []; },
 };
 
-//---------------------------------------------------------------
-// STYLES
-//---------------------------------------------------------------
+
 const styles = {
   page: {
     backgroundColor: "#FFFFFF",
@@ -616,9 +612,8 @@ const styles = {
   },
 };
 
-//---------------------------------------------------------------
-// HELPERS
-//---------------------------------------------------------------
+
+
 function formatBudget(val) {
   if (!val) return 0;
   const num = Number(val);
@@ -634,9 +629,7 @@ function getInitials(title) {
   return w[0][0].toUpperCase();
 }
 
-//---------------------------------------------------------------
-// MAIN COMPONENT
-//---------------------------------------------------------------
+
 export default function ServiceScreenOne() {
   const navigate = useNavigate();
   const auth = getAuth();
@@ -655,17 +648,12 @@ export default function ServiceScreenOne() {
   const [sortOption, setSortOption] = useState("newest");
   const sortRef = useRef(null);
 
-  //---------------------------------------------------------------
-  // AUTH
-  //---------------------------------------------------------------
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsub();
   }, []);
 
-  //---------------------------------------------------------------
-  // WORKS STREAM
-  //---------------------------------------------------------------
+
   useEffect(() => {
     if (!user) return;
     setServicesLoading(true);
@@ -680,9 +668,7 @@ export default function ServiceScreenOne() {
     });
   }, [user]);
 
-  //---------------------------------------------------------------
-  // 24 HOURS STREAM
-  //---------------------------------------------------------------
+
   useEffect(() => {
     if (!user) return;
     setJobs24Loading(true);
@@ -705,6 +691,7 @@ export default function ServiceScreenOne() {
   //---------------------------------------------------------------
   // PAUSE
   //---------------------------------------------------------------
+
   async function togglePause(job, collectionName, e) {
     e.stopPropagation();
     try {
@@ -718,6 +705,7 @@ export default function ServiceScreenOne() {
   //---------------------------------------------------------------
   // SEARCH + SORT
   //---------------------------------------------------------------
+
   const filterSearch = (arr) => {
     if (!searchText) return arr;
     const t = searchText.toLowerCase();
@@ -747,12 +735,13 @@ export default function ServiceScreenOne() {
   //---------------------------------------------------------------
   // EMPTY STATE
   //---------------------------------------------------------------
+
   const renderEmptyState = (btnText, onClick) => (
     <div style={styles.emptyWrap}>
       <img src={serviceEmpty} style={styles.emptyImg} />
       <div style={styles.emptyTitle}>Start your first service today.</div>
       <div style={styles.emptySub}>
-   Post a job with clear details to find toShowcase your skills with a service offering that attracts the right clients. Start now and turn your expertise into opportunities!p freelancers who can bring your vision to life.     Start by creating your first post so that clients can discover
+         Post a job with clear details to find toShowcase your skills with a service offering that attracts the right clients. Start now and turn your expertise into opportunities!p freelancers who can bring your vision to life.     Start by creating your first post so that clients can discover
         your work and reach out to you.
       </div>
 
@@ -765,6 +754,7 @@ export default function ServiceScreenOne() {
   //---------------------------------------------------------------
   // CARD UI — SHARED
   //---------------------------------------------------------------
+
   const WorkCard = (job) => {
     const initials = getInitials(job.title);
 
@@ -912,6 +902,7 @@ export default function ServiceScreenOne() {
   //---------------------------------------------------------------
   // RENDER CARDS
   //---------------------------------------------------------------
+
   const renderCards = () => {
     if (selectedTab === "Works") {
       if (servicesLoading) return <div style={{ marginTop: 40 }}>Loading...</div>;
@@ -933,6 +924,7 @@ export default function ServiceScreenOne() {
   //---------------------------------------------------------------
   // MAIN UI
   //---------------------------------------------------------------
+
   return (
     <div style={styles.page}>
       {/* HEADER */}
@@ -945,9 +937,10 @@ export default function ServiceScreenOne() {
           <div style={styles.headerTitle}>Your Service</div>
           <div style={styles.headerSubtitle}>List Your service, Reach More People</div>
         </div>
-      </div>
+    </div>
 
       {/* TABS */}
+
       <div style={styles.toggleBarWrapper}>
         <div style={styles.toggleGroup}>
           <div
@@ -955,7 +948,7 @@ export default function ServiceScreenOne() {
             onClick={() => setSelectedTab("Works")}
             style={styles.toggleButton(selectedTab === "Works")}
           >
-            Works
+           Works
           </div>
 
           <div
@@ -990,13 +983,16 @@ export default function ServiceScreenOne() {
               <div style={styles.sortMenuItem} onClick={() => setSortOption("paused")}>Paused</div>
             </div>
           )}
+
         </div>
       </div>
 
       {/* CARDS */}
+
       <div style={styles.cardsWrap}>{renderCards()}</div>
 
       {/* FAB */}
+
       <button style={styles.fab} onClick={() => navigate("/freelance-dashboard/add-service-form")}>+</button>
     </div>
   );

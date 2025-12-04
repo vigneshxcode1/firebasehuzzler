@@ -11,10 +11,12 @@ import {
   LogOut,
   Bookmark,
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { auth, db } from "../../../firbase/Firebase";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+
+
 
 export default function FreelanceSideBar() {
   const navigate = useNavigate();
@@ -26,40 +28,40 @@ export default function FreelanceSideBar() {
     role: "",
   });
 
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-    if (!currentUser) {
-      console.log("No logged-in user");
-      return;
-    }
-
-    const uid = currentUser.uid;
-    console.log("Fetched UID:", uid);
-
-    try {
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef); // FIXED
-
-      if (snap.exists()) {
-        const data = snap.data();
-
-        setUserInfo({   // FIXED
-          firstName: data.firstName || "",
-          lastName: data.lastName || "",
-          role: data.role || "",
-        });
-
-        console.log("User data:", data);
-      } else {
-        console.log("User not found in Firestore");
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        console.log("No logged-in user");
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching Firestore user:", error);
-    }
-  });
 
-  return () => unsubscribe();
-}, []);
+      const uid = currentUser.uid;
+      console.log("Fetched UID:", uid);
+
+      try {
+        const userRef = doc(db, "users", uid);
+        const snap = await getDoc(userRef); // FIXED
+
+        if (snap.exists()) {
+          const data = snap.data();
+
+          setUserInfo({   // FIXED
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            role: data.role || "",
+          });
+
+          console.log("User data:", data);
+        } else {
+          console.log("User not found in Firestore");
+        }
+      } catch (error) {
+        console.error("Error fetching Firestore user:", error);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
 
 
@@ -75,10 +77,10 @@ useEffect(() => {
           <div className="logo-box">
             {/* <div className="logo-title">  HUZZLER</div> */}
             <div className="logo-title">
-              <span>  <img src={logo} style={{ width: "53px", height:"53px" }} alt="back" /></span>
-              <span className="logo-title"style={{ marginTop:"10px" }}>HUZZLER</span>
+              <span>  <img src={logo} style={{ width: "53px", height: "53px" }} alt="back" /></span>
+              <span className="logo-title" style={{ marginTop: "10px" }}>HUZZLER</span>
             </div>
-           
+
           </div>
 
           {/* ============ NAVIGATION ============ */}
@@ -126,7 +128,7 @@ useEffect(() => {
             >
               <Bookmark size={18} /> Saved
             </button><br /><br /><br /><br /><br />
-            
+
             {/* PROFILE */}
             <button
               className={`nav-btn ${isActive("/freelance-dashboard/accountfreelancer") ? "active" : ""
@@ -138,7 +140,7 @@ useEffect(() => {
               <User size={18} /> Profile
             </button>
 
-          
+
 
 
             {/* SETTINGS */}
@@ -165,9 +167,11 @@ useEffect(() => {
           </div>
 
           <div>
-            <p className="user-name">
+            <Link to={"/freelance-dashboard/Profilebuilder"}>
+              <p className="user-name">
               {userInfo.firstName} {userInfo.lastName}
-            </p>
+            </p></Link>
+
             <p className="user-status">{userInfo.role}</p>
           </div>
         </div>

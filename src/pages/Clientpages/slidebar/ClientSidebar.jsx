@@ -1,7 +1,7 @@
 
 
 import { Home, Search, Briefcase, User, Settings, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import hire from "../../../assets/hire.png"
 import save2 from "../../../assets/save2.png"
 import { useEffect, useState } from "react";
@@ -121,7 +121,7 @@ export default function Sidebar() {
 
           <div>
             <p className="user-name">
-              {userInfo.firstName} {userInfo.lastName}
+             <Link to={"/client-dashbroad2/ClientProfile"}> {userInfo.firstName} {userInfo.lastName}</Link>
             </p>
             <p className="user-status">{userInfo.role}</p>
           </div>
