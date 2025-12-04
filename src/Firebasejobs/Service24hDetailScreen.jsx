@@ -473,6 +473,7 @@ export default function Service24hPage() {
     .substring(0, 2)
     .toUpperCase();
 
+    console.log(job)
   return (
     <div
       style={{
@@ -536,8 +537,8 @@ export default function Service24hPage() {
         </div>
 
         <div>
-          <div style={{ fontSize: 32, fontWeight: 500 }}>{job.clientName || "Helen Angle"}</div>
-          <div style={{ fontSize: 18, color: "#7C3CFF", marginTop: 4 }}>UIUX Designer</div>
+          <div style={{ fontSize: 32, fontWeight: 500 }}>{job.title|| "Helen Angle"}</div>
+          <div style={{ fontSize: 18, color: "#7C3CFF", marginTop: 4 }}>{job.category}</div>
         </div>
       </div>
 
@@ -574,10 +575,10 @@ export default function Service24hPage() {
       >
         <div>
           <div style={{ fontSize: 18, marginBottom: 4 }}>
-            <strong>Budget:</strong> ₹{job.price || "1000"} – ₹6000
+            <strong>Budget:</strong> ₹{job.budget_from} – {job.budget_to}
           </div>
           <div style={{ fontSize: 16 }}>
-            <strong>Timeline:</strong> 2 – 3 weeks
+            <strong>Timeline:</strong>{job.timeline}
           </div>
           <div style={{ fontSize: 16 }}>
             <strong>Location:</strong> Remote
