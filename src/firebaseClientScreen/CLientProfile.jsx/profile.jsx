@@ -438,7 +438,7 @@ export default function ClientProfileMenuScreen() {
           />
 
           <MenuItem img={hiring} title="Hiring"
-            onClick={() => navigate("/my-hires")}
+            onClick={() => navigate("/client-dashbroad2/my-hires")}
           />
 
           <MenuItem img={paused2} title="Paused Service"
