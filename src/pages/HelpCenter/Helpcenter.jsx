@@ -4,53 +4,53 @@ import "./helpcenter.css"
 
 
 const HelpCenter = () => {
-    const [activeTab, setActiveTab] = useState("terms");
+  const [activeTab, setActiveTab] = useState("terms");
 
-    return (
-        <div className="main" style={styles.container}>
-      
-<div style={styles.tabRow}>
+  return (
+    <div className="main" style={styles.container}>
 
-  <img className="helplogo" src={helpcenterimg} alt="" />
+      <div style={styles.tabRow}>
 
-  <h1 className="helptitle">Policy</h1>
+        <img className="helplogo" src={helpcenterimg} alt="" />
 
-  {/* Tabs */}
-  <button
-    className="terms"
-    style={activeTab === "terms" ? styles.activeTab : styles.tab}
-    onClick={() => setActiveTab("terms")}
-  >
-    Terms
-  </button>
+        <h1 className="helptitle">Policy</h1>
 
-  <button
-    className="terms"
-    style={activeTab === "privacy" ? styles.activeTab : styles.tab}
-    onClick={() => setActiveTab("privacy")}
-  >
-    Privacy
-  </button>
+        {/* Tabs */}
+        <button
+          className="terms"
+          style={activeTab === "terms" ? styles.activeTab : styles.tab}
+          onClick={() => setActiveTab("terms")}
+        >
+          Terms
+        </button>
 
-  <button
-    className="terms"
-    style={activeTab === "dei" ? styles.activeTab : styles.tab}
-    onClick={() => setActiveTab("dei")}
-  >
-    DEI
-  </button>
+        <button
+          className="terms"
+          style={activeTab === "privacy" ? styles.activeTab : styles.tab}
+          onClick={() => setActiveTab("privacy")}
+        >
+          Privacy
+        </button>
 
-</div>
+        <button
+          className="terms"
+          style={activeTab === "dei" ? styles.activeTab : styles.tab}
+          onClick={() => setActiveTab("dei")}
+        >
+          DEI
+        </button>
+
+      </div>
 
 
-            {/* Tab Content */}
-            <div style={styles.content}>
-                {activeTab === "terms" && <Terms />}
-                {activeTab === "privacy" && <Privacy />}
-                {activeTab === "dei" && <DEI />}
-            </div>
-        </div>
-    );
+      {/* Tab Content */}
+      <div style={styles.content}>
+        {activeTab === "terms" && <Terms />}
+        {activeTab === "privacy" && <Privacy />}
+        {activeTab === "dei" && <DEI />}
+      </div>
+    </div>
+  );
 };
 
 export default HelpCenter;
@@ -60,7 +60,7 @@ export default HelpCenter;
 const Terms = () => {
   return (
     <div className="p-4">
-      <h2  className="title-head">Terms of Service</h2>
+      <h2 className="title-head">Terms of Service</h2>
       <p>Last Updated: October 31, 2025</p>
 
       <p>
@@ -429,7 +429,7 @@ const Privacy = () => (
 
 const DEI = () => (
   <div className="policy-container">
-    <h2  className="title-head">Annexure B - Diversity, Inclusion, Equity (DEI) & Sustainability Policy</h2>
+    <h2 className="title-head">Annexure B - Diversity, Inclusion, Equity (DEI) & Sustainability Policy</h2>
 
     <p><strong>Last Updated:</strong> October 31, 2025</p>
 
@@ -549,9 +549,9 @@ const DEI = () => (
       <li>POSH Act, 2013 (where applicable)</li>
     </ul>
 
-    <p><strong>At Huzzler, respect is non-negotiable.</strong>  
-    We aim to facilitate connection — not division.  
-    Together, we hope to build not only productivity, but responsibility.</p>
+    <p><strong>At Huzzler, respect is non-negotiable.</strong>
+      We aim to facilitate connection — not division.
+      Together, we hope to build not only productivity, but responsibility.</p>
   </div>
 );
 
@@ -560,39 +560,48 @@ const DEI = () => (
 ============================== */
 const styles = {
   container: {
-    width: "90%",
-    margin: "40px auto",
-    padding: "10px",
-    background: "#ffffff",
-    textAlign: "center",      // content center
+    width: "100%",
+    padding: "0",            // remove padding so bar touches edges
+    margin: "0",
   },
 
   tabRow: {
+    width: "100%",           // full width bar
     display: "flex",
-    justifyContent: "center", // center tabs
-    alignItems:"center",
+    alignItems: "center",
     gap: "20px",
-    paddingBottom: "10px",
-    marginBottom: "25px",
-    borderBottom: "2px solid #e0e0e0", // bottom border line
+   backgroundColor: "#B997FF",// blue background
+    padding: "15px 25px",    // adjust padding inside the bar
+    boxSizing: "border-box",
   },
 
   tab: {
-    padding: "10px 0",
-    background: "transparent", // remove background
+     backgroundColor: "transparent",  
+    color: "#e2ff61ff",
+    padding: "10px 20px",
+
     border: "none",
-    borderBottom: "3px solid transparent", // clean
     cursor: "pointer",
-    fontWeight: "500",
-    fontSize: "16px",
   },
+
+  activeTab: {
+     backgroundColor: "transparent",        // remove selection background
+    color: "yellow",                        // highlight active text if you want
+    padding: "10px 15px",
+    border: "none",
+    borderBottom: "3px solid yellow",       // ACTIVE underline only
+    cursor: "pointer",
+    fontSize: "16px",
+    fontWeight: "600",
+  },
+
 
   activeTab: {
     padding: "10px 0",
     background: "transparent",
     border: "none",
-    borderBottom: "3px solid #d5e12bff", // violet underline
-    color: "#cfd26dff",                  // violet
+    borderBottom: "3px solid #d3df35ff", // violet underline
+    color: "#e0e715ff",                  // violet
     cursor: "pointer",
     fontWeight: "600",
     fontSize: "16px",

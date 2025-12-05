@@ -10,6 +10,7 @@
     font-weight: 100;
     font-size: 20px;
     margin-top: 10px;
+    color:black;
 }
 .helplogo{
     width: 70px;
@@ -77,5 +78,6 @@ h1{
 /* ACTIVE TAB */
 .helpcenter-tab.active {
   color: #f7ff9d; /* pale yellow text */
-  border-bottom: 3px solid #f7ff9d; /* pale yellow underline */
+  border-bottom: zspx solid #f7ff9d; /* pale yellow underline */
+
 }
