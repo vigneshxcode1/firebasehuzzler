@@ -1674,8 +1674,8 @@ export default function ClientHomeUI() {
 
                         {/* ------------------ NOTIFICATION BUTTON ------------------ */}
                         <button className="icon-btn" onClick={() => setNotifOpen(true)}>
-                            <FiBell />
-                            {pending > 0 && (
+                            
+                            {/* {pending > 0 && (
                                 <span
                                     style={{
                                         position: "absolute",
@@ -1690,7 +1690,8 @@ export default function ClientHomeUI() {
                                 >
                                     {pending}
                                 </span>
-                            )}
+                            )} */}
+                            <FiBell />
                         </button>
 
                         <div className="fh-avatar">

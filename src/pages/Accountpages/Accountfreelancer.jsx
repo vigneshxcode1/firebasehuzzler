@@ -471,7 +471,7 @@ export default function ClientProfileMenuScreen() {
           icon={settings}
           onClick={() => navigate("/freelance-dashboard/settings")}
         />
-        <MenuItem title="Help Center" icon={helpcenter} onClick={() => {}} />
+        <MenuItem title="Help Center" icon={helpcenter} onClick={() => navigate("/helpcenter")} />
         <MenuItem title="LEGAL" icon={helpcenter} onClick={() => {}} />
 
         <div style={{ marginTop: 12 }}>

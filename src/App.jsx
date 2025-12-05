@@ -151,6 +151,7 @@ import ClientPausedJobsPage from "./save/ClientPausedJobsPage";
 import FreelancerAcceptedChats from "./Firebasejobs/Chat/Freelancermessagelist";
 import MyHiresScreen from "./pages/Clientpages/CLientmyhires/MyHiresScreen";
 import CompanyProfileView from "./firebaseClientScreen/clientSetting/CompanyProfileView";
+import Helpcenter from "./pages/HelpCenter/Helpcenter";
 
 
 export default function App() {
@@ -191,7 +192,7 @@ export default function App() {
       {/* CLIENT DASHBOARD */}
       <Route path="/client-dashbroad2" element={<ClientDashboard2 />}>
         <Route index element={<Clientsearchpage />} />
-        <Route path="clienthome" element={<Clientsearchpage/>} />
+        <Route path="clienthome" element={<Clientsearchpage />} />
         <Route path="ClientProfile" element={<ClientProfileMenuScreen userType={"client"} />} />
         {/* <Route path="exploreclientjob" element={<ExploreClientJobScreen/>}/> */}
         <Route path="AddJobScreen" element={<AddJobScreen />} />
@@ -218,7 +219,7 @@ export default function App() {
 
         <Route path="edit-service/:id" element={<EditService />} />
 
-           <Route path="job-full/:id" element={<ClientJobFullDetailJobScreen />} />
+        <Route path="job-full/:id" element={<ClientJobFullDetailJobScreen />} />
 
 
         <Route path="/client-dashbroad2/clienteditjob" element={<Clienteditjob />} />
@@ -230,7 +231,7 @@ export default function App() {
         <Route path="clientNotification" element={<ClientNotification />} />
         <Route path="companyprofileview" element={<CompanyProfileView />} />
         <Route path="clientsetting" element={<Clientsetting />} />
-{/* /client-dashbroad2/clientsetting */}
+        {/* /client-dashbroad2/clientsetting */}
 
         <Route path="clientpausedjobs" element={<ClientPausedJobsPage />} />
 
@@ -288,10 +289,10 @@ export default function App() {
 
 
 
-      <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
+        <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
 
 
-      
+
 
       </Route>
 
@@ -432,6 +433,9 @@ export default function App() {
 
 
       <Route path="/job-full/:id" element={<ClientJobFullDetailJobScreen />} />
+
+
+      <Route path="/helpcenter" element={<Helpcenter/>} />
 
 
 

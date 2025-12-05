@@ -456,7 +456,9 @@ export default function ClientProfileMenuScreen() {
           <MenuItem img={settings} title="Account Settings"
             onClick={() => navigate("/client-dashbroad2/clientsetting")}
           />
-          <MenuItem img={helpcenter} title="Help Center" />
+          <MenuItem img={helpcenter}
+           title="Help Center"
+           onClick={() => navigate("/helpcenter")} />
         </div>
 
         {/* LOGOUT + DELETE */}

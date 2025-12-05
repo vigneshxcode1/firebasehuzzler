@@ -15,7 +15,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { auth, db } from "../../../firbase/Firebase";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-
+import "./Sidebar.css"
 
 
 export default function FreelanceSideBar() {
@@ -167,10 +167,11 @@ export default function FreelanceSideBar() {
           </div>
 
           <div>
-            <Link to={"/freelance-dashboard/Profilebuilder"}>
-              <p className="user-name">
-              {userInfo.firstName} {userInfo.lastName}
-            </p></Link>
+            <p className="user-name">
+              <Link id="linktoprofile" to={"/freelance-dashboard/Profilebuilder"}>
+                {userInfo.firstName} {userInfo.lastName}
+              </Link>
+            </p>
 
             <p className="user-status">{userInfo.role}</p>
           </div>
@@ -181,6 +182,7 @@ export default function FreelanceSideBar() {
 
       {/* ============ CSS ============ */}
       <style>{`
+
         .sidebar {
           width: 13rem;
           height: 100vh;

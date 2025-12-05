@@ -578,7 +578,7 @@ export default function ServicePage() {
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
 
-  // const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const styleEl = document.createElement("style");
@@ -605,18 +605,18 @@ export default function ServicePage() {
     navigate(`/connect/${job.freelancerId || job.userId}`);
   };
 
-  // const handleSave = async () => {
-  //   const user = auth.currentUser;
-  //   if (!user) {
-  //     alert("Please login");
-  //     navigate("/firelogin");
-  //     return;
-  //   }
-  //   await updateDoc(doc(db, "users", user.uid), {
-  //     savedJobs: arrayUnion(id),
-  //   });
-  //   alert("Saved!");
-  // };
+  const handleSave = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please login");
+      navigate("/firelogin");
+      return;
+    }
+    await updateDoc(doc(db, "users", user.uid), {
+      savedJobs: arrayUnion(id),
+    });
+    alert("Saved!");
+  };
 
   // FIXED: share handler
   const handleShare = () => {
@@ -636,13 +636,13 @@ export default function ServicePage() {
       {/* TOP BAR */}
       <div className="top-header">
         <div className="top-left-title">Project Details</div>
-        {/* <div onClick={handleSave} style={{ cursor: "pointer" }}>
+        <div onClick={handleSave} style={{ cursor: "pointer" }}>
           {isFavorite ? (
             <FiBookmark style={{ color: "#7B2BFF", fill: "#7B2BFF" }} />
           ) : (
             <FiBookmark />
           )}
-        </div> */}
+        </div>
         <div className="top-icons">
           <img
             src={share}
