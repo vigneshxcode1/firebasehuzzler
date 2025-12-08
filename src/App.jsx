@@ -152,6 +152,7 @@ import FreelancerAcceptedChats from "./Firebasejobs/Chat/Freelancermessagelist";
 import MyHiresScreen from "./pages/Clientpages/CLientmyhires/MyHiresScreen";
 import CompanyProfileView from "./firebaseClientScreen/clientSetting/CompanyProfileView";
 import Helpcenter from "./pages/HelpCenter/Helpcenter";
+import Job_24DetailJobScreen from "./save/Job24FullDetailScreenjob";
 
 
 export default function App() {
@@ -220,6 +221,8 @@ export default function App() {
         <Route path="edit-service/:id" element={<EditService />} />
 
         <Route path="job-full/:id" element={<ClientJobFullDetailJobScreen />} />
+      <Route path="job-full24/:id" element={<Job_24DetailJobScreen/>} />
+
 
 
         <Route path="/client-dashbroad2/clienteditjob" element={<Clienteditjob />} />

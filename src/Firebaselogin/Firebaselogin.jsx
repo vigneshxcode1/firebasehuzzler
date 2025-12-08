@@ -173,7 +173,7 @@ const handleGithubLogin = async () => {
  const res = await axios.post(BACKEND_SEND_OTP, { email: normalizedEmail });
 
  if (!res.data?.success) {
- showMsg(res.data?.message || "Failed to send OTP.");
+ showMsg(res.data?.message || "Failed to sends OTP.");
  return;
  }
 

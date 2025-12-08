@@ -1259,6 +1259,11 @@ export default function AddJobScreen() {
    navigate(`/client-dashbroad2/job-full/${job.id}`);
   };
 
+    const handleOpen24JobDetail = (job) => {
+ console.log("Job ID:", job.id); // debug to confirm
+   navigate(`/client-dashbroad2/job-full24/${job.id}`);
+  };
+
   // ---------------- RENDER HELPERS (adapted to card UI) ---------------- //
   const renderSortOption = (label) => {
     const isActive = sortType === label;
@@ -1455,7 +1460,7 @@ export default function AddJobScreen() {
 
   const render24hJobCard = (job) => {
     return (
-      <div key={job.id} style={styles.card} onClick={() => handleOpenJobDetail(job)}>
+      <div key={job.id} style={styles.card} onClick={() => handleOpen24JobDetail (job)}>
         <div style={{ position: "absolute", top: 18, right: 18, color: "#9CA3AF" }}>{">"}</div>
         <div style={styles.jobCardRowTop}>
           <div style={{ ...styles.avatarBox, width: 56, height: 56, fontSize: 20 }}>
