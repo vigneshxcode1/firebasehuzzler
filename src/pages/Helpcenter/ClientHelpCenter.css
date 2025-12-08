@@ -1,0 +1,83 @@
+.terms{
+    width: 50%;
+    background-color:none;
+    color: black;
+
+
+}
+
+.helptitle{
+    font-weight: 100;
+    font-size: 20px;
+    margin-top: 10px;
+    color:black;
+}
+.helplogo{
+    width: 70px;
+}
+.title-head{
+    color:#622AD3;
+    justify-content: center;text-align: center;
+    font-size: 40px;
+    font-weight: 400;
+ 
+}
+
+h1{
+      color:#622AD3;
+}
+
+
+/* TOP BAR WRAPPER */
+.helpcenter-top {
+  background: #c39dfa;   /* same purple from screenshot */
+  width: 100%;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* LEFT SIDE: LOGO + TITLE */
+.helpcenter-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.helpcenter-left .helplogo {
+  width: 45px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.helpcenter-left .helptitle {
+  font-size: 24px;
+  color: #000;
+  font-weight: 600;
+}
+
+/* TABS ROW */
+.helpcenter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+/* DEFAULT TAB STYLE */
+.helpcenter-tab {
+  background:violet;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding-bottom: 6px;
+  border-bottom: 3px solid transparent;
+  color: #000; /* black text */
+}
+
+/* ACTIVE TAB */
+.helpcenter-tab.active {
+  color: #f7ff9d; /* pale yellow text */
+  border-bottom: zspx solid #f7ff9d; /* pale yellow underline */
+
+}
