@@ -1925,6 +1925,1976 @@
 
 
 
+// import React, { useEffect, useRef, useState, useMemo } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import {
+//     collection,
+//     query,
+//     orderBy,
+//     onSnapshot,
+//     Timestamp,
+//     where,
+//     updateDoc,
+//     deleteDoc,
+//     doc,
+//     getDoc,
+// } from "firebase/firestore";
+// import { db, auth } from "../firbase/Firebase";
+
+// // ====== ASSETS ======
+// import browseImg1 from "../assets/Container.png";
+// import browseImg2 from "../assets/wave.png";
+// import worksImg1 from "../assets/file.png";
+// import worksImg2 from "../assets/yellowwave.png";
+// import arrow from "../assets/arrow.png";
+// import profile from "../assets/profile.png";
+
+// // ====== ICONS ======
+// import {
+//     FiSearch,
+//     FiMessageCircle,
+//     FiBell,
+//     FiPlus,
+//     FiBookmark,
+//     FiEye,
+// } from "react-icons/fi";
+// import { onAuthStateChanged } from "firebase/auth";
+
+
+
+// // ======================================================
+// // HELPERS
+// // ======================================================
+// function parseIntSafe(v) {
+//     if (v === undefined || v === null) return null;
+//     if (typeof v === "number") return Math.floor(v);
+//     const s = String(v).replace(/[^0-9]/g, "");
+//     const n = parseInt(s, 10);
+//     return Number.isNaN(n) ? null : n;
+// }
+
+// function timeAgo(input) {
+//     if (!input) return "N/A";
+//     let d = input instanceof Timestamp ? input.toDate() : new Date(input);
+//     const diff = (Date.now() - d.getTime()) / 1000;
+//     if (diff < 60) return `${Math.floor(diff)} sec ago`;
+//     if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+//     if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
+//     return `${Math.floor(diff / 86400)} days ago`;
+// }
+
+// function formatCurrency(amount) {
+//     if (!amount && amount !== 0) return "₹0";
+//     if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+//     if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
+//     return `₹${amount}`;
+// }
+
+// // ======================================================
+// // MAIN
+// // ======================================================
+// export default function     ClientHomeUI() {
+//     const navigate = useNavigate();
+
+//     const [jobs, setJobs] = useState([]);
+//     const [searchText, setSearchText] = useState("");
+//     const [suggestions, setSuggestions] = useState([]);
+//     const [savedJobs, setSavedJobs] = useState(new Set());
+//     const [userProfile, setUserProfile] = useState(null);
+
+//     const searchRef = useRef(null);
+
+//     // ================= NOTIFICATIONS ==================
+//     const [notifications, setNotifications] = useState([]);
+//     const [notifOpen, setNotifOpen] = useState(false);
+//     const [collapsed, setCollapsed] = useState(localStorage.getItem("sidebar-collapsed") === "true");
+//     const [userInfo, setUserInfo] = useState({
+//         firstName: "",
+//         lastName: "",
+//         role: "",
+//         profileImage: "",
+//     });
+
+//     const fetchUserProfile = async (uid) => {
+//         try {
+//             const snap = await getDoc(doc(db, "users", uid));
+//             if (snap.exists()) {
+//                 setUserProfile(snap.data());
+//             } else {
+//                 console.log("User profile not found");
+//             }
+//         } catch (e) {
+//             console.error("Profile fetch error:", e);
+//         }
+//     };
+
+//     useEffect(() => {
+//         const user = auth.currentUser;
+//         if (!user) return;
+//         fetchUserProfile(user.uid);
+//     }, []);
+
+
+//     useEffect(() => {
+//         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+//             if (!currentUser) return;
+//             try {
+//                 const userRef = doc(db, "users", currentUser.uid);
+//                 const snap = await getDoc(userRef);
+//                 if (snap.exists()) {
+//                     const data = snap.data();
+//                     setUserInfo({
+//                         firstName: data.firstName || "",
+//                         lastName: data.lastName || "",
+//                         role: data.role || "",
+//                         profileImage: data.profileImage || "",
+//                     });
+//                 }
+//             } catch (err) {
+//                 console.error("Error fetching user:", err);
+//             }
+//         });
+//         return unsubscribe;
+//     }, []);
+
+//         useEffect(() => {
+//         function handleToggle(e) {
+//             setCollapsed(e.detail);
+//             localStorage.setItem("sidebar-collapsed", e.detail);
+//         }
+//         window.addEventListener("sidebar-toggle", handleToggle);
+//         return () => window.removeEventListener("sidebar-toggle", handleToggle);
+//     }, []);
+
+
+//     useEffect(() => {
+//         const user = auth.currentUser;
+//         if (!user) return;
+
+//         const q = query(
+//             collection(db, "notifications"),
+//             where("clientUid", "==", user.uid)
+//         );
+
+//         return onSnapshot(q, (snap) => {
+//             setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+//         });
+//     }, []);
+
+//     const pending = notifications.filter((n) => !n.read).length;
+
+//     async function acceptNotif(item) {
+//         await updateDoc(doc(db, "notifications", item.id), { read: true });
+
+//         navigate("/chat", {
+//             state: {
+//                 currentUid: auth.currentUser.uid,
+//                 otherUid: item.freelancerId,
+//                 otherName: item.freelancerName,
+//                 otherImage: item.freelancerImage,
+//                 initialMessage: `Your application for ${item.jobTitle} accepted!`,
+//             },
+//         });
+//     }
+
+//     async function declineNotif(item) {
+//         await deleteDoc(doc(db, "notifications", item.id));
+//     }
+
+//     // ================= JOB FETCH ==================
+//     useEffect(() => {
+//         const col1 = collection(db, "services");
+//         const col2 = collection(db, "service_24h");
+
+//         const unsub1 = onSnapshot(
+//             query(col1, orderBy("createdAt", "desc")),
+//             (snap) => {
+//                 const data = snap.docs.map((d) => ({
+//                     _id: d.id,
+//                     ...d.data(),
+//                     _source: "services",
+//                 }));
+//                 setJobs((prev) => mergeJobs(prev, data));
+//             }
+//         );
+
+//         const unsub2 = onSnapshot(
+//             query(col2, orderBy("createdAt", "desc")),
+//             (snap) => {
+//                 const data = snap.docs.map((d) => ({
+//                     _id: d.id,
+//                     ...d.data(),
+//                     _source: "service_24h",
+//                 }));
+//                 setJobs((prev) => mergeJobs(prev, data));
+//             }
+//         );
+
+//         return () => {
+//             unsub1();
+//             unsub2();
+//         };
+//     }, []);
+
+//     function mergeJobs(prev, incoming) {
+//         const map = new Map();
+//         for (const p of prev) map.set(p._id + "::" + (p._source || ""), p);
+//         for (const n of incoming) map.set(n._id + "::" + (n._source || ""), n);
+//         return Array.from(map.values());
+//     }
+
+//     // ================= AUTOCOMPLETE ==================
+//     useEffect(() => {
+//         const q = searchText.trim().toLowerCase();
+//         if (!q) return setSuggestions([]);
+
+//         const setS = new Set();
+//         for (const job of jobs) {
+//             if (job.title?.toLowerCase().includes(q)) setS.add(job.title);
+//             if (Array.isArray(job.skills)) {
+//                 for (const s of job.skills) {
+//                     if (String(s).toLowerCase().includes(q)) setS.add(s);
+//                 }
+//             }
+//         }
+//         setSuggestions(Array.from(setS).slice(0, 6));
+//     }, [searchText, jobs]);
+
+//     // ================= FILTER ==================
+//     const filteredJobs = useMemo(() => {
+//         const q = searchText.trim().toLowerCase();
+
+//         return jobs
+//             .filter((j) => {
+//                 const t = (j.title || "").toLowerCase();
+//                 const d = (j.description || "").toLowerCase();
+//                 const skills = Array.isArray(j.skills)
+//                     ? j.skills.map((s) => String(s).toLowerCase())
+//                     : [];
+//                 return (
+//                     !q ||
+//                     t.includes(q) ||
+//                     d.includes(q) ||
+//                     skills.some((s) => s.includes(q))
+//                 );
+//             })
+//             .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+//     }, [jobs, searchText]);
+
+//     // ================= OPEN JOB ==================
+//     function openJob(job) {
+//         if (job._source === "service_24h")
+//             navigate(`/client-dashbroad2/service-24h/${job._id}`);
+//         else navigate(`/client-dashbroad2/service/${job._id}`);
+//     }
+
+//     function toggleSaveJob(id) {
+//         setSavedJobs((prev) => {
+//             const ns = new Set(prev);
+//             if (ns.has(id)) ns.delete(id);
+//             else ns.add(id);
+//             return ns;
+//         });
+//     }
+
+//     // ======================================================
+//     // UI
+//     // ======================================================
+//     return (
+//         <div
+//             className="fh-page rubik-font"
+//             style={{
+//         marginLeft: collapsed ? "-100px" : "120px",
+//                 transition: "margin-left 0.25s ease",
+//             }}
+//         >
+
+//             <div className="fh-container">
+//                 {/* HEADER */}
+//                 <header className="fh-header">
+//                     <div className="fh-header-left">
+//                         <h1 className="fh-title">
+//                             Welcome,
+//                             <div>{userInfo.firstName || "Huzzlers"}</div>
+//                         </h1>
+//                         <div></div> </div>
+
+//                     <div className="fh-header-right">
+
+//                             <FiMessageCircle  className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")} />
+
+
+//                         {/* ------------------ NOTIFICATION BUTTON ------------------ */}
+
+//                             <FiBell className="icon-btn" onClick={() => setNotifOpen(true)} />
+//                             {pending > 0 && (
+//                                 <span
+//                                     style={{
+//                                         position: "absolute",
+//                                         top: -3,
+//                                         right: -3,
+//                                         background: "red",
+//                                         color: "#fff",
+//                                         fontSize: "10px",
+//                                         borderRadius: "50%",
+//                                         padding: "2px 6px",
+//                                     }}
+//                                 >
+//                                     {pending}
+//                                 </span>
+//                             )}
+
+//                         <div className="fh-avatar">
+//                             <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
+//                                 <img
+//                                     src={
+//                                         userProfile?.profileImage || profile /* imported fallback */ || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+//                                     }
+//                                     alt="Profile"
+//                                 />
+//                             </Link>
+//                         </div>
+
+//                     </div>
+
+//                     {/* SEARCH */}
+//                     <div className="fh-search-row" ref={searchRef}>
+//                         <div className="fh-search fh-search-small">
+//                             <FiSearch className="search-icon" />
+//                             <input
+//                                 className="search-input"
+//                                 placeholder="Search"
+//                                 value={searchText}
+//                                 onChange={(e) => setSearchText(e.target.value)}
+//                             />
+//                             {searchText && (
+//                                 <button className="clear-btn" onClick={() => setSearchText("")}>
+//                                     ✕
+//                                 </button>
+//                             )}
+//                         </div>
+
+//                         {suggestions.length > 0 && (
+//                             <div className="autocomplete-list">
+//                                 {suggestions.map((s, i) => (
+//                                     <div
+//                                         key={i}
+//                                         className="autocomplete-item"
+//                                         onClick={() => {
+//                                             setSearchText(s);
+//                                             setSuggestions([]);
+//                                         }}
+//                                     >
+//                                         {s}
+//                                     </div>
+//                                 ))}
+//                             </div>
+//                         )}
+//                     </div>
+//                 </header>
+
+//                 {/* ================= MAIN ================= */}
+//                 <main className="fh-main">
+//                     {/* HERO */}
+//                     <section className="fh-hero">
+//                         <div
+//                             className="fh-hero-card primary"
+//                             onClick={() => navigate("/client-dashbroad2/clientcategories")}
+//                         >
+//                             <img src={browseImg1} className="hero-img img-1" />
+//                             <img src={browseImg2} className="hero-img img-2" />
+//                             <div>
+//                                 <h3>Browse All Projects</h3>
+//                                 <p>Explore verified professionals</p>
+//                             </div>
+//                             <div className="hero-right">
+//                                 <img src={arrow} className="arrow" width={25} />
+//                             </div>
+//                         </div>
+
+//                         <div
+//                             className="fh-hero-card secondary"
+//                             onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+//                         >
+//                             <img src={worksImg1} className="hero-img img-3" />
+//                             <img src={worksImg2} className="hero-img img-4" />
+//                             <div>
+//                                 <h4>Job proposal</h4>
+//                                 <p>Find the right freelancers</p>
+//                             </div>
+//                             <div className="hero-right">
+//                                 <img src={arrow} className="arrow" width={25} />
+//                             </div>
+//                         </div>
+//                     </section>
+
+//                     {/* ================= JOB LIST ================= */}
+//                     <section className="fh-section">
+//                         <div className="section-header">
+//                             <h2>Top Services for You</h2>
+//                         </div>
+
+//                         <div className="jobs-list">
+//                             {filteredJobs.map((job) => (
+//                                 <article key={job._id} className="job-card" onClick={() => openJob(job)}>
+//                                     <div className="job-card-top">
+//                                         <div>
+//                                             <h3 className="job-title">{job.title}</h3>
+//                                             <div className="job-sub">{job.category || "Service"}</div>
+//                                         </div>
+
+//                                         <div className="job-budget-wrapper">
+//                                             <div className="job-budget">{formatCurrency(parseIntSafe(job.price))}</div>
+//                                             <button
+//                                                 className={`save-btn ${savedJobs.has(job._id) ? "saved" : ""}`}
+//                                                 onClick={(e) => {
+//                                                     e.stopPropagation();
+//                                                     toggleSaveJob(job._id);
+//                                                 }}
+//                                             >
+//                                                 <FiBookmark />
+//                                             </button>
+//                                         </div>
+//                                     </div>
+
+//                                     <div className="job-skills">
+//                                         {(job.skills || []).slice(0, 3).map((skill, i) => (
+//                                             <span key={i} className="skill-chip">{skill}</span>
+//                                         ))}
+//                                     </div>
+
+//                                     <p className="job-desc">
+//                                         {job.description?.slice(0, 180)}
+//                                         {job.description?.length > 180 ? "..." : ""}
+//                                     </p>
+
+//                                     <div className="job-meta">
+//                                         <span className="views-count">
+//                                             <FiEye />
+//                                             {job.views || 0} views
+//                                         </span>
+//                                         <div>{timeAgo(job.createdAt)}</div>
+//                                         {job._source === "service_24h" && <div>⏱ 24 Hours</div>}
+//                                     </div>
+//                                 </article>
+//                             ))}
+//                         </div>
+//                     </section>
+//                 </main>
+
+//                 {/* FAB */}
+//                 <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
+//                     <FiPlus />
+//                 </button>
+//             </div>
+
+//             {/* ================= NOTIFICATION POPUP ================= */}
+//             {notifOpen && (
+//                 <div
+//                     style={{
+//                         position: "fixed",
+//                         inset: 0,
+//                         background: "rgba(0,0,0,0.4)",
+//                         backdropFilter: "blur(2px)",
+//                         display: "flex",
+//                         justifyContent: "center",
+//                         alignItems: "center",
+//                         zIndex: 999,
+//                     }}
+//                     onClick={(e) => {
+//                         if (e.target === e.currentTarget) setNotifOpen(false);
+//                     }}
+//                 >
+//                     <div
+//                         style={{
+//                             width: "90%",
+//                             maxWidth: 420,
+//                             background: "#fff",
+//                             padding: 20,
+//                             borderRadius: 16,
+//                             maxHeight: "80vh",
+//                             overflowY: "auto",
+//                         }}
+//                     >
+//                         <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+
+//                         {notifications.length === 0 && (
+//                             <div style={{ padding: 20, textAlign: "center" }}>No notifications</div>
+//                         )}
+
+//                         {notifications.map((item, i) => (
+//                             <div
+//                                 key={i}
+//                                 style={{
+//                                     display: "flex",
+//                                     alignItems: "center",
+//                                     marginBottom: 15,
+//                                     background: "#f7f7f7",
+//                                     padding: 10,
+//                                     borderRadius: 10,
+//                                 }}
+//                             >
+//                                 <img
+//                                     src={item.freelancerImage || profile}
+//                                     width={48}
+//                                     height={48}
+//                                     style={{ borderRadius: "50%", marginRight: 10 }}
+//                                 />
+
+//                                 <div style={{ flex: 1 }}>
+//                                     <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
+//                                     <div>applied for {item.jobTitle}</div>
+//                                 </div>
+
+//                                 {!item.read ? (
+//                                     <>
+//                                         <button onClick={() => acceptNotif(item)} style={{ marginRight: 8 }}>
+//                                             ✅
+//                                         </button>
+//                                         <button onClick={() => declineNotif(item)}>❌</button>
+//                                     </>
+//                                 ) : (
+//                                     <button onClick={() => acceptNotif(item)}>💬</button>
+//                                 )}
+//                             </div>
+//                         ))}
+
+//                         <button
+//                             style={{
+//                                 marginTop: 10,
+//                                 width: "100%",
+//                                 padding: 10,
+//                                 borderRadius: 10,
+//                                 background: "#000",
+//                                 color: "#fff",
+//                             }}
+//                             onClick={() => setNotifOpen(false)}
+//                         >
+//                             Close
+//                         </button>
+//                     </div>
+//                 </div>
+//             )}
+
+//             {/* Embedded CSS */}
+//             <style>{`
+//  .autocomplete-list {
+//  position: absolute;
+//  background: #fff;
+//  width: 100%;
+//  border: 1px solid #ddd;
+//  border-radius: 8px;
+//  margin-top: 4px;
+//  z-index: 20;
+//  }
+//  .autocomplete-item {
+//  padding: 8px 12px;
+//  cursor: pointer;
+//  }
+//  .autocomplete-item:hover {
+//  background: #eee;
+//  }
+//  .save-btn.saved {
+//  color: orange;
+//  }
+//  `}</style>
+//         </div>
+//     );
+// }
+
+
+
+
+// import React, { useEffect, useRef, useState, useMemo } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import {
+//     collection,
+//     query,
+//     orderBy,
+//     onSnapshot,
+//     Timestamp,
+//     where,
+//     updateDoc,
+//     deleteDoc,
+//     doc,
+//     getDoc,
+// } from "firebase/firestore";
+// import { db, auth } from "../firbase/Firebase";
+
+// // ====== ASSETS ======
+// import browseImg1 from "../assets/Container.png";
+// import browseImg2 from "../assets/wave.png";
+// import worksImg1 from "../assets/file.png";
+// import worksImg2 from "../assets/yellowwave.png";
+// import arrow from "../assets/arrow.png";
+// import profile from "../assets/profile.png";
+
+// // ====== ICONS ======
+// import {
+//     FiSearch,
+//     FiMessageCircle,
+//     FiBell,
+//     FiPlus,
+//     FiBookmark,
+//     FiEye,
+//     FiClock,
+// } from "react-icons/fi";
+// import { onAuthStateChanged } from "firebase/auth";
+
+
+// // ======================================================
+// // HELPERS
+// // ======================================================
+// function parseIntSafe(v) {
+//     if (v === undefined || v === null) return null;
+//     if (typeof v === "number") return Math.floor(v);
+//     const s = String(v).replace(/[^0-9]/g, "");
+//     const n = parseInt(s, 10);
+//     return Number.isNaN(n) ? null : n;
+// }
+
+// function timeAgo(input) {
+//     if (!input) return "N/A";
+//     let d = input instanceof Timestamp ? input.toDate() : new Date(input);
+//     const diff = (Date.now() - d.getTime()) / 1000;
+//     if (diff < 60) return `${Math.floor(diff)} sec ago`;
+//     if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+//     if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
+//     return `${Math.floor(diff / 86400)} days ago`;
+// }
+
+// function formatCurrency(amount) {
+//     if (!amount && amount !== 0) return "₹0";
+//     if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+//     if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
+//     return `₹${amount}`;
+// }
+
+// // ======================================================
+// // MAIN
+// // ======================================================
+// export default function ClientHomeUI() {
+//     const navigate = useNavigate();
+
+//     const [jobs, setJobs] = useState([]);
+//     const [searchText, setSearchText] = useState("");
+//     const [suggestions, setSuggestions] = useState([]);
+//     const [savedJobs, setSavedJobs] = useState(new Set());
+//     const [userProfile, setUserProfile] = useState(null);
+
+//     const searchRef = useRef(null);
+
+//     // ================= NOTIFICATIONS ==================
+//     const [notifications, setNotifications] = useState([]);
+//     const [notifOpen, setNotifOpen] = useState(false);
+//     const [collapsed, setCollapsed] = useState(localStorage.getItem("sidebar-collapsed") === "true");
+//     const [userInfo, setUserInfo] = useState({
+//         firstName: "",
+//         lastName: "",
+//         role: "",
+//         profileImage: "",
+//     });
+
+//     const fetchUserProfile = async (uid) => {
+//         try {
+//             const snap = await getDoc(doc(db, "users", uid));
+//             if (snap.exists()) {
+//                 setUserProfile(snap.data());
+//             }
+//         } catch (e) {
+//             console.error("Profile fetch error:", e);
+//         }
+//     };
+
+//     useEffect(() => {
+//         const user = auth.currentUser;
+//         if (!user) return;
+//         fetchUserProfile(user.uid);
+//     }, []);
+
+//     useEffect(() => {
+//         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+//             if (!currentUser) return;
+//             try {
+//                 const userRef = doc(db, "users", currentUser.uid);
+//                 const snap = await getDoc(userRef);
+//                 if (snap.exists()) {
+//                     const data = snap.data();
+//                     setUserInfo({
+//                         firstName: data.firstName || "",
+//                         lastName: data.lastName || "",
+//                         role: data.role || "",
+//                         profileImage: data.profileImage || "",
+//                     });
+//                 }
+//             } catch (err) {
+//                 console.error("Error fetching user:", err);
+//             }
+//         });
+//         return unsubscribe;
+//     }, []);
+
+//     useEffect(() => {
+//         function handleToggle(e) {
+//             setCollapsed(e.detail);
+//             localStorage.setItem("sidebar-collapsed", e.detail);
+//         }
+//         window.addEventListener("sidebar-toggle", handleToggle);
+//         return () => window.removeEventListener("sidebar-toggle", handleToggle);
+//     }, []);
+
+//     useEffect(() => {
+//         const user = auth.currentUser;
+//         if (!user) return;
+
+//         const q = query(
+//             collection(db, "notifications"),
+//             where("clientUid", "==", user.uid)
+//         );
+
+//         return onSnapshot(q, (snap) => {
+//             setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+//         });
+//     }, []);
+
+//     const pending = notifications.filter((n) => !n.read).length;
+
+//     async function acceptNotif(item) {
+//         await updateDoc(doc(db, "notifications", item.id), { read: true });
+
+//         navigate("/chat", {
+//             state: {
+//                 currentUid: auth.currentUser.uid,
+//                 otherUid: item.freelancerId,
+//                 otherName: item.freelancerName,
+//                 otherImage: item.freelancerImage,
+//                 initialMessage: `Your application for ${item.jobTitle} accepted!`,
+//             },
+//         });
+//     }
+
+//     async function declineNotif(item) {
+//         await deleteDoc(doc(db, "notifications", item.id));
+//     }
+
+//     // ================= JOB FETCH ==================
+//     useEffect(() => {
+//         const col1 = collection(db, "services");
+//         const col2 = collection(db, "service_24h");
+
+//         const unsub1 = onSnapshot(
+//             query(col1, orderBy("createdAt", "desc")),
+//             (snap) => {
+//                 const data = snap.docs.map((d) => ({
+//                     _id: d.id,
+//                     ...d.data(),
+//                     _source: "services",
+//                 }));
+//                 setJobs((prev) => mergeJobs(prev, data));
+//             }
+//         );
+
+//         const unsub2 = onSnapshot(
+//             query(col2, orderBy("createdAt", "desc")),
+//             (snap) => {
+//                 const data = snap.docs.map((d) => ({
+//                     _id: d.id,
+//                     ...d.data(),
+//                     _source: "service_24h",
+//                 }));
+//                 setJobs((prev) => mergeJobs(prev, data));
+//             }
+//         );
+
+//         return () => {
+//             unsub1();
+//             unsub2();
+//         };
+//     }, []);
+
+//     function mergeJobs(prev, incoming) {
+//         const map = new Map();
+//         for (const p of prev) map.set(p._id + "::" + (p._source || ""), p);
+//         for (const n of incoming) map.set(n._id + "::" + (n._source || ""), n);
+//         return Array.from(map.values());
+//     }
+
+//     // ================= AUTOCOMPLETE ==================
+//     useEffect(() => {
+//         const q = searchText.trim().toLowerCase();
+//         if (!q) return setSuggestions([]);
+
+//         const setS = new Set();
+//         for (const job of jobs) {
+//             if (job.title?.toLowerCase().includes(q)) setS.add(job.title);
+//             if (Array.isArray(job.skills)) {
+//                 for (const s of job.skills) {
+//                     if (String(s).toLowerCase().includes(q)) setS.add(s);
+//                 }
+//             }
+//         }
+//         setSuggestions(Array.from(setS).slice(0, 6));
+//     }, [searchText, jobs]);
+
+//     // ================= FILTER ==================
+//     const filteredJobs = useMemo(() => {
+//         const q = searchText.trim().toLowerCase();
+
+//         return jobs
+//             .filter((j) => {
+//                 const t = (j.title || "").toLowerCase();
+//                 const d = (j.description || "").toLowerCase();
+//                 const skills = Array.isArray(j.skills)
+//                     ? j.skills.map((s) => String(s).toLowerCase())
+//                     : [];
+//                 return (
+//                     !q ||
+//                     t.includes(q) ||
+//                     d.includes(q) ||
+//                     skills.some((s) => s.includes(q))
+//                 );
+//             })
+//             .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+//     }, [jobs, searchText]);
+
+//     // ================= OPEN JOB ==================
+//     function openJob(job) {
+//         if (job._source === "service_24h")
+//             navigate(`/client-dashbroad2/service-24h/${job._id}`);
+//         else navigate(`/client-dashbroad2/service/${job._id}`);
+//     }
+
+//     function toggleSaveJob(id) {
+//         setSavedJobs((prev) => {
+//             const ns = new Set(prev);
+//             if (ns.has(id)) ns.delete(id);
+//             else ns.add(id);
+//             return ns;
+//         });
+//     }
+
+//     // ======================================================
+//     // UI
+//     // ======================================================
+//     return (
+//         <div
+//             className="fh-page rubik-font"
+//             style={{
+//                 marginLeft: collapsed ? "-111px" : "110px",
+//                 transition: "margin-left 0.25s ease",
+//             }}
+//         >
+
+//             <div className="fh-container">
+//                 {/* HEADER */}
+//                 <header className="fh-header">
+//                     <div className="fh-header-left">
+//                         <h1 className="fh-title">
+//                             Welcome
+//                             <div>{userInfo.firstName || "Huzzlers"}</div>
+//                         </h1>
+//                     </div>
+
+//                     <div className="fh-header-right">
+//                         <FiMessageCircle className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")} />
+
+//                         <FiBell className="icon-btn" onClick={() => setNotifOpen(true)} />
+//                         {pending > 0 && (
+//                             <span
+//                                 style={{
+//                                     position: "absolute",
+//                                     top: -3,
+//                                     right: -3,
+//                                     background: "red",
+//                                     color: "#fff",
+//                                     fontSize: "10px",
+//                                     borderRadius: "50%",
+//                                     padding: "2px 6px",
+//                                 }}
+//                             >
+//                                 {pending}
+//                             </span>
+//                         )}
+
+//                         <div className="fh-avatar">
+//                             <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
+//                                 <img
+//                                     src={
+//                                         userProfile?.profileImage || profile
+//                                     }
+//                                     alt="Profile"
+//                                 />
+//                             </Link>
+//                         </div>
+//                     </div>
+
+//                     {/* SEARCH */}
+//                     <div className="fh-search-row" ref={searchRef}>
+//                         <div className="fh-search fh-search-small">
+//                             <FiSearch className="search-icon" />
+//                             <input
+//                                 className="search-input"
+//                                 placeholder="Search"
+//                                 value={searchText}
+//                                 onChange={(e) => setSearchText(e.target.value)}
+//                             />
+//                             {searchText && (
+//                                 <button className="clear-btn" onClick={() => setSearchText("")}>
+//                                     ✕
+//                                 </button>
+//                             )}
+//                         </div>
+
+//                         {suggestions.length > 0 && (
+//                             <div className="autocomplete-list">
+//                                 {suggestions.map((s, i) => (
+//                                     <div
+//                                         key={i}
+//                                         className="autocomplete-item"
+//                                         onClick={() => {
+//                                             setSearchText(s);
+//                                             setSuggestions([]);
+//                                         }}
+//                                     >
+//                                         {s}
+//                                     </div>
+//                                 ))}
+//                             </div>
+//                         )}
+//                     </div>
+//                 </header>
+
+//                 {/* ================= MAIN ================= */}
+//                 <main className="fh-main">
+//                     {/* HERO */}
+//                     <section className="fh-hero">
+//                         <div
+//                             className="fh-hero-card primary"
+//                             onClick={() => navigate("/client-dashbroad2/clientcategories")}
+//                         >
+//                             <img src={browseImg1} className="hero-img img-1" />
+//                             <img src={browseImg2} className="hero-img img-2" />
+//                             <div>
+//                                 <h3>Browse All Projects</h3>
+//                                 <p>Explore verified professionals</p>
+//                             </div>
+//                             <div className="hero-right">
+//                                 <img src={arrow} className="arrow" width={25} />
+//                             </div>
+//                         </div>
+
+//                         <div
+//                             className="fh-hero-card secondary"
+//                             onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+//                         >
+//                             <img src={worksImg1} className="hero-img img-3" />
+//                             <img src={worksImg2} className="hero-img img-4" />
+//                             <div>
+//                                 <h4>Job proposal</h4>
+//                                 <p>Find the right freelancers</p>
+//                             </div>
+//                             <div className="hero-right">
+//                                 <img src={arrow} className="arrow" width={25} />
+//                             </div>
+//                         </div>
+//                     </section>
+
+//                     {/* ================= JOB LIST ================= */}
+//                     <section className="fh-section">
+//                         <div className="section-header">
+//                             <h2>Top Services for You</h2>
+//                         </div>
+
+//                         <div className="jobs-list">
+
+//                             {/* ============================================
+//                                 UPDATED JOB CARD (NEW UI)
+//                                ============================================ */}
+//                             {filteredJobs.map((job) => (
+//                                 <article
+//                                     key={job._id}
+//                                     className="job-card-new"
+//                                     onClick={() => openJob(job)}
+//                                 >
+//                                     <div className="job-header-row">
+//                                         <div>
+//                                             <h3 className="job-title-new">{job.title}</h3>
+
+//                                             {/* B) Show company only if exists */}
+//                                             {job.companyName && (
+//                                                 <div className="job-company-new">{job.companyName}</div>
+//                                             )}
+//                                         </div>
+
+//                                         <div className="job-price-box">
+//                                             <div className="job-price-new">
+//                                                 {formatCurrency(parseIntSafe(job.price))}/day
+//                                             </div>
+
+//                                             <button
+//                                                 className={`bookmark-btn ${savedJobs.has(job._id) ? "active" : ""}`}
+//                                                 onClick={(e) => {
+//                                                     e.stopPropagation();
+//                                                     toggleSaveJob(job._id);
+//                                                 }}
+//                                             >
+//                                                 <FiBookmark />
+//                                             </button>
+//                                         </div>
+//                                     </div>
+
+//                                     {(job.skills || []).length > 0 && (
+//                                         <div className="skills-section">
+//                                             <div className="skills-label">Skills</div>
+//                                             <div className="skill-row">
+//                                                 {job.skills.slice(0, 3).map((s, i) => (
+//                                                     <span key={i} className="skill-chip-new">{s}</span>
+//                                                 ))}
+//                                             </div>
+//                                         </div>
+//                                     )}
+
+
+//                                     <p className="job-desc-new">
+//                                         {job.description?.slice(0, 140)}
+//                                         {job.description?.length > 140 && "..."}
+//                                     </p>
+
+//                                     <div className="job-footer-new">
+//                                         <span className="meta-group">
+//                                             <span className="views">
+//                                                 <FiEye /> {job.views || 0}
+//                                             </span>
+
+//                                             <span className="time">
+//                                                 <FiClock /> {timeAgo(job.createdAt)}
+//                                             </span>
+//                                         </span>
+//                                     </div>
+
+//                                 </article>
+//                             ))}
+
+//                         </div>
+//                     </section>
+//                 </main>
+
+//                 {/* FAB */}
+//                 <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
+//                     <FiPlus />
+//                 </button>
+//             </div>
+
+//             {/* ================= NOTIFICATION POPUP ================= */}
+//             {notifOpen && (
+//                 <div
+//                     style={{
+//                         position: "fixed",
+//                         inset: 0,
+//                         background: "rgba(0,0,0,0.4)",
+//                         backdropFilter: "blur(2px)",
+//                         display: "flex",
+//                         justifyContent: "center",
+//                         alignItems: "center",
+//                         zIndex: 999,
+//                     }}
+//                     onClick={(e) => {
+//                         if (e.target === e.currentTarget) setNotifOpen(false);
+//                     }}
+//                 >
+//                     <div
+//                         style={{
+//                             width: "90%",
+//                             maxWidth: 420,
+//                             background: "#fff",
+//                             padding: 20,
+//                             borderRadius: 16,
+//                             maxHeight: "80vh",
+//                             overflowY: "auto",
+//                         }}
+//                     >
+//                         <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+
+//                         {notifications.length === 0 && (
+//                             <div style={{ padding: 20, textAlign: "center" }}>No notifications</div>
+//                         )}
+
+//                         {notifications.map((item, i) => (
+//                             <div
+//                                 key={i}
+//                                 style={{
+//                                     display: "flex",
+//                                     alignItems: "center",
+//                                     marginBottom: 15,
+//                                     background: "#f7f7f7",
+//                                     padding: 10,
+//                                     borderRadius: 10,
+//                                 }}
+//                             >
+//                                 <img
+//                                     src={item.freelancerImage || profile}
+//                                     width={48}
+//                                     height={48}
+//                                     style={{ borderRadius: "50%", marginRight: 10 }}
+//                                 />
+
+//                                 <div style={{ flex: 1 }}>
+//                                     <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
+//                                     <div>applied for {item.jobTitle}</div>
+//                                 </div>
+
+//                                 {!item.read ? (
+//                                     <>
+//                                         <button onClick={() => acceptNotif(item)} style={{ marginRight: 8 }}>
+//                                             ✅
+//                                         </button>
+//                                         <button onClick={() => declineNotif(item)}>❌</button>
+//                                     </>
+//                                 ) : (
+//                                     <button onClick={() => acceptNotif(item)}>💬</button>
+//                                 )}
+//                             </div>
+//                         ))}
+
+//                         <button
+//                             style={{
+//                                 marginTop: 10,
+//                                 width: "100%",
+//                                 padding: 10,
+//                                 borderRadius: 10,
+//                                 background: "#000",
+//                                 color: "#fff",
+//                             }}
+//                             onClick={() => setNotifOpen(false)}
+//                         >
+//                             Close
+//                         </button>
+//                     </div>
+//                 </div>
+//             )}
+
+//             {/* ===================== INLINE CSS ===================== */}
+//             <style>{`
+// /* ===================== NEW JOB CARD UI ===================== */
+// .job-card-new {
+//     background: #fff;
+//     border-radius: 18px;
+//     padding: 20px;
+//     margin-bottom: 18px;
+//     box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+//     cursor: pointer;
+//     transition: 0.2s;
+//     width:95%;
+// }
+
+// .job-card-new:hover {
+//     transform: translateY(-2px);
+// }
+
+// .job-header-row {
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: flex-start;
+//     flex-wrap: wrap;
+// }
+
+// .job-title-new {
+//     font-size: 18px;
+//     margin: 0;
+//     font-weight: 600;
+// }
+
+// .job-company-new {
+//     font-size: 14px;
+//     color: #777;
+//     margin-top: 4px;
+// }
+
+// .job-price-box {
+//     text-align: right;
+//     margin-top: 10px;
+// }
+
+// .job-price-new {
+//     font-size: 15px;
+//     font-weight: 600;
+//     color: #333;
+// }
+//     .fh-search-small {
+//     display: flex;
+//     align-items: center;
+//     background: #fff;
+//     border-radius: 10px;
+//     padding: 4px 10px; /* reduce vertical padding */
+//     height: 32px;       /* smaller height */
+//     border: 1px solid #ddd;
+// }
+
+// .search-input {
+//     border: none;
+//     outline: none;
+//     flex: 1;
+//     font-size: 14px;
+//     height: 24px; /* match smaller height */
+//     padding: 0;   /* remove extra padding */
+//     margin-left:10px;
+// }
+
+// .search-icon {
+//     font-size: 16px;
+//     margin-right: 6px;
+//     margin-top:-2px;
+// }
+
+// .clear-btn {
+//     background: none;
+//     border: none;
+//     font-size: 14px;
+//     cursor: pointer;
+//     padding: 0 4px;
+// }
+
+
+// .bookmark-btn {
+//     background: none;
+//     border: none;
+//     font-size: 22px;
+//     color: #bbb;
+//     cursor: pointer;
+//     margin-top: 6px;
+// }
+
+// .bookmark-btn.active {
+//     color: purple;
+
+// }
+
+// .skill-row {
+
+//     display: flex;
+//     flex-wrap: wrap;
+//     gap: 10px;
+//     margin: 12px 0;
+// }
+
+// .skill-chip-new {
+//     background: rgba(255, 240, 133, 0.7);
+//     padding: 5px 12px;
+//     font-size: 12px;
+//     border-radius: 20px;
+// }
+//     .skills-section {
+//     margin: 12px 0;
+// }
+
+// .skills-label {
+// margin-top:-25px;
+//     font-size: 13px;
+//     font-weight: 500;
+//     color: #555;
+//     margin-bottom: 6px;
+// }
+
+
+// .job-desc-new {
+//     font-size: 14px;
+//     color: #444;
+//     margin-bottom: 12px;
+//     line-height: 1.4;
+// }
+
+// .job-footer-new {
+//     display: flex;
+//     justify-content: space-between;
+//     font-size: 13px;
+//     color: #777;
+//     flex-wrap: wrap;
+//     gap: 8px;
+// }
+
+// .job-footer-new .views {
+//     display: flex;
+//     align-items: center;
+//     gap: 5px;
+// }
+
+// /* ===================== AUTOCOMPLETE ===================== */
+// .autocomplete-list {
+//     position: absolute;
+//     background: #fff;
+//     width: 100%;
+//     border: 1px solid #ddd;
+//     border-radius: 8px;
+//     margin-top: 4px;
+//     z-index: 20;
+// }
+// .autocomplete-item {
+//     padding: 8px 12px;
+//     cursor: pointer;
+// }
+// .autocomplete-item:hover {
+//     background: #eee;
+// }
+
+// .meta-group {
+//     display: flex;
+//     align-items: center;
+//     gap: 12px;
+//     color: #777;
+//     font-size: 13px;
+// }
+
+// .meta-group svg {
+//     margin-right: 4px;
+// }
+
+// .time {
+//     display: flex;
+//     align-items: center;
+//     gap: 4px;
+// }
+
+// /* ===================== RESPONSIVE STYLES ===================== */
+// @media (max-width: 1024px) {
+//     .fh-hero {
+//         flex-direction: column;
+//         gap: 15px;
+//     }
+
+//     .fh-hero-card {
+//         width: 100%;
+//         flex-direction: row;
+//         justify-content: space-between;
+//         align-items: center;
+//         padding: 15px;
+//     }
+
+//     .job-header-row {
+//         flex-direction: column;
+//         align-items: flex-start;
+//     }
+
+//     .job-price-box {
+//         text-align: left;
+//         margin-top: 8px;
+//     }
+// }
+
+// @media (max-width: 768px) {
+//     .fh-page {
+//         margin-left: 0 !important;
+//     }
+
+//     .fh-header {
+//         flex-direction: column;
+//         align-items: flex-start;
+//         gap: 10px;
+//     }
+
+//     .fh-search-row {
+//         width: 100%;
+//     }
+
+//     .jobs-list {
+//         gap: 12px;
+//     }
+
+//     .job-card-new {
+//         padding: 15px;
+//     }
+// }
+
+// @media (max-width: 480px) {
+//     .job-title-new {
+//         font-size: 16px;
+//     }
+
+//     .job-desc-new {
+//         font-size: 13px;
+//     }
+
+//     .skill-chip-new {
+//         font-size: 11px;
+//         padding: 4px 10px;
+//     }
+
+//     .fh-fab {
+//         bottom: 15px;
+//         right: 15px;
+//     }
+// }
+// `}</style>
+
+//         </div>
+//     );
+// }
+
+
+
+
+// import React, { useEffect, useRef, useState, useMemo } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import {
+//     collection,
+//     query,
+//     orderBy,
+//     onSnapshot,
+//     Timestamp,
+//     where,
+//     updateDoc,
+//     deleteDoc,
+//     doc,
+//     getDoc,
+// } from "firebase/firestore";
+// import { db, auth } from "../firbase/Firebase";
+
+// // ====== ASSETS ======
+// import browseImg1 from "../assets/Container.png";
+// import browseImg2 from "../assets/wave.png";
+// import worksImg1 from "../assets/file.png";
+// import worksImg2 from "../assets/yellowwave.png";
+// import arrow from "../assets/arrow.png";
+// import profile from "../assets/profile.png";
+
+// // ====== ICONS ======
+// import {
+//     FiSearch,
+//     FiMessageCircle,
+//     FiBell,
+//     FiPlus,
+//     FiBookmark,
+//     FiEye,
+// } from "react-icons/fi";
+// import { onAuthStateChanged } from "firebase/auth";
+
+// // ======================================================
+// // HELPERS
+// // ======================================================
+// function parseIntSafe(v) {
+//     if (v === undefined || v === null) return null;
+//     if (typeof v === "number") return Math.floor(v);
+//     const s = String(v).replace(/[^0-9]/g, "");
+//     const n = parseInt(s, 10);
+//     return Number.isNaN(n) ? null : n;
+// }
+
+// function timeAgo(input) {
+//     if (!input) return "N/A";
+//     let d = input instanceof Timestamp ? input.toDate() : new Date(input);
+//     const diff = (Date.now() - d.getTime()) / 1000;
+//     if (diff < 60) return `${Math.floor(diff)} sec ago`;
+//     if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+//     if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
+//     return `${Math.floor(diff / 86400)} days ago`;
+// }
+
+// function formatCurrency(amount) {
+//     if (!amount && amount !== 0) return "₹0";
+//     if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+//     if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
+//     return `₹${amount}`;
+// }
+
+// // ======================================================
+// // MAIN
+// // ======================================================
+// export default function ClientHomeUI() {
+//     const navigate = useNavigate();
+
+//     const [jobs, setJobs] = useState([]);
+//     const [searchText, setSearchText] = useState("");
+//     const [suggestions, setSuggestions] = useState([]);
+//     const [savedJobs, setSavedJobs] = useState(new Set());
+//     const [userProfile, setUserProfile] = useState(null);
+
+//     const searchRef = useRef(null);
+
+//     // ================= NOTIFICATIONS ==================
+//     const [notifications, setNotifications] = useState([]);
+//     const [notifOpen, setNotifOpen] = useState(false);
+
+//     const [userInfo, setUserInfo] = useState({
+//         firstName: "",
+//         lastName: "",
+//         role: "",
+//         profileImage: "",
+//     });
+
+//     const fetchUserProfile = async (uid) => {
+//         try {
+//             const snap = await getDoc(doc(db, "users", uid));
+//             if (snap.exists()) {
+//                 setUserProfile(snap.data());
+//             } else {
+//                 console.log("User profile not found");
+//             }
+//         } catch (e) {
+//             console.error("Profile fetch error:", e);
+//         }
+//     };
+
+//     useEffect(() => {
+//         const user = auth.currentUser;
+//         if (!user) return;
+//         fetchUserProfile(user.uid);
+//     }, []);
+
+
+//     useEffect(() => {
+//         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+//             if (!currentUser) return;
+//             try {
+//                 const userRef = doc(db, "users", currentUser.uid);
+//                 const snap = await getDoc(userRef);
+//                 if (snap.exists()) {
+//                     const data = snap.data();
+//                     setUserInfo({
+//                         firstName: data.firstName || "",
+//                         lastName: data.lastName || "",
+//                         role: data.role || "",
+//                         profileImage: data.profileImage || "",
+//                     });
+//                 }
+//             } catch (err) {
+//                 console.error("Error fetching user:", err);
+//             }
+//         });
+//         return unsubscribe;
+//     }, []);
+
+
+
+//     useEffect(() => {
+//         const user = auth.currentUser;
+//         if (!user) return;
+
+//         const q = query(
+//             collection(db, "notifications"),
+//             where("clientUid", "==", user.uid)
+//         );
+
+//         return onSnapshot(q, (snap) => {
+//             setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+//         });
+//     }, []);
+
+//     const pending = notifications.filter((n) => !n.read).length;
+
+//     async function acceptNotif(item) {
+//         await updateDoc(doc(db, "notifications", item.id), { read: true });
+
+//         navigate("/chat", {
+//             state: {
+//                 currentUid: auth.currentUser.uid,
+//                 otherUid: item.freelancerId,
+//                 otherName: item.freelancerName,
+//                 otherImage: item.freelancerImage,
+//                 initialMessage: `Your application for ${item.jobTitle} accepted!`,
+//             },
+//         });
+//     }
+
+//     async function declineNotif(item) {
+//         await deleteDoc(doc(db, "notifications", item.id));
+//     }
+
+//     // ================= JOB FETCH ==================
+//     useEffect(() => {
+//         const col1 = collection(db, "services");
+//         const col2 = collection(db, "service_24h");
+
+//         const unsub1 = onSnapshot(
+//             query(col1, orderBy("createdAt", "desc")),
+//             (snap) => {
+//                 const data = snap.docs.map((d) => ({
+//                     _id: d.id,
+//                     ...d.data(),
+//                     _source: "services",
+//                 }));
+//                 setJobs((prev) => mergeJobs(prev, data));
+//             }
+//         );
+
+//         const unsub2 = onSnapshot(
+//             query(col2, orderBy("createdAt", "desc")),
+//             (snap) => {
+//                 const data = snap.docs.map((d) => ({
+//                     _id: d.id,
+//                     ...d.data(),
+//                     _source: "service_24h",
+//                 }));
+//                 setJobs((prev) => mergeJobs(prev, data));
+//             }
+//         );
+
+//         return () => {
+//             unsub1();
+//             unsub2();
+//         };
+//     }, []);
+
+//     function mergeJobs(prev, incoming) {
+//         const map = new Map();
+//         for (const p of prev) map.set(p._id + "::" + (p._source || ""), p);
+//         for (const n of incoming) map.set(n._id + "::" + (n._source || ""), n);
+//         return Array.from(map.values());
+//     }
+
+//     // ================= AUTOCOMPLETE ==================
+//     useEffect(() => {
+//         const q = searchText.trim().toLowerCase();
+//         if (!q) return setSuggestions([]);
+
+//         const setS = new Set();
+//         for (const job of jobs) {
+//             if (job.title?.toLowerCase().includes(q)) setS.add(job.title);
+//             if (Array.isArray(job.skills)) {
+//                 for (const s of job.skills) {
+//                     if (String(s).toLowerCase().includes(q)) setS.add(s);
+//                 }
+//             }
+//         }
+//         setSuggestions(Array.from(setS).slice(0, 6));
+//     }, [searchText, jobs]);
+
+//     // ================= FILTER ==================
+//     const filteredJobs = useMemo(() => {
+//         const q = searchText.trim().toLowerCase();
+
+//         return jobs
+//             .filter((j) => {
+//                 const t = (j.title || "").toLowerCase();
+//                 const d = (j.description || "").toLowerCase();
+//                 const skills = Array.isArray(j.skills)
+//                     ? j.skills.map((s) => String(s).toLowerCase())
+//                     : [];
+//                 return (
+//                     !q ||
+//                     t.includes(q) ||
+//                     d.includes(q) ||
+//                     skills.some((s) => s.includes(q))
+//                 );
+//             })
+//             .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+//     }, [jobs, searchText]);
+
+//     // ================= OPEN JOB ==================
+//     function openJob(job) {
+//         if (job._source === "service_24h")
+//             navigate(`/client-dashbroad2/service-24h/${job._id}`);
+//         else navigate(`/client-dashbroad2/service/${job._id}`);
+//     }
+
+//     function toggleSaveJob(id) {
+//         setSavedJobs((prev) => {
+//             const ns = new Set(prev);
+//             if (ns.has(id)) ns.delete(id);
+//             else ns.add(id);
+//             return ns;
+//         });
+//     }
+
+//     // ======================================================
+//     // UI
+//     // ======================================================
+//     return (
+//         <div className="fh-page rubik-font">
+//             <div className="fh-container">
+//                 {/* HEADER */}
+//                 <header className="fh-header">
+//                     <div className="fh-header-left">
+//                         <h1 className="fh-title">
+//                             Welcome,
+//                             <div>{userInfo.firstName || "Huzzlers"}</div>
+//                         </h1>
+//                         <div></div> </div>
+
+//                     <div className="fh-header-right">
+//                         <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
+//                             <FiMessageCircle />
+//                         </button>
+
+//                         {/* ------------------ NOTIFICATION BUTTON ------------------ */}
+//                         <button className="icon-btn" onClick={() => setNotifOpen(true)}>
+
+//                             {/* {pending > 0 && (
+//                                 <span
+//                                     style={{
+//                                         position: "absolute",
+//                                         top: -3,
+//                                         right: -3,
+//                                         background: "red",
+//                                         color: "#fff",
+//                                         fontSize: "10px",
+//                                         borderRadius: "50%",
+//                                         padding: "2px 6px",
+//                                     }}
+//                                 >
+//                                     {pending}
+//                                 </span>
+//                             )} */}
+//                             <FiBell />
+//                         </button>
+
+//                         <div className="fh-avatar">
+//                             <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
+//                                 <img
+//                                     src={
+//                                         userProfile?.profileImage || profile /* imported fallback */ || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+//                                     }
+//                                     alt="Profile"
+//                                 />
+//                             </Link>
+//                         </div>
+
+//                     </div>
+
+//                     {/* SEARCH */}
+//                     <div className="fh-search-row" ref={searchRef}>
+//                         <div className="fh-search fh-search-small">
+//                             <FiSearch className="search-icon" />
+//                             <input
+//                                 className="search-input"
+//                                 placeholder="Search"
+//                                 value={searchText}
+//                                 onChange={(e) => setSearchText(e.target.value)}
+//                             />
+//                             {searchText && (
+//                                 <button className="clear-btn" onClick={() => setSearchText("")}>
+//                                     ✕
+//                                 </button>
+//                             )}
+//                         </div>
+
+//                         {suggestions.length > 0 && (
+//                             <div className="autocomplete-list">
+//                                 {suggestions.map((s, i) => (
+//                                     <div
+//                                         key={i}
+//                                         className="autocomplete-item"
+//                                         onClick={() => {
+//                                             setSearchText(s);
+//                                             setSuggestions([]);
+//                                         }}
+//                                     >
+//                                         {s}
+//                                     </div>
+//                                 ))}
+//                             </div>
+//                         )}
+//                     </div>
+//                 </header>
+
+//                 {/* ================= MAIN ================= */}
+//                 <main className="fh-main">
+//                     {/* HERO */}
+//                     <section className="fh-hero">
+//                         <div
+//                             className="fh-hero-card primary"
+//                             onClick={() => navigate("/client-dashbroad2/clientcategories")}
+//                         >
+//                             <img src={browseImg1} className="hero-img img-1" />
+//                             <img src={browseImg2} className="hero-img img-2" />
+//                             <div>
+//                                 <h3>Browse All Projects</h3>
+//                                 <p>Explore verified professionals</p>
+//                             </div>
+//                             <div className="hero-right">
+//                                 <img src={arrow} className="arrow" width={25} />
+//                             </div>
+//                         </div>
+
+//                         <div
+//                             className="fh-hero-card secondary"
+//                             onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+//                         >
+//                             <img src={worksImg1} className="hero-img img-3" />
+//                             <img src={worksImg2} className="hero-img img-4" />
+//                             <div>
+//                                 <h4>Job proposal</h4>
+//                                 <p>Find the right freelancers</p>
+//                             </div>
+//                             <div className="hero-right">
+//                                 <img src={arrow} className="arrow" width={25} />
+//                             </div>
+//                         </div>
+//                     </section>
+
+//                     {/* ================= JOB LIST ================= */}
+//                     <section className="fh-section">
+//                         <div className="section-header">
+//                             <h2>Top Services for You</h2>
+//                         </div>
+
+//                         <div className="jobs-list">
+//                             {filteredJobs.map((job) => (
+//                                 <article key={job._id} className="job-card" onClick={() => openJob(job)}>
+//                                     <div className="job-card-top">
+//                                         <div>
+//                                             <h3 className="job-title">{job.title}</h3>
+//                                             <div className="job-sub">{job.category || "Service"}</div>
+//                                         </div>
+
+//                                         <div className="job-budget-wrapper">
+//                                             <div className="job-budget">{formatCurrency(parseIntSafe(job.price))}</div>
+//                                             <button
+//                                                 className={`save-btn ${savedJobs.has(job._id) ? "saved" : ""}`}
+//                                                 onClick={(e) => {
+//                                                     e.stopPropagation();
+//                                                     toggleSaveJob(job._id);
+//                                                 }}
+//                                             >
+//                                                 <FiBookmark />
+//                                             </button>
+//                                         </div>
+//                                     </div>
+
+//                                     <div className="job-skills">
+//                                         {(job.skills || []).slice(0, 3).map((skill, i) => (
+//                                             <span key={i} className="skill-chip">{skill}</span>
+//                                         ))}
+//                                     </div>
+
+//                                     <p className="job-desc">
+//                                         {job.description?.slice(0, 180)}
+//                                         {job.description?.length > 180 ? "..." : ""}
+//                                     </p>
+
+//                                     <div className="job-meta">
+//                                         <span className="views-count">
+//                                             <FiEye />
+//                                             {job.views || 0} views
+//                                         </span>
+//                                         <div>{timeAgo(job.createdAt)}</div>
+//                                         {job._source === "service_24h" && <div>⏱ 24 Hours</div>}
+//                                     </div>
+//                                 </article>
+//                             ))}
+//                         </div>
+//                     </section>
+//                 </main>
+
+//                 {/* FAB */}
+//                 <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
+//                     <FiPlus />
+//                 </button>
+//             </div>
+
+//             {/* ================= NOTIFICATION POPUP ================= */}
+//             {notifOpen && (
+//                 <div
+//                     style={{
+//                         position: "fixed",
+//                         inset: 0,
+//                         background: "rgba(0,0,0,0.4)",
+//                         backdropFilter: "blur(2px)",
+//                         display: "flex",
+//                         justifyContent: "center",
+//                         alignItems: "center",
+//                         zIndex: 999,
+//                     }}
+//                     onClick={(e) => {
+//                         if (e.target === e.currentTarget) setNotifOpen(false);
+//                     }}
+//                 >
+//                     <div
+//                         style={{
+//                             width: "90%",
+//                             maxWidth: 420,
+//                             background: "#fff",
+//                             padding: 20,
+//                             borderRadius: 16,
+//                             maxHeight: "80vh",
+//                             overflowY: "auto",
+//                         }}
+//                     >
+//                         <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+
+//                         {notifications.length === 0 && (
+//                             <div style={{ padding: 20, textAlign: "center" }}>No notifications</div>
+//                         )}
+
+//                         {notifications.map((item, i) => (
+//                             <div
+//                                 key={i}
+//                                 style={{
+//                                     display: "flex",
+//                                     alignItems: "center",
+//                                     marginBottom: 15,
+//                                     background: "#f7f7f7",
+//                                     padding: 10,
+//                                     borderRadius: 10,
+//                                 }}
+//                             >
+//                                 <img
+//                                     src={item.freelancerImage || profile}
+//                                     width={48}
+//                                     height={48}
+//                                     style={{ borderRadius: "50%", marginRight: 10 }}
+//                                 />
+
+//                                 <div style={{ flex: 1 }}>
+//                                     <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
+//                                     <div>applied for {item.jobTitle}</div>
+//                                 </div>
+
+//                                 {!item.read ? (
+//                                     <>
+//                                         <button onClick={() => acceptNotif(item)} style={{ marginRight: 8 }}>
+//                                             ✅
+//                                         </button>
+//                                         <button onClick={() => declineNotif(item)}>❌</button>
+//                                     </>
+//                                 ) : (
+//                                     <button onClick={() => acceptNotif(item)}>💬</button>
+//                                 )}
+//                             </div>
+//                         ))}
+
+//                         <button
+//                             style={{
+//                                 marginTop: 10,
+//                                 width: "100%",
+//                                 padding: 10,
+//                                 borderRadius: 10,
+//                                 background: "#000",
+//                                 color: "#fff",
+//                             }}
+//                             onClick={() => setNotifOpen(false)}
+//                         >
+//                             Close
+//                         </button>
+//                     </div>
+//                 </div>
+//             )}
+
+//             {/* Embedded CSS */}
+//             <style>{`
+//  .autocomplete-list {
+//  position: absolute;
+//  background: #fff;
+//  width: 100%;
+//  border: 1px solid #ddd;
+//  border-radius: 8px;
+//  margin-top: 4px;
+//  z-index: 20;
+//  }
+//  .autocomplete-item {
+//  padding: 8px 12px;
+//  cursor: pointer;
+//  }
+//  .autocomplete-item:hover {
+//  background: #eee;
+//  }
+//  .save-btn.saved {
+//  color: orange;
+//  }
+//  `}</style>
+//         </div>
+//     );
+// }
+
+
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -1960,8 +3930,6 @@ import {
 } from "react-icons/fi";
 import { onAuthStateChanged } from "firebase/auth";
 
-
-
 // ======================================================
 // HELPERS
 // ======================================================
@@ -1993,7 +3961,7 @@ function formatCurrency(amount) {
 // ======================================================
 // MAIN
 // ======================================================
-export default function     ClientHomeUI() {
+export default function ClientHomeUI() {
     const navigate = useNavigate();
 
     const [jobs, setJobs] = useState([]);
@@ -2004,10 +3972,29 @@ export default function     ClientHomeUI() {
 
     const searchRef = useRef(null);
 
+    // ================= SIDEBAR COLLAPSE STATE (ADDED) ==================
+    const [collapsed, setCollapsed] = useState(
+        localStorage.getItem("sidebar-collapsed") === "true"
+    );
+
+    useEffect(() => {
+        function handleToggle(e) {
+            setCollapsed(!!e.detail);
+        }
+        window.addEventListener("sidebar-toggle", handleToggle);
+        return () => window.removeEventListener("sidebar-toggle", handleToggle);
+    }, []);
+
+    // persist collapsed to localStorage (optional but helpful)
+    useEffect(() => {
+        localStorage.setItem("sidebar-collapsed", collapsed ? "true" : "false");
+    }, [collapsed]);
+    // ==================================================================
+
     // ================= NOTIFICATIONS ==================
     const [notifications, setNotifications] = useState([]);
     const [notifOpen, setNotifOpen] = useState(false);
-    const [collapsed, setCollapsed] = useState(localStorage.getItem("sidebar-collapsed") === "true");
+
     const [userInfo, setUserInfo] = useState({
         firstName: "",
         lastName: "",
@@ -2057,14 +4044,6 @@ export default function     ClientHomeUI() {
         return unsubscribe;
     }, []);
 
-        useEffect(() => {
-        function handleToggle(e) {
-            setCollapsed(e.detail);
-            localStorage.setItem("sidebar-collapsed", e.detail);
-        }
-        window.addEventListener("sidebar-toggle", handleToggle);
-        return () => window.removeEventListener("sidebar-toggle", handleToggle);
-    }, []);
 
 
     useEffect(() => {
@@ -2202,282 +4181,267 @@ export default function     ClientHomeUI() {
     // ======================================================
     return (
         <div
-            className="fh-page rubik-font"
+            className="freelance-wrapper"
             style={{
-        marginLeft: collapsed ? "-100px" : "120px",
+                marginLeft: collapsed ? "-110px" : "100px",
                 transition: "margin-left 0.25s ease",
             }}
         >
+            <div className="fh-page rubik-font">
+                <div className="fh-container">
+                    {/* HEADER */}
+                    <header className="fh-header">
+                        <div className="fh-header-left">
+                            <h1 className="fh-title">
+                                Welcome,
+                                <div>{userInfo.firstName || "Huzzlers"}</div>
+                            </h1>
+                            <div></div> </div>
 
-            <div className="fh-container">
-                {/* HEADER */}
-                <header className="fh-header">
-                    <div className="fh-header-left">
-                        <h1 className="fh-title">
-                            Welcome,
-                            <div>{userInfo.firstName || "Huzzlers"}</div>
-                        </h1>
-                        <div></div> </div>
+                        <div className="fh-header-right">
+                            <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
+                                <FiMessageCircle />
+                            </button>
 
-                    <div className="fh-header-right">
-                       
-                            <FiMessageCircle  className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")} />
-                        
+                            {/* ------------------ NOTIFICATION BUTTON ------------------ */}
+                            <button className="icon-btn" onClick={() => setNotifOpen(true)}>
+                                <FiBell />
+                            </button>
 
-                        {/* ------------------ NOTIFICATION BUTTON ------------------ */}
-                        
-                            <FiBell className="icon-btn" onClick={() => setNotifOpen(true)} />
-                            {pending > 0 && (
-                                <span
-                                    style={{
-                                        position: "absolute",
-                                        top: -3,
-                                        right: -3,
-                                        background: "red",
-                                        color: "#fff",
-                                        fontSize: "10px",
-                                        borderRadius: "50%",
-                                        padding: "2px 6px",
-                                    }}
-                                >
-                                    {pending}
-                                </span>
-                            )}
+                            <div className="fh-avatar">
+                                <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
+                                    <img
+                                        src={
+                                            userProfile?.profileImage || profile /* imported fallback */ || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                                        }
+                                        alt="Profile"
+                                    />
+                                </Link>
+                            </div>
 
-                        <div className="fh-avatar">
-                            <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
-                                <img
-                                    src={
-                                        userProfile?.profileImage || profile /* imported fallback */ || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                                    }
-                                    alt="Profile"
+                        </div>
+
+                        {/* SEARCH */}
+                        <div className="fh-search-row" ref={searchRef}>
+                            <div className="fh-search fh-search-small">
+                                <FiSearch className="search-icon" />
+                                <input
+                                    className="search-input"
+                                    placeholder="Search"
+                                    value={searchText}
+                                    onChange={(e) => setSearchText(e.target.value)}
                                 />
-                            </Link>
-                        </div>
-
-                    </div>
-
-                    {/* SEARCH */}
-                    <div className="fh-search-row" ref={searchRef}>
-                        <div className="fh-search fh-search-small">
-                            <FiSearch className="search-icon" />
-                            <input
-                                className="search-input"
-                                placeholder="Search"
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                            />
-                            {searchText && (
-                                <button className="clear-btn" onClick={() => setSearchText("")}>
-                                    ✕
-                                </button>
-                            )}
-                        </div>
-
-                        {suggestions.length > 0 && (
-                            <div className="autocomplete-list">
-                                {suggestions.map((s, i) => (
-                                    <div
-                                        key={i}
-                                        className="autocomplete-item"
-                                        onClick={() => {
-                                            setSearchText(s);
-                                            setSuggestions([]);
-                                        }}
-                                    >
-                                        {s}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </header>
-
-                {/* ================= MAIN ================= */}
-                <main className="fh-main">
-                    {/* HERO */}
-                    <section className="fh-hero">
-                        <div
-                            className="fh-hero-card primary"
-                            onClick={() => navigate("/client-dashbroad2/clientcategories")}
-                        >
-                            <img src={browseImg1} className="hero-img img-1" />
-                            <img src={browseImg2} className="hero-img img-2" />
-                            <div>
-                                <h3>Browse All Projects</h3>
-                                <p>Explore verified professionals</p>
-                            </div>
-                            <div className="hero-right">
-                                <img src={arrow} className="arrow" width={25} />
-                            </div>
-                        </div>
-
-                        <div
-                            className="fh-hero-card secondary"
-                            onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
-                        >
-                            <img src={worksImg1} className="hero-img img-3" />
-                            <img src={worksImg2} className="hero-img img-4" />
-                            <div>
-                                <h4>Job proposal</h4>
-                                <p>Find the right freelancers</p>
-                            </div>
-                            <div className="hero-right">
-                                <img src={arrow} className="arrow" width={25} />
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* ================= JOB LIST ================= */}
-                    <section className="fh-section">
-                        <div className="section-header">
-                            <h2>Top Services for You</h2>
-                        </div>
-
-                        <div className="jobs-list">
-                            {filteredJobs.map((job) => (
-                                <article key={job._id} className="job-card" onClick={() => openJob(job)}>
-                                    <div className="job-card-top">
-                                        <div>
-                                            <h3 className="job-title">{job.title}</h3>
-                                            <div className="job-sub">{job.category || "Service"}</div>
-                                        </div>
-
-                                        <div className="job-budget-wrapper">
-                                            <div className="job-budget">{formatCurrency(parseIntSafe(job.price))}</div>
-                                            <button
-                                                className={`save-btn ${savedJobs.has(job._id) ? "saved" : ""}`}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleSaveJob(job._id);
-                                                }}
-                                            >
-                                                <FiBookmark />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="job-skills">
-                                        {(job.skills || []).slice(0, 3).map((skill, i) => (
-                                            <span key={i} className="skill-chip">{skill}</span>
-                                        ))}
-                                    </div>
-
-                                    <p className="job-desc">
-                                        {job.description?.slice(0, 180)}
-                                        {job.description?.length > 180 ? "..." : ""}
-                                    </p>
-
-                                    <div className="job-meta">
-                                        <span className="views-count">
-                                            <FiEye />
-                                            {job.views || 0} views
-                                        </span>
-                                        <div>{timeAgo(job.createdAt)}</div>
-                                        {job._source === "service_24h" && <div>⏱ 24 Hours</div>}
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
-                    </section>
-                </main>
-
-                {/* FAB */}
-                <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
-                    <FiPlus />
-                </button>
-            </div>
-
-            {/* ================= NOTIFICATION POPUP ================= */}
-            {notifOpen && (
-                <div
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.4)",
-                        backdropFilter: "blur(2px)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 999,
-                    }}
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) setNotifOpen(false);
-                    }}
-                >
-                    <div
-                        style={{
-                            width: "90%",
-                            maxWidth: 420,
-                            background: "#fff",
-                            padding: 20,
-                            borderRadius: 16,
-                            maxHeight: "80vh",
-                            overflowY: "auto",
-                        }}
-                    >
-                        <h3 style={{ marginBottom: 15 }}>Notifications</h3>
-
-                        {notifications.length === 0 && (
-                            <div style={{ padding: 20, textAlign: "center" }}>No notifications</div>
-                        )}
-
-                        {notifications.map((item, i) => (
-                            <div
-                                key={i}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginBottom: 15,
-                                    background: "#f7f7f7",
-                                    padding: 10,
-                                    borderRadius: 10,
-                                }}
-                            >
-                                <img
-                                    src={item.freelancerImage || profile}
-                                    width={48}
-                                    height={48}
-                                    style={{ borderRadius: "50%", marginRight: 10 }}
-                                />
-
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
-                                    <div>applied for {item.jobTitle}</div>
-                                </div>
-
-                                {!item.read ? (
-                                    <>
-                                        <button onClick={() => acceptNotif(item)} style={{ marginRight: 8 }}>
-                                            ✅
-                                        </button>
-                                        <button onClick={() => declineNotif(item)}>❌</button>
-                                    </>
-                                ) : (
-                                    <button onClick={() => acceptNotif(item)}>💬</button>
+                                {searchText && (
+                                    <button className="clear-btn" onClick={() => setSearchText("")}>
+                                        ✕
+                                    </button>
                                 )}
                             </div>
-                        ))}
 
-                        <button
-                            style={{
-                                marginTop: 10,
-                                width: "100%",
-                                padding: 10,
-                                borderRadius: 10,
-                                background: "#000",
-                                color: "#fff",
-                            }}
-                            onClick={() => setNotifOpen(false)}
-                        >
-                            Close
-                        </button>
-                    </div>
+                            {suggestions.length > 0 && (
+                                <div className="autocomplete-list">
+                                    {suggestions.map((s, i) => (
+                                        <div
+                                            key={i}
+                                            className="autocomplete-item"
+                                            onClick={() => {
+                                                setSearchText(s);
+                                                setSuggestions([]);
+                                            }}
+                                        >
+                                            {s}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* ================= MAIN ================= */}
+                    <main className="fh-main">
+                        {/* HERO */}
+                        <section className="fh-hero">
+                            <div
+                                className="fh-hero-card primary"
+                                onClick={() => navigate("/client-dashbroad2/clientcategories")}
+                            >
+                                <img src={browseImg1} className="hero-img img-1" />
+                                <img src={browseImg2} className="hero-img img-2" />
+                                <div>
+                                    <h3>Browse All Projects</h3>
+                                    <p>Explore verified professionals</p>
+                                </div>
+                                <div className="hero-right">
+                                    <img src={arrow} className="arrow" width={25} />
+                                </div>
+                            </div>
+
+                            <div
+                                className="fh-hero-card secondary"
+                                onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+                            >
+                                <img src={worksImg1} className="hero-img img-3" />
+                                <img src={worksImg2} className="hero-img img-4" />
+                                <div>
+                                    <h4>Job proposal</h4>
+                                    <p>Find the right freelancers</p>
+                                </div>
+                                <div className="hero-right">
+                                    <img src={arrow} className="arrow" width={25} />
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* ================= JOB LIST ================= */}
+                        <section className="fh-section">
+                            <div className="section-header">
+                                <h2>Top Services for You</h2>
+                            </div>
+
+                            <div className="jobs-list">
+                                {filteredJobs.map((job) => (
+                                    <article key={job._id} className="job-card" onClick={() => openJob(job)}>
+                                        <div className="job-card-top">
+                                            <div>
+                                                <h3 className="job-title">{job.title}</h3>
+                                                <div className="job-sub">{job.category || "Service"}</div>
+                                            </div>
+
+                                            <div className="job-budget-wrapper">
+                                                <div className="job-budget">{formatCurrency(parseIntSafe(job.price))}</div>
+                                                <button
+                                                    className={`save-btn ${savedJobs.has(job._id) ? "saved" : ""}`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleSaveJob(job._id);
+                                                    }}
+                                                >
+                                                    <FiBookmark />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="job-skills">
+                                            {(job.skills || []).slice(0, 3).map((skill, i) => (
+                                                <span key={i} className="skill-chip">{skill}</span>
+                                            ))}
+                                        </div>
+
+                                        <p className="job-desc">
+                                            {job.description?.slice(0, 180)}
+                                            {job.description?.length > 180 ? "..." : ""}
+                                        </p>
+
+                                        <div className="job-meta">
+                                            <span className="views-count">
+                                                <FiEye />
+                                                {job.views || 0} views
+                                            </span>
+                                            <div>{timeAgo(job.createdAt)}</div>
+                                            {job._source === "service_24h" && <div>⏱ 24 Hours</div>}
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        </section>
+                    </main>
+
+                    {/* FAB */}
+                    <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
+                        <FiPlus />
+                    </button>
                 </div>
-            )}
 
-            {/* Embedded CSS */}
-            <style>{`
+                {/* ================= NOTIFICATION POPUP ================= */}
+                {notifOpen && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.4)",
+                            backdropFilter: "blur(2px)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 999,
+                        }}
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setNotifOpen(false);
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: "90%",
+                                maxWidth: 420,
+                                background: "#fff",
+                                padding: 20,
+                                borderRadius: 16,
+                                maxHeight: "80vh",
+                                overflowY: "auto",
+                            }}
+                        >
+                            <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+
+                            {notifications.length === 0 && (
+                                <div style={{ padding: 20, textAlign: "center" }}>No notifications</div>
+                            )}
+
+                            {notifications.map((item, i) => (
+                                <div
+                                    key={i}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        marginBottom: 15,
+                                        background: "#f7f7f7",
+                                        padding: 10,
+                                        borderRadius: 10,
+                                    }}
+                                >
+                                    <img
+                                        src={item.freelancerImage || profile}
+                                        width={48}
+                                        height={48}
+                                        style={{ borderRadius: "50%", marginRight: 10 }}
+                                    />
+
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
+                                        <div>applied for {item.jobTitle}</div>
+                                    </div>
+
+                                    {!item.read ? (
+                                        <>
+                                            <button onClick={() => acceptNotif(item)} style={{ marginRight: 8 }}>
+                                                ✅
+                                            </button>
+                                            <button onClick={() => declineNotif(item)}>❌</button>
+                                        </>
+                                    ) : (
+                                        <button onClick={() => acceptNotif(item)}>💬</button>
+                                    )}
+                                </div>
+                            ))}
+
+                            <button
+                                style={{
+                                    marginTop: 10,
+                                    width: "100%",
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    background: "#000",
+                                    color: "#fff",
+                                }}
+                                onClick={() => setNotifOpen(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Embedded CSS */}
+                <style>{`
  .autocomplete-list {
  position: absolute;
  background: #fff;
@@ -2498,6 +4462,7 @@ export default function     ClientHomeUI() {
  color: orange;
  }
  `}</style>
+            </div>
         </div>
     );
 }

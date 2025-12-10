@@ -1058,6 +1058,7 @@ const styles = {
     alignItems: "center",
     paddingTop: 32,
     paddingBottom: 80,
+    width:"100%"
   },
 
   headerRowWrap: {
@@ -1715,7 +1716,7 @@ export default function ServiceScreenOne() {
     <div
       style={{
         ...styles.page,
-        marginLeft: collapsed ? "-450px" : "-90px",
+        marginLeft: collapsed ? "-280px" : "-70px",
         transition: "margin-left 0.25s ease",
       }}
     >

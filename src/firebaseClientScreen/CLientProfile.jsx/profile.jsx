@@ -626,7 +626,7 @@
 
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   getAuth,
   signOut,
@@ -644,10 +644,9 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
-
 // ----- ICONS -----
 import profile from "../../assets/profile.png";
-import saved from "../../assets/saved.png";
+import saved from "../../assets/save2.png";
 import jobposted from "../../assets/jobposted.png";
 import hiring from "../../assets/hiring.png";
 import paused2 from "../../assets/paused2.png";
@@ -656,6 +655,7 @@ import bell from "../../assets/kk.png";
 import settings from "../../assets/settings.png";
 import helpcenter from "../../assets/helpcenter.png";
 import arrow from "../../assets/arrow.png";   // ADD ARROW IMAGE
+import edit from "../../assets/edit.png";   // ADD ARROW IMAGE
 
 export default function ClientProfileMenuScreen() {
   const auth = getAuth();
@@ -757,14 +757,15 @@ export default function ClientProfileMenuScreen() {
           <div className="profile-pic-wrap">
             <img src={profileImage || profile} className="profile-pic" />
 
-            <label className="edit-btn">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden-input"
-                onChange={handleImageUpload}
-              />
-            </label>
+<label className="edit-btn">
+  <img src={edit} alt="edit" style={{ width: "40px", margin: "8px" }} />
+  <input
+    type="file"
+    className="hidden-input"
+    onChange={handleImageUpload}
+  />
+</label>
+
 
             {isUploading && <div className="upload-overlay">Uploading…</div>}
           </div>
@@ -811,13 +812,14 @@ export default function ClientProfileMenuScreen() {
 
         {/* SETTINGS CARD */}
         <div className="profile-card">
-          <h3 className="section-title">Settings</h3>
+          <h3 className="section-title">Support</h3>
 
-          <MenuItem img={bell} title="Notifications" />
+          <MenuItem img={bell} title="Notifications" onClick={() => navigate("/client-dashbroad2/helpcenter1")}/>
           <MenuItem img={settings} title="Account Settings"
-            onClick={() => navigate("/client-dashbroad2/clientsetting")}
+            onClick={() => navigate("/client-dashbroad2/companyprofileview")}
           />
-          <MenuItem img={helpcenter} title="Help Centerr" onClick={() => navigate("/client-dashbroad2/helpcenter")} />
+          <MenuItem img={helpcenter} title="Help Centerr" onClick={() => navigate("/helpcenter")} />
+          <MenuItem img={helpcenter} title="Help Centerr" onClick={() => navigate("/helpcenter")} />
         </div>
 
         {/* LOGOUT + DELETE */}
@@ -897,8 +899,7 @@ const cssCode = `
   position: absolute;
   bottom: 0;
   right: 0;
-  background: #000000aa;
-  width: 26px;
+  width: 30px;
   height: 26px;
   border-radius: 50%;
   cursor: pointer;

@@ -153,6 +153,8 @@ import MyHiresScreen from "./pages/Clientpages/CLientmyhires/MyHiresScreen";
 import CompanyProfileView from "./firebaseClientScreen/clientSetting/CompanyProfileView";
 import HelpCenter from "./pages/Helpcenter/Helpcenter";
 import ClientHelpCenter from "./pages/Helpcenter/ClientHelpCenter";
+import ClientHelpCenter1 from "./pages/ClientHelpCenter1";
+import Job_24DetailJobScreen from "./save/Job24FullDetailScreenjob";
 
 
 export default function App() {
@@ -220,6 +222,8 @@ export default function App() {
 
         <Route path="edit-service/:id" element={<EditService />} />
 
+        <Route path="job-full24/:id" element={<Job_24DetailJobScreen/>} />
+        <Route path="job-full/:id" element={<ClientJobFullDetailJobScreen/>} />
 
 
         <Route path="/client-dashbroad2/clienteditjob" element={<Clienteditjob />} />
@@ -236,7 +240,8 @@ export default function App() {
         <Route path="clientpausedjobs" element={<ClientPausedJobsPage />} />
 
         <Route path="messages" element={<Message />} />
-        <Route path="helpcenter" element={<ClientHelpCenter />} />
+        {/* <Route path="helpcenter" element={<ClientHelpCenter />} /> */}
+        <Route path="helpcenter1" element={<ClientHelpCenter1 />} />
 
 
       </Route>
@@ -431,7 +436,7 @@ export default function App() {
 
 
 
-
+     <Route path="helpcenter" element={<ClientHelpCenter />} />
 
       <Route path="/job-full/:id" element={<ClientJobFullDetailJobScreen />} />
 

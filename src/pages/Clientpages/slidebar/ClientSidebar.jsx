@@ -1288,7 +1288,7 @@ export default function Sidebar() {
             onClick={() => goTo("/client-dashbroad2/AddJobScreen", "jobs")}
           >
             <Briefcase size={18} className="icon" />
-            {!collapsed && "My jobs"}
+            {!collapsed && "Job Posted"}
           </button>
 
           <button
@@ -1296,7 +1296,7 @@ export default function Sidebar() {
             onClick={() => goTo("/client-dashbroad2/my-hires", "service")}
           >
             <img src={hire} width={18} className="icon" />
-            {!collapsed && "My Service"}
+            {!collapsed && "Hire"}
           </button>
 
           <button
@@ -1423,7 +1423,6 @@ export default function Sidebar() {
         .hz-logo-img-small {
           width: 55px;
           height: 55px;
-          background: white;
           border-radius: 14px;
           border: 2px solid #a855f7;
           padding: 4px;
@@ -1513,6 +1512,7 @@ export default function Sidebar() {
           align-items: center;
           color: white;
           font-weight: 600;
+          margin-left:14px;
         }
 
         .hz-user-name {

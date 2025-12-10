@@ -1593,6 +1593,8 @@ const styles = {
     width: "100%",
     fontSize: 15,
     fontFamily: "'Rubik', sans-serif",
+    marginTop:"14px",
+    marginLeft:"-20px"
   },
   jobCard: {
     width: "95%",

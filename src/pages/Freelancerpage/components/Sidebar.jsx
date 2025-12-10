@@ -1523,7 +1523,6 @@ export default function FreelanceSideBar() {
         .hz-logo-img-small {
           width: 55px;
           height: 55px;
-          background: white;
           border-radius: 14px;
           border: 2px solid #a855f7;
           padding: 4px;
@@ -1613,6 +1612,7 @@ export default function FreelanceSideBar() {
           align-items: center;
           color: white;
           font-weight: 600;
+          margin-left:14px;
         }
 
         .hz-user-name {

@@ -792,7 +792,7 @@ export default function ClientProfileMenuScreen() {
           <div style={{ marginLeft: 12 }}>
             <h1 style={pageStyles.title}>Profile</h1>
             <p style={pageStyles.subtitle}>
-              Manage your account and preferences
+              Manage your account and preferences,,
             </p>
           </div>
         </div>
@@ -897,7 +897,7 @@ export default function ClientProfileMenuScreen() {
 
         {/* Settings Section */}
         <div style={pageStyles.section}>
-          <h3 style={pageStyles.sectionTitle}>Settings</h3>
+          <h3 style={pageStyles.sectionTitle}>Support</h3>
 
           <MenuItem title="Notifications" icon={notification} onClick={() => { }} />
 
