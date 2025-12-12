@@ -13,11 +13,11 @@ export default function EditServiceForm() {
     description: "",
     budget_from: "",
     budget_to: "",
-    timeline: "",
+   timeline: "",
     category: "",
     skills: "",
     tools: "",
-    sample_project_url: "",
+   sampleProjectUrl: "",
     freelancer_requirements: "",
   });
 
@@ -39,11 +39,11 @@ export default function EditServiceForm() {
           description: data.description || "",
           budget_from: data.budget_from || "",
           budget_to: data.budget_to || "",
-          timeline: data.timeline || "",
+         timeline: data.timeline || "",
           category: data.category || "",
           skills: (data.skills || []).join(", "),
           tools: (data.tools || []).join(", "),
-          sample_project_url: data.sample_project_url || "",
+        sampleProjectUrl: data.sampleProjectUrl|| "",
           freelancer_requirements: data.freelancer_requirements || "",
         });
 
@@ -70,9 +70,9 @@ export default function EditServiceForm() {
         description: form.description,
         budget_from: form.budget_from,
         budget_to: form.budget_to,
-        timeline: form.timeline,
+     timeline: form.timeline,
         category: form.category,
-        sample_project_url: form.sample_project_url,
+        sampleProjectUrl: form.sampleProjectUrl,
         freelancer_requirements: form.freelancer_requirements,
         skills: form.skills.split(",").map((s) => s.trim()),
         tools: form.tools.split(",").map((t) => t.trim()),
@@ -195,7 +195,7 @@ export default function EditServiceForm() {
         <label style={styles.label}>Sample Project URL</label>
         <input
           name="sample_project_url"
-          value={form.sample_project_url}
+          value={form.sampleProjectUrl}
           onChange={handleChange}
           placeholder="https://example.com"
           style={styles.input}

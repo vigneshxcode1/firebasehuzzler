@@ -186,6 +186,24 @@ export default function FreelancerFullDetailScreen(props) {
     return () => unsubList.forEach(fn => fn && fn());
   }, [uid]);
 
+
+    // ---------------------- Send Notification ----------------------
+async function sendNotification(toUserId, title, message) {
+  try {
+    await addDoc(collection(db, "notifications"), {
+      toUser: toUserId,
+      title: title,
+      message: message,
+      isRead: false,
+      timestamp: serverTimestamp(),
+    });
+    console.log("Notification sent");
+  } catch (err) {
+    console.error("Failed to send notification", err);
+  }
+}
+
+
   // ----------------------- Connect Flow -----------------------
   const fetchUserJobs = useCallback(async () => {
     if (!auth.currentUser?.uid) return [];
@@ -228,13 +246,30 @@ export default function FreelancerFullDetailScreen(props) {
       status: "sent",
       timestamp: serverTimestamp()
     };
+
+    // Send notification to freelancer
+await sendNotification(
+  otherUid,
+  "New Collaboration Request",
+  `${receiverName}, you received a new request from ${auth.currentUser?.displayName || "A client"}`
+);
+
+
     if (selectedJob?.id && selectedJob?.type) {
       data.jobId = selectedJob.id;
       data.jobType = selectedJob.type;
     }
 
     try {
-      await addDoc(collection(db, "collaboration_requests"), data);
+     await addDoc(collection(db, "collaboration_requests"), data);
+
+// 🔔 Notify the freelancer
+await sendNotification(
+  otherUid,
+  "New Collaboration Request",
+  `${receiverName}, you received a new request from ${auth.currentUser?.displayName || "A client"}`
+);
+
       closeConnectPopup();
 
       let initialMessage;
@@ -273,6 +308,12 @@ export default function FreelancerFullDetailScreen(props) {
   const fullName = `${firstName} ${lastName}`.trim() || "User";
   const skills = safeListExtraction(rawSkills);
   const tools = safeListExtraction(rawTools);
+
+
+
+
+
+
 
   return (
     <div className="ffds-page">

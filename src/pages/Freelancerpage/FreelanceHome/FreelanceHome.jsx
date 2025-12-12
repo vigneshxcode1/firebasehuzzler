@@ -55,15 +55,57 @@ export default function FreelanceHome() {
     profileImage: "",
   });
 
-  const [notifCount, setNotifCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  console.log(notifications)
+
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+
+    const q = query(
+      collection(db, "notifications"),
+      console.log(user.id),
+      where("freelancerId", "==", user.uid),  
+      where("read", "==", true)
+    );
+
+    return onSnapshot(q, (snap) => {
+      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+  }, []);
+
+  const pending = notifications.filter((n) => !n.read).length;
+
+  async function acceptNotif(item) {
+    await updateDoc(doc(db, "notifications", item.id), { read: true });
+
+    navigate("/chat", {
+      state: {
+        currentUid: auth.currentUser.uid,
+        otherUid: item.freelancerId,
+        otherName: item.freelancerName,
+        otherImage: item.freelancerImage,
+        initialMessage: `Your application for ${item.jobTitle} accepted!`,
+      },
+    });
+  }
+
+  async function declineNotif(item) {
+    await deleteDoc(doc(db, "notifications", item.id));
+  }
+
 
   const [isOnline, setIsOnline] = useState(true); // 🔥 NEW – Internet check
 
   const navigate = useNavigate();
   const auth = getAuth();
   const user = auth.currentUser;
+
+
 
   // 🔥 INTERNET LISTENERS
   useEffect(() => {
@@ -165,13 +207,18 @@ export default function FreelanceHome() {
   useEffect(() => {
     if (!user) return;
     const refColl = collection(db, "accepted_jobs");
-    const q = query(refColl, where("freelancerId", "==", user.uid));
+    const q = query(
+      refColl,
+      where("freelancerId", "==", user.uid),
+      where("isRead", "==", true)
+    );
+
     const unsub = onSnapshot(q, (snap) => {
       const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setNotifications(items);
       const unread =
         items.filter((it) => it.isRead === false || it.isRead == null).length;
-      setNotifCount(unread);
+      // setNotifCount(unread);
     });
     return unsub;
   }, [user]);
@@ -226,12 +273,33 @@ export default function FreelanceHome() {
           </Link>
 
           {/* 🔔 Notification Icon */}
-          <img src={notification} alt="notification" style={{ width: "31px", height: "29px", cursor: "pointer" }} />
+          {/* <img src={notification} alt="notification" style={{ width: "31px", height: "29px", cursor: "pointer" }} />
           {notifCount > 0 && (
             <span className="notif-count">
               {notifCount > 9 ? "9+" : notifCount}
             </span>
-          )}
+          )} */}
+
+          <button className="icon-btn" onClick={() => setNotifOpen(true)}>
+
+            {/* {pending > 0 && (
+                                <span
+                                    style={{
+                                        position: "absolute",
+                                        top: -3,
+                                        right: -3,
+                                        background: "red",
+                                        color: "#fff",
+                                        fontSize: "10px",
+                                        borderRadius: "50%",
+                                        padding: "2px 6px",
+                                    }}
+                                >
+                                    {pending}
+                                </span>
+                            )} */}
+            <FiBell />
+          </button>
 
 
           {/* 👤 Profile Avatar */}
@@ -440,6 +508,94 @@ export default function FreelanceHome() {
       >
         <FiPlus />
       </button>
+
+      {/* ================= NOTIFICATION POPUP ================= */}
+      {notifOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.4)",
+            backdropFilter: "blur(2px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setNotifOpen(false);
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+              maxWidth: 420,
+              background: "#fff",
+              padding: 20,
+              borderRadius: 16,
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+            <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+
+            {notifications.length === 0 && (
+              <div style={{ padding: 20, textAlign: "center" }}>No notifications</div>
+            )}
+
+            {notifications.map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: 15,
+                  background: "#f7f7f7",
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <img
+                  src={item.freelancerImage || profile}
+                  width={48}
+                  height={48}
+                  style={{ borderRadius: "50%", marginRight: 10 }}
+                />
+
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
+                  <div>applied for {item.jobTitle}</div>
+                </div>
+
+                {!item.read ? (
+                  <>
+                    <button onClick={() => acceptNotif(item)} style={{ marginRight: 8 }}>
+                      ✅
+                    </button>
+                    <button onClick={() => declineNotif(item)}>❌</button>
+                  </>
+                ) : (
+                  <button onClick={() => acceptNotif(item)}>💬</button>
+                )}
+              </div>
+            ))}
+
+            <button
+              style={{
+                marginTop: 10,
+                width: "100%",
+                padding: 10,
+                borderRadius: 10,
+                background: "#000",
+                color: "#fff",
+              }}
+              onClick={() => setNotifOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

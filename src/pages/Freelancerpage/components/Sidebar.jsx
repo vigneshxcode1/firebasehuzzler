@@ -173,7 +173,7 @@ export default function FreelanceSideBar() {
               </Link>
             </p>
 
-            <p className="user-status">{userInfo.role}</p>
+            <p className="user-status">freelncer</p>
           </div>
         </div>
 

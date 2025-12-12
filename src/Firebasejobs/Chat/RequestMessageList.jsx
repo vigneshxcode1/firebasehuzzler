@@ -1,9 +1,3 @@
-// FULL SINGLE-FILE REACT VERSION OF RequestChatListScreen (NO FIREBASE CONFIG)
-// ---------------------------------------------------------------
-// IMPORTANT:
-// ❌ NO Firebase config added here (as you requested)
-// ✅ Works only if Firebase app is already initialized in your project
-// ---------------------------------------------------------------
 
 import React, { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";

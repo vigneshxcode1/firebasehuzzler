@@ -762,7 +762,7 @@ export default function ServiceScreenOne() {
       <div
         key={job.id}
         style={styles.card}
-        onClick={() => navigate(`/serviceDetailsModel/${job.id}`, { state: { job } })}
+        onClick={() => navigate(`/freelance-dashboard/freelancerservicepage/${job.id}`, { state: { job } })}
       >
         <img src={arrow} style={styles.cardArrow} />
 
@@ -907,7 +907,7 @@ export default function ServiceScreenOne() {
     if (selectedTab === "Works") {
       if (servicesLoading) return <div style={{ marginTop: 40 }}>Loading...</div>;
       if (finalServices.length === 0)
-        return renderEmptyState("Create Service", () => navigate("/create-service"));
+        return renderEmptyState("Create Service", () => navigate("/freelance-dashboard/add-service-form"));
 
       return finalServices.map(WorkCard);
     }
@@ -915,7 +915,7 @@ export default function ServiceScreenOne() {
     if (selectedTab === "24 Hours") {
       if (jobs24Loading) return <div style={{ marginTop: 40 }}>Loading...</div>;
       if (final24.length === 0)
-        return renderEmptyState("Create 24h Service", () => navigate("/create-service"));
+        return renderEmptyState("Create 24h Service", () => navigate("/freelance-dashboard/add-service-form"));
 
       return final24.map(Card24);
     }

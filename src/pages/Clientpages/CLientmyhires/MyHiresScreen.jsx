@@ -219,6 +219,27 @@ export default function MyHiresScreen() {
   const [items, setItems] = useState([]);
   const [listLoading, setListLoading] = useState(true);
 
+
+
+  //getting freelancre project
+ const fetchFreelancerDetails = async (freelancerId) => {
+  try {
+    const docRef = doc(db, "users", freelancerId);
+    const snap = await getDoc(docRef);
+
+    if (snap.exists()) {
+      console.log("Freelancer Details:", snap.data());
+      return snap.data();
+    } else {
+      console.log("No freelancer found");
+      return null;
+    }
+  } catch (err) {
+    console.error("Error fetching freelancer:", err);
+    return null;
+  }
+};
+
   // ------------------ AUTH ------------------
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -229,56 +250,69 @@ export default function MyHiresScreen() {
   }, []);
 
   // ------------------ FIRESTORE LIST ------------------
-  useEffect(() => {
-    if (!currentUser) return;
+useEffect(() => {
+  if (!currentUser) return;
 
-    setListLoading(true);
+  setListLoading(true);
 
-    const q = query(
+  let q;
+
+ if (selectedTab === "Requested") {
+  q = query(
+    collection(db, "collaboration_requests"),
+    where("clientId", "==", currentUser.uid),            // ⬅️ sender
+    where("status", "==", "sent"),
+    where("jobType", "==", selectedInnerTabIndex === 1 ? "24h" : "services")
+  );
+
+  } else {
+    // -------------------------
+    //  HIRED → myWorks (accepted only)
+    // -------------------------
+    q = query(
       collection(db, "myWorks"),
       where("senderId", "==", currentUser.uid),
-      where("status", "==", selectedTab === "Requested" ? "sent" : "accepted"),
+      where("status", "==", "accepted"),
       where("jobData.is24h", "==", selectedInnerTabIndex === 1)
     );
+  }
 
-    const unsub = onSnapshot(
-      q,
-      async (snap) => {
-        const promises = snap.docs.map(async (docSnap) => {
-          const data = docSnap.data();
-          const receiverId = data.receiverId;
-          let userProfile = null;
+  const unsub = onSnapshot(
+    q,
+    async (snap) => {
+      const promises = snap.docs.map(async (docSnap) => {
+        const data = docSnap.data();
+        const receiverId = data.receiverId;
 
-          try {
-            const uRef = doc(db, "users", receiverId);
-            const uSnap = await getDoc(uRef);
-            if (uSnap.exists()) {
-              userProfile = uSnap.data();
-            }
-          } catch (err) {
-            console.error("Error fetching user profile", err);
-          }
+        let userProfile = null;
+        try {
+          const uRef = doc(db, "users", receiverId);
+          const uSnap = await getDoc(uRef);
+          if (uSnap.exists()) userProfile = uSnap.data();
+        } catch (err) {
+          console.error("Error fetching user profile", err);
+        }
 
-          return {
-            id: docSnap.id,
-            ...data,
-            receiverId,
-            userProfile,
-          };
-        });
+        return {
+          id: docSnap.id,
+          ...data,
+          receiverId,
+          userProfile,
+        };
+      });
 
-        const list = await Promise.all(promises);
-        setItems(list);
-        setListLoading(false);
-      },
-      (err) => {
-        console.error("myWorks snapshot error:", err);
-        setListLoading(false);
-      }
-    );
+      const list = await Promise.all(promises);
+      setItems(list);
+      setListLoading(false);
+    },
+    (err) => {
+      console.error("snapshot error:", err);
+      setListLoading(false);
+    }
+  );
 
-    return () => unsub();
-  }, [currentUser, selectedTab, selectedInnerTabIndex]);
+  return () => unsub();
+}, [currentUser, selectedTab, selectedInnerTabIndex]);
 
   // ------------------ RENDER ------------------
   if (userLoading) {
@@ -363,63 +397,72 @@ export default function MyHiresScreen() {
         </div>
 
         {/* LIST */}
-        <div style={styles.listWrapper}>
-          {listLoading ? (
-            <p style={styles.emptyText}>Loading...</p>
-          ) : items.length === 0 ? (
-            <p style={styles.emptyText}>
-              No {selectedTab.toLowerCase()} freelancers found
-            </p>
-          ) : (
-            items.map((item) => {
-              const u = item.userProfile || {};
-              const name = `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Freelancer";
-              const role =
-                (item.jobData && item.jobData.title) || "Freelancer";
-              const image =
-                u.profileImage ||
-                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-
-              return (
-                <div key={item.id} style={styles.card}>
-                  <img src={image} alt={name} style={styles.avatar} />
-
-                  <div style={styles.cardTextCol}>
-                    <div style={styles.cardName}>{name}</div>
-                    <div style={styles.cardRole}>{role}</div>
-                  </div>
-
-                  <div style={styles.cardSpacer} />
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-
-                        {selectedTab === "Requested" && (
-                          <div
-                            style={styles.deleteBtn}
-                            onClick={() => handleDeleteRequest(item.id)}
-                          >
-                            <span style={styles.deleteBtnText}>Delete</span>
-                          </div>
-                        )}
-
-                  <div
-                    style={styles.chatBtn}
-                    onClick={() =>
-                      handleOpenChat(item.receiverId, name, image)
-                    }
-                  >
-                    <span style={styles.chatBtnText}>View chat</span>
-                  </div>
-
-                </div>
+      <div style={styles.listWrapper}>
+  {listLoading ? (
+    <p style={styles.emptyText}>Loading...</p>
+  ) : items.length === 0 ? (
+    <p style={styles.emptyText}>
+      No {selectedTab.toLowerCase()} freelancers found
+    </p>
+  ) : (
 
 
-                  
-                  
-                </div>
-              );
-            })
-          )}
+   items.map((item) => {
+  const u = item.userProfile || {};
+
+  const name = `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Freelancer";
+  const role = (item.jobData && item.jobData.title) || "Freelancer";
+
+  const image =
+    u?.profileImage &&
+    typeof u.profileImage === "string" &&
+    u.profileImage.trim() !== ""
+      ? u.profileImage
+      : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+      return (
+        <div
+          key={item.id}
+          style={styles.card}
+          onClick={async () => {
+            const freelancerData = await fetchFreelancerDetails(item.receiverId);
+
+            if (freelancerData) {
+              console.log("Open Details Page With:", freelancerData);
+              navigate("/freelancer-details", { state: freelancerData });
+            }
+          }}
+        >
+          <img src={image} alt={name} style={styles.avatar} />
+
+          <div style={styles.cardTextCol}>
+            <div style={styles.cardName}>{name}</div>
+            <div style={styles.cardRole}>{role}</div>
+          </div>
+
+          <div style={styles.cardSpacer} />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {selectedTab === "Requested" && (
+              <div
+                style={styles.deleteBtn}
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent card click
+                  handleDeleteRequest(item.id);
+                }}
+              >
+                <span style={styles.deleteBtnText}>Delete</span>
+              </div>
+            )}
+
+           
+          </div>
         </div>
+      );
+    })
+  )}
+</div>
+
       </div>
     </div>
   );

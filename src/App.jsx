@@ -154,6 +154,10 @@ import CompanyProfileView from "./firebaseClientScreen/clientSetting/CompanyProf
 import Helpcenter from "./pages/HelpCenter/Helpcenter";
 import Job_24DetailJobScreen from "./save/Job24FullDetailScreenjob";
 
+import FreelancerServicePage from "./pages/Freelancerpage/Freelancersevice";
+
+
+
 
 export default function App() {
 
@@ -239,6 +243,7 @@ export default function App() {
         <Route path="clientpausedjobs" element={<ClientPausedJobsPage />} />
 
         <Route path="messages" element={<Message />} />
+        
         {/* <Route path="chat" element={<ChatScreenWrapper />} /> */}
 
 
@@ -423,7 +428,7 @@ export default function App() {
       <Route path="/requests" element={<RequestChatScreen />} />
 
 
-      <Route path="/messages" element={<Message />} />
+      <Route path="/messages" element={<ChatListScreen />} />
 
 
 

@@ -358,9 +358,6 @@
 //   );
 // }
 
-
-ChatPage.jsx
-ChatPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import {
   getDatabase,
@@ -383,17 +380,6 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
-// Firestore imports (needed for request system)
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
-
 export default function ChatPage() {
   const { state } = useLocation();
 
@@ -404,13 +390,11 @@ export default function ChatPage() {
   const initialMessage = state?.initialMessage || "";
 
   const db = getDatabase();       // RTDB
-  const fs = getFirestore();      // Firestore
   const storage = getStorage();   // Storage
 
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState(initialMessage || "");
   const [showEmoji, setShowEmoji] = useState(false);
-  const [pendingRequest, setPendingRequest] = useState(null);
 
   const scrollRef = useRef(null);
 
@@ -429,7 +413,7 @@ export default function ChatPage() {
       ? `${currentUid}_${otherUid}`
       : `${otherUid}_${currentUid}`;
 
-  // FETCH MESSAGES (RTDB)
+  // FETCH MESSAGES
   useEffect(() => {
     const msgRef = ref(db, `chats/${chatId}/messages`);
 
@@ -442,46 +426,9 @@ export default function ChatPage() {
     });
   }, [chatId, db]);
 
-  // FIRESTORE — pending request (freelancer side)
-  useEffect(() => {
-    if (!currentUid || !otherUid) return;
-
-    const q = query(
-      collection(fs, "collaboration_requests"),
-      where("clientId", "==", otherUid),
-      where("freelancerId", "==", currentUid)
-    );
-
-    const unsub = onSnapshot(q, (snap) => {
-      if (snap.empty) {
-        setPendingRequest(null);
-        return;
-      }
-      setPendingRequest({ id: snap.docs[0].id, ...snap.docs[0].data() });
-    });
-
-    return () => unsub();
-  }, [currentUid, otherUid, fs]);
-
-  // ACCEPT request
-  const acceptRequest = async () => {
-    if (!pendingRequest?.id) return;
-    await updateDoc(doc(fs, "collaboration_requests", pendingRequest.id), {
-      status: "accepted",
-    });
-  };
-
-  // REJECT request
-  const rejectRequest = async () => {
-    if (!pendingRequest?.id) return;
-    await updateDoc(doc(fs, "collaboration_requests", pendingRequest.id), {
-      status: "rejected",
-    });
-  };
-
-  // SEND TEXT MESSAGE (RTDB)
+  // SEND TEXT MESSAGE
   const sendMessage = async () => {
-    if (!inputText.trim() || pendingRequest?.status !== "accepted") return;
+    if (!inputText.trim()) return;
 
     const msgRef = ref(db, `chats/${chatId}/messages`);
     const newMsgRef = push(msgRef);
@@ -520,9 +467,9 @@ export default function ChatPage() {
     setInputText("");
   };
 
-  // FILE / IMAGE UPLOAD
+  // FILE UPLOAD
   const handleFileUpload = async (file) => {
-    if (!file || pendingRequest?.status !== "accepted") return;
+    if (!file) return;
 
     try {
       const safeName = file.name.replace(/\s+/g, "_");
@@ -570,27 +517,13 @@ export default function ChatPage() {
     }
   };
 
-  // EMOJI CLICK
+  // EMOJI
   const onEmojiClick = (emojiObj) => {
-    if (pendingRequest?.status !== "accepted") return;
     setInputText((prev) => prev + emojiObj.emoji);
   };
 
-  const canChat = pendingRequest?.status === "accepted";
-
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#f5f5f5" }}>
-
-      {/* ===== ACCEPT / REJECT REQUEST CARD ===== */}
-      {pendingRequest && pendingRequest.status === "sent" && (
-        <div style={{ background: "#FFF7C2", padding: 15, margin: 10, borderRadius: 14, textAlign: "center" }}>
-          <h4 style={{ margin: 0 }}>{pendingRequest.title || "Collaboration Request"}</h4>
-          <p style={{ marginTop: 4 }}>{pendingRequest.description}</p>
-
-          <button onClick={acceptRequest} style={{ marginRight: 10 }}>✅ Accept</button>
-          <button onClick={rejectRequest}>❌ Reject</button>
-        </div>
-      )}
 
       {/* HEADER */}
       <div
@@ -671,7 +604,7 @@ export default function ChatPage() {
       </div>
 
       {/* EMOJI PICKER */}
-      {showEmoji && canChat && (
+      {showEmoji && (
         <div style={{ position: "absolute", bottom: 70, left: 10, zIndex: 100 }}>
           <Picker onEmojiClick={onEmojiClick} />
         </div>
@@ -689,71 +622,55 @@ export default function ChatPage() {
           position: "relative",
         }}
       >
-        {!canChat ? (
-          <div
-            style={{
-              flex: 1,
-              textAlign: "center",
-              color: "red",
-              fontSize: 14,
-              fontWeight: 500,
-            }}
-          >
-            ⏳ Waiting for freelancer to accept the request
-          </div>
-        ) : (
-          <>
-            <button
-              onClick={() => setShowEmoji(!showEmoji)}
-              style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer" }}
-            >
-              😊
-            </button>
+        <button
+          onClick={() => setShowEmoji(!showEmoji)}
+          style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer" }}
+        >
+          😊
+        </button>
 
-            <input
-              type="file"
-              id="fileInput"
-              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
-              style={{ display: "none" }}
-              onChange={(e) => handleFileUpload(e.target.files[0])}
-            />
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+          style={{ display: "none" }}
+          onChange={(e) => handleFileUpload(e.target.files[0])}
+        />
 
-            <button
-              onClick={() => document.getElementById("fileInput").click()}
-              style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer" }}
-            >
-              📎
-            </button>
+        <button
+          onClick={() => document.getElementById("fileInput").click()}
+          style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer" }}
+        >
+          📎
+        </button>
 
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type a message…"
-              style={{
-                flex: 1,
-                padding: 12,
-                borderRadius: 20,
-                border: "1px solid #ccc",
-                fontSize: 14,
-              }}
-            />
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder="Type a message…"
+          style={{
+            flex: 1,
+            padding: 12,
+            borderRadius: 20,
+            border: "1px solid #ccc",
+            fontSize: 14,
+          }}
+        />
 
-            <button
-              onClick={sendMessage}
-              style={{
-                background: "#1877f2",
-                border: "none",
-                color: "white",
-                padding: "12px 15px",
-                borderRadius: 20,
-                cursor: "pointer",
-              }}
-            >
-              <IoSend size={22} />
-            </button>
-          </>
-        )}
+        <button
+          onClick={sendMessage}
+          style={{
+            background: "#1877f2",
+            border: "none",
+            color: "white",
+            padding: "12px 15px",
+            borderRadius: 20,
+            cursor: "pointer",
+          }}
+        >
+          <IoSend size={22} />
+        </button>
       </div>
     </div>
   );

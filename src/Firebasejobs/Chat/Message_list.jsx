@@ -1992,7 +1992,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
               <span className="chatlist-back-icon" />
             </button>
             <div className="chatlist-title-wrapper">
-              <div className="chatlist-title">Message</div>
+              <div className="chatlist-title">Messages</div>
             </div>
           </div>
 
