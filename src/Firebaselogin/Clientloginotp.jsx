@@ -4,152 +4,6 @@
 // import { auth, db } from "../firbase/Firebase";
 // import { doc, getDoc } from "firebase/firestore";
 // import { useNavigate, useLocation } from "react-router-dom";
-// import "../ClientRegister/OtpVerify.css";
-
-// const OtpVerify = () => {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   // Read from state OR local storage
-//   const localData = JSON.parse(localStorage.getItem("otpUser") || "{}");
-//   const stateData = location.state || {};
-
-//   const email = stateData.email || localData.email;
-
-//   const [otp, setOtp] = useState("");
-//   const [timer, setTimer] = useState(30);
-//   const [isResendDisabled, setIsResendDisabled] = useState(true);
-
-//   // Validate email
-//   useEffect(() => {
-//     if (!email) {
-//       alert("Signup data missing. Please start again.");
-//       navigate("/signup-client");
-//     }
-//   }, []);
-
-//   // OTP Timer Logic
-//   useEffect(() => {
-//     if (timer === 0) {
-//       setIsResendDisabled(false);
-//       return;
-//     }
-//     const countdown = setTimeout(() => setTimer(timer - 1), 1000);
-//     return () => clearTimeout(countdown);
-//   }, [timer]);
-
-//   // ========== VERIFY OTP ==========
-//   const verifyOtp = async () => {
-//     if (otp.length !== 6) return alert("Enter a valid 6-digit OTP");
-
-//     try {
-//       const res = await axios.post(
-//         "https://huzzler.onrender.com/api/auth/verify-otp",
-//         { email: email.toLowerCase(), otp }
-//       );
-
-//       if (!res.data?.token) return alert("Invalid OTP");
-
-//       const userCred = await signInWithCustomToken(auth, res.data.token);
-//       const uid = userCred.user.uid;
-
-//       // Fetch User role from Firestore
-//       const userRef = doc(db, "users", uid);
-//       const userSnap = await getDoc(userRef);
-
-//       if (!userSnap.exists()) {
-//         alert("User data not found in database.");
-//         return;
-//       }
-
-//       const userData = userSnap.data();
-//       const firestoreRole = userData.role;
-
-//       // Clear temp store
-//       localStorage.removeItem("otpUser");
-
-//       // Redirect based on role
-//       if (firestoreRole === "client") {
-//         navigate("/client-dashbroad2/clientserachbar", { state: { uid } });
-//         return;
-//       }
-
-//       if (firestoreRole === "freelancer") {
-//         navigate("/freelance-dashboard", { state: { uid } });
-//         return;
-//       }
-
-//       alert("Unknown role: " + firestoreRole);
-
-//     } catch (err) {
-//       console.error(err);
-//       alert(err?.response?.data?.message || "OTP verification failed");
-//     }
-//   };
-
-//   // ========== RESEND OTP ==========
-//   const resendOtp = async () => {
-//     try {
-//       setIsResendDisabled(true);
-//       setTimer(30);
-
-//       await axios.post("https://huzzler.onrender.com/api/auth/resend-otp", {
-//         email: email.toLowerCase(),
-//         action: "resend",
-//       });
-
-//       alert("A new OTP has been sent!");
-//     } catch (err) {
-//       console.error(err);
-//       alert("Failed to resend OTP");
-//     }
-//   };
-
-//   return (
-//     <div className="otp-container">
-//       <div className="otp-box">
-//         <h2>Verify OTP</h2>
-//         <p className="otp-email">{email}</p>
-
-//         <input
-//           maxLength="6"
-//           className="otp-input"
-//           type="text"
-//           placeholder="Enter 6-digit OTP"
-//           value={otp}
-//           onChange={(e) => setOtp(e.target.value)}
-//         />
-
-//         <button onClick={verifyOtp} className="verify-btn">
-//           Verify OTP
-//         </button>
-
-//         <div className="resend-area">
-//           {isResendDisabled ? (
-//             <span className="timer">Resend OTP in {timer}s</span>
-//           ) : (
-//             <button onClick={resendOtp} className="resend-btn">
-//               Resend OTP
-//             </button>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default OtpVerify;
-
-
-
-
-
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import { signInWithCustomToken } from "firebase/auth";
-// import { auth, db } from "../firbase/Firebase";
-// import { doc, getDoc } from "firebase/firestore";
-// import { useNavigate, useLocation } from "react-router-dom";
 
 // export default function OtpVerify() {
 //   const navigate = useNavigate();
@@ -157,42 +11,35 @@
 
 //   const localData = JSON.parse(localStorage.getItem("otpUser") || "{}");
 //   const stateData = location.state || {};
-
 //   const email = stateData.email || localData.email;
 
 //   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 //   const [timer, setTimer] = useState(30);
 //   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
-//   // Validate email
 //   useEffect(() => {
 //     if (!email) {
 //       alert("Signup data missing. Please start again.");
 //       navigate("/signup-client");
 //     }
-//   }, []);
+//   }, [email, navigate]);
 
-//   // Timer Logic
 //   useEffect(() => {
 //     if (timer === 0) return setIsResendDisabled(false);
-//     const t = setTimeout(() => setTimer(timer - 1), 1000);
+//     const t = setTimeout(() => setTimer((prev) => prev - 1), 1000);
 //     return () => clearTimeout(t);
 //   }, [timer]);
 
 //   const handleOtpChange = (value, index) => {
 //     if (isNaN(value)) return;
-
-//     let temp = [...otp];
+//     const temp = [...otp];
 //     temp[index] = value;
 //     setOtp(temp);
-
-//     // Move to next box
 //     if (value && index < 5) {
 //       document.getElementById(`otp-${index + 1}`).focus();
 //     }
 //   };
 
-//   // Verify OTP
 //   const verifyOtp = async () => {
 //     const code = otp.join("");
 //     if (code.length !== 6) return alert("Enter valid 6-digit OTP");
@@ -208,13 +55,10 @@
 //       const userCred = await signInWithCustomToken(auth, res.data.token);
 //       const uid = userCred.user.uid;
 
-//       const userRef = doc(db, "users", uid);
-//       const snap = await getDoc(userRef);
-
+//       const snap = await getDoc(doc(db, "users", uid));
 //       if (!snap.exists()) return alert("User data not found!");
 
 //       const role = snap.data().role;
-
 //       localStorage.removeItem("otpUser");
 
 //       if (role === "client") navigate("/client-dashbroad2/clientserachbar");
@@ -226,26 +70,23 @@
 //     }
 //   };
 
-//   // Resend OTP
 //   const resendOtp = async () => {
 //     try {
 //       setIsResendDisabled(true);
 //       setTimer(30);
-
 //       await axios.post("https://huzzler.onrender.com/api/auth/resend-otp", {
 //         email: email.toLowerCase(),
 //         action: "resend",
 //       });
-
 //       alert("OTP resent!");
-//     } catch (err) {
+//     } catch {
 //       alert("Failed to resend OTP");
 //     }
 //   };
 
 //   return (
-    
 //     <div
+//       className="otp-wrapper"
 //       style={{
 //         minHeight: "100vh",
 //         display: "flex",
@@ -256,40 +97,39 @@
 //         padding: 20,
 //       }}
 //     >
-//               {/* BACK */}
-//         <div
-//           style={{
-//             textAlign: "left",
-//             marginBottom: 80,
-//             cursor: "pointer",
-//             color: "#444",
-//             display: "flex",
-//             alignItems: "center",
-//             gap: 6,
-//             fontWeight: 600,
-            
-//           }}
-//           onClick={() => navigate(-1)}
-//         >
-//           ← BACK
-//         </div> 
+//       {/* BACK */}
 //       <div
+//         className="otp-back"
+//         style={{
+//           position: "absolute",
+//           top: 100,
+//           left: 490,
+//           cursor: "pointer",
+//           color: "#444",
+//           fontWeight: 600,
+//         }}
+//         onClick={() => navigate(-1)}
+//       >
+//         ← BACK
+//       </div>
+
+//       {/* CARD */}
+//       <div
+//         className="otp-card"
 //         style={{
 //           width: "460px",
-//           padding: "40px 40px",
+//           padding: "40px",
 //           borderRadius: 20,
 //           background: "#ffffff",
 //           boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
 //           textAlign: "center",
 //         }}
 //       >
-
-//         {/* Heading */}
-//         <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, marginTop:"-5px" }}>
+//         <h2 style={{ fontSize: 22, fontWeight: 600 }}>
 //           You're almost there! We just need to verify your email.
 //         </h2>
 
-//         <p style={{ marginTop: 10, fontSize: 16, color: "#777" }}>
+//         <p style={{ fontSize: 16, color: "#777", marginTop: 10 }}>
 //           Great! Almost done!
 //         </p>
 
@@ -297,30 +137,15 @@
 //           Please verify your email
 //         </h3>
 
-//         <p style={{ marginTop: 20, fontSize: 15, color: "#777" }}>
+//         <p style={{ fontSize: 15, color: "#777", marginTop: 20 }}>
 //           Enter the verification code sent to:
 //         </p>
 
-//         <p
-//           style={{
-//             fontSize: 17,
-//             fontWeight: 600,
-//             marginBottom: 20,
-//             color: "#333",
-//           }}
-//         >
+//         <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 20 }}>
 //           {email}
 //         </p>
 
-//         {/* OTP INPUT BOXES */}
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "center",
-//             gap: "14px",
-//             marginBottom: 25,
-//           }}
-//         >
+//         <div className="otp-inputs">
 //           {otp.map((val, i) => (
 //             <input
 //               key={i}
@@ -329,21 +154,22 @@
 //               value={val}
 //               onChange={(e) => handleOtpChange(e.target.value, i)}
 //               style={{
-//                 width: 30,
-//                 height: 45,
+//                 width: "100%",          // 🔥 important
+//                 height: 48,
 //                 textAlign: "center",
 //                 borderRadius: 10,
 //                 border: "2px solid #e5e6eb",
-//                 fontSize: 20,
-//                 outline: "none",
+//                 fontSize: 18,
 //                 fontWeight: 600,
+//                 flex: 1,                // 🔥 important
+//                 minWidth: 0,            // 🔥 important
 //               }}
 //             />
 //           ))}
 //         </div>
 
-//         {/* Resend */}
-//         <p style={{ fontSize: 14, color: "#666" }}>
+
+//         <p style={{ fontSize: 14, color: "#666", marginTop: 20 }}>
 //           Didn't receive OTP?{" "}
 //           {isResendDisabled ? (
 //             <span style={{ color: "#999" }}>Resend in {timer}s</span>
@@ -357,259 +183,120 @@
 //           )}
 //         </p>
 
-//         {/* VERIFY BUTTON */}
 //         <button
 //           onClick={verifyOtp}
 //           style={{
 //             marginTop: 25,
 //             width: "100%",
-//             padding: "14px 0",
+//             padding: "14px",
 //             background: "#7A4DFF",
 //             color: "#fff",
 //             border: "none",
 //             borderRadius: 12,
 //             fontSize: 17,
-//             cursor: "pointer",
 //             fontWeight: 600,
-//             transition: "0.2s",
+//             cursor: "pointer",
 //           }}
 //         >
 //           Get Started
 //         </button>
 //       </div>
-//     </div>
-//   );
+
+//       {/* RESPONSIVE CSS */}
+//       <style>
+//         {`
+// /* ===== BASE (ALL SCREENS) ===== */
+// .otp-inputs {
+//   display: flex;
+//   justify-content: center;
+//   gap: 12px;
+//   margin-top: 10px;
 // }
 
+// /* ================= DESKTOP ================= */
+// @media (min-width: 769px) {
+//   .otp-card {
+//     width: 460px;
+//   }
+// }
 
+// /* ================= TABLET ================= */
+// @media (max-width: 1024px) {
+//   .otp-back {
+//     left: 24px !important;
+//     top: 24px !important;
+//   }
 
+//   .otp-card {
+//     width: 440px !important;
+//   }
+// }
 
+// /* ================= MOBILE ================= */
+// @media (max-width: 768px) {
+//   .otp-wrapper {
+//     align-items: flex-start !important;
+//     padding-top: 70px !important;
+//     margin-top:80px !important;
+//   }
 
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import { signInWithCustomToken } from "firebase/auth";
-// import { auth, db } from "../firbase/Firebase";
-// import { doc, getDoc } from "firebase/firestore";
-// import { useNavigate, useLocation } from "react-router-dom";
-
-// export default function OtpVerify() {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const localData = JSON.parse(localStorage.getItem("otpUser") || "{}");
-//   const stateData = location.state || {};
-
-//   const email = stateData.email || localData.email;
-
-//   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-//   const [timer, setTimer] = useState(30);
-//   const [isResendDisabled, setIsResendDisabled] = useState(true);
-
-//   // Validate email
-//   useEffect(() => {
-//     if (!email) {
-//       alert("Signup data missing. Please start again.");
-//       navigate("/signup-client");
-//     }
-//   }, []);
-
-//   // Timer Logic
-//   useEffect(() => {
-//     if (timer === 0) return setIsResendDisabled(false);
-//     const t = setTimeout(() => setTimer(timer - 1), 1000);
-//     return () => clearTimeout(t);
-//   }, [timer]);
-
-//   const handleOtpChange = (value, index) => {
-//     if (isNaN(value)) return;
-
-//     let temp = [...otp];
-//     temp[index] = value;
-//     setOtp(temp);
-
-//     // Move to next box
-//     if (value && index < 5) {
-//       document.getElementById(`otp-${index + 1}`).focus();
-//     }
-//   };
-
-//   // Verify OTP
-//   const verifyOtp = async () => {
-//     const code = otp.join("");
-//     if (code.length !== 6) return alert("Enter valid 6-digit OTP");
-
-//     try {
-//       const res = await axios.post(
-//         "https://huzzler.onrender.com/api/auth/verify-otp",
-//         { email: email.toLowerCase(), otp: code }
-//       );
-
-//       if (!res.data?.token) return alert("Invalid OTP");
-
-//       const userCred = await signInWithCustomToken(auth, res.data.token);
-//       const uid = userCred.user.uid;
-
-//       const userRef = doc(db, "users", uid);
-//       const snap = await getDoc(userRef);
-
-//       if (!snap.exists()) return alert("User data not found!");
-
-//       const role = snap.data().role;
-
-//       localStorage.removeItem("otpUser");
-
-//       if (role === "client") navigate("/client-dashbroad2/clientserachbar");
-//       else if (role === "freelancer") navigate("/freelance-dashboard");
-//       else alert("Unknown role");
-//     } catch (err) {
-//       alert("OTP verification failed");
-//       console.error(err);
-//     }
-//   };
-
-//   // Resend OTP
-//   const resendOtp = async () => {
-//     try {
-//       setIsResendDisabled(true);
-//       setTimer(30);
-
-//       await axios.post("https://huzzler.onrender.com/api/auth/resend-otp", {
-//         email: email.toLowerCase(),
-//         action: "resend",
-//       });
-
-//       alert("OTP resent!");
-//     } catch (err) {
-//       alert("Failed to resend OTP");
-//     }
-//   };
-
-//   return (
+//   /* BACK button fixed and visible */
+//   .otp-back {
+//     position: fixed !important;
+//     top: 20px !important;
+//     left: 16px !important;
+//     z-index: 1000;
+//     font-size: 15px;
+//     background: transparent;
     
-//     <div>
+//   }
 
-      
-//     <div
-//       style={{
-//         minHeight: "100vh",
-//         display: "flex",
-//         justifyContent: "center",
-//         alignItems: "center",
-//         background:
-//           "linear-gradient(to bottom left, #f7f4ff, #fff, #fffde9, #fffce6)",
-//         padding: 20,
-//       }}
-//     >
-            
+//   /* Card should be big & centered */
+//   .otp-card {
+//     width: 100% !important;
+//     max-width: 420px !important;
+//     padding: 32px 24px !important;
+//     border-radius: 18px;
+//   }
 
-//       <div
-//         style={{
-//           width: "460px",
-//           padding: "40px 40px",
-//           borderRadius: 20,
-//           background: "#ffffff",
-//           boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-//           textAlign: "center",
-//         }}
-//       >
+//   /* OTP inputs stay inside card */
+//  .otp-inputs {
+//     display: flex;
+//     width: 100%;
+//     gap: 8px;
+//     padding: 0 2px;
+//     box-sizing: border-box;
+//   }
 
-//         {/* Heading */}
-//         <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, marginTop:"-5px" }}>
-//           You're almost there! We just need to verify your email.
-//         </h2>
+//   .otp-inputs input {
+//     max-width: 52px;
+//   }
+// }
 
-//         <p style={{ marginTop: 10, fontSize: 16, color: "#777" }}>
-//           Great! Almost done!
-//         </p>
+// /* ================= SMALL MOBILE ================= */
+// @media (max-width: 480px) {
+//   .otp-card {
+//     max-width: 100% !important;
+//     padding: 28px 18px !important;
+//   }
 
-//         <h3 style={{ fontWeight: 600, fontSize: 20, marginTop: 10 }}>
-//           Please verify your email
-//         </h3>
+//  .otp-inputs input {
+//   padding: 0 !important;              /* ✅ remove default padding */
+//   line-height: 1 !important;          /* ✅ reset line height */
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   text-align: center;
+// }
 
-//         <p style={{ marginTop: 20, fontSize: 15, color: "#777" }}>
-//           Enter the verification code sent to:
-//         </p>
+// }
+// `}
+//       </style>
 
-//         <p
-//           style={{
-//             fontSize: 17,
-//             fontWeight: 600,
-//             marginBottom: 20,
-//             color: "#333",
-//           }}
-//         >
-//           {email}
-//         </p>
-
-//         {/* OTP INPUT BOXES */}
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "center",
-//             gap: "14px",
-//             marginBottom: 25,
-//           }}
-//         >
-//           {otp.map((val, i) => (
-//             <input
-//               key={i}
-//               id={`otp-${i}`}
-//               maxLength="1"
-//               value={val}
-//               onChange={(e) => handleOtpChange(e.target.value, i)}
-//               style={{
-//                 width: 30,
-//                 height: 45,
-//                 textAlign: "center",
-//                 borderRadius: 10,
-//                 border: "2px solid #e5e6eb",
-//                 fontSize: 20,
-//                 outline: "none",
-//                 fontWeight: 600,
-//               }}
-//             />
-//           ))}
-//         </div>
-
-//         {/* Resend */}
-//         <p style={{ fontSize: 14, color: "#666" }}>
-//           Didn't receive OTP?{" "}
-//           {isResendDisabled ? (
-//             <span style={{ color: "#999" }}>Resend in {timer}s</span>
-//           ) : (
-//             <span
-//               onClick={resendOtp}
-//               style={{ color: "#7A4DFF", cursor: "pointer", fontWeight: 600 }}
-//             >
-//               Resend OTP
-//             </span>
-//           )}
-//         </p>
-
-//         {/* VERIFY BUTTON */}
-//         <button
-//           onClick={verifyOtp}
-//           style={{
-//             marginTop: 25,
-//             width: "100%",
-//             padding: "14px 0",
-//             background: "#7A4DFF",
-//             color: "#fff",
-//             border: "none",
-//             borderRadius: 12,
-//             fontSize: 17,
-//             cursor: "pointer",
-//             fontWeight: 600,
-//             transition: "0.2s",
-//           }}
-//         >
-//           Get Started
-//         </button>
-//       </div>
-//     </div>
 //     </div>
 //   );
 // }
+
 
 
 
@@ -632,7 +319,6 @@ export default function OtpVerify() {
   const [timer, setTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
-  // Validate email
   useEffect(() => {
     if (!email) {
       alert("Signup data missing. Please start again.");
@@ -640,7 +326,6 @@ export default function OtpVerify() {
     }
   }, [email, navigate]);
 
-  // Timer Logic
   useEffect(() => {
     if (timer === 0) return setIsResendDisabled(false);
     const t = setTimeout(() => setTimer((prev) => prev - 1), 1000);
@@ -649,17 +334,14 @@ export default function OtpVerify() {
 
   const handleOtpChange = (value, index) => {
     if (isNaN(value)) return;
-
-    let temp = [...otp];
+    const temp = [...otp];
     temp[index] = value;
     setOtp(temp);
-
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`).focus();
     }
   };
 
-  // Verify OTP
   const verifyOtp = async () => {
     const code = otp.join("");
     if (code.length !== 6) return alert("Enter valid 6-digit OTP");
@@ -675,9 +357,7 @@ export default function OtpVerify() {
       const userCred = await signInWithCustomToken(auth, res.data.token);
       const uid = userCred.user.uid;
 
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
-
+      const snap = await getDoc(doc(db, "users", uid));
       if (!snap.exists()) return alert("User data not found!");
 
       const role = snap.data().role;
@@ -692,25 +372,23 @@ export default function OtpVerify() {
     }
   };
 
-  // Resend OTP
   const resendOtp = async () => {
     try {
       setIsResendDisabled(true);
       setTimer(30);
-
       await axios.post("https://huzzler.onrender.com/api/auth/resend-otp", {
         email: email.toLowerCase(),
         action: "resend",
       });
-
       alert("OTP resent!");
-    } catch (err) {
+    } catch {
       alert("Failed to resend OTP");
     }
   };
 
   return (
     <div
+      className="otp-wrapper"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -723,6 +401,7 @@ export default function OtpVerify() {
     >
       {/* BACK */}
       <div
+        className="otp-back"
         style={{
           position: "absolute",
           top: 100,
@@ -730,29 +409,29 @@ export default function OtpVerify() {
           cursor: "pointer",
           color: "#444",
           fontWeight: 600,
-          // marginLeft:"470px",
-          // marginTop:"70px"
         }}
         onClick={() => navigate(-1)}
       >
         ← BACK
       </div>
 
+      {/* CARD */}
       <div
+        className="otp-card"
         style={{
           width: "460px",
-          padding: "40px 40px",
+          padding: "40px",
           borderRadius: 20,
           background: "#ffffff",
           boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
           textAlign: "center",
         }}
       >
-        <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 600 }}>
           You're almost there! We just need to verify your email.
         </h2>
 
-        <p style={{ marginTop: 10, fontSize: 16, color: "#777" }}>
+        <p style={{ fontSize: 16, color: "#777", marginTop: 10 }}>
           Great! Almost done!
         </p>
 
@@ -760,52 +439,39 @@ export default function OtpVerify() {
           Please verify your email
         </h3>
 
-        <p style={{ marginTop: 20, fontSize: 15, color: "#777" }}>
+        <p style={{ fontSize: 15, color: "#777", marginTop: 20 }}>
           Enter the verification code sent to:
         </p>
 
-        <p
-          style={{
-            fontSize: 17,
-            fontWeight: 600,
-            marginBottom: 20,
-            color: "#333",
-          }}
-        >
+        <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 20 }}>
           {email}
         </p>
 
-        {/* OTP INPUTS */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "14px",
-            marginBottom: 25,
-          }}
-        >
-          {otp.map((val, i) => (
-            <input
-              key={i}
-              id={`otp-${i}`}
-              maxLength="1"
-              value={val}
-              onChange={(e) => handleOtpChange(e.target.value, i)}
-              style={{
-                width: 30,
-                height: 45,
-                textAlign: "center",
-                borderRadius: 10,
-                border: "2px solid #e5e6eb",
-                fontSize: 20,
-                outline: "none",
-                fontWeight: 600,
-              }}
-            />
-          ))}
-        </div>
+       <div className="otp-inputs">
+  {otp.map((val, i) => (
+    <input
+      key={i}
+      id={`otp-${i}`}
+      maxLength="1"
+      value={val}
+      onChange={(e) => handleOtpChange(e.target.value, i)}
+      style={{
+        width: "100%",          // 🔥 important
+        height: 48,
+        textAlign: "center",
+        borderRadius: 10,
+        border: "2px solid #e5e6eb",
+        fontSize: 18,
+        fontWeight: 600,
+        flex: 1,                // 🔥 important
+        minWidth: 0,            // 🔥 important
+      }}
+    />
+  ))}
+</div>
 
-        <p style={{ fontSize: 14, color: "#666" }}>
+
+        <p style={{ fontSize: 14, color: "#666", marginTop: 20 }}>
           Didn't receive OTP?{" "}
           {isResendDisabled ? (
             <span style={{ color: "#999" }}>Resend in {timer}s</span>
@@ -819,25 +485,116 @@ export default function OtpVerify() {
           )}
         </p>
 
-        {/* Verify */}
         <button
           onClick={verifyOtp}
           style={{
             marginTop: 25,
             width: "100%",
-            padding: "14px 0",
+            padding: "14px",
             background: "#7A4DFF",
             color: "#fff",
             border: "none",
             borderRadius: 12,
             fontSize: 17,
-            cursor: "pointer",
             fontWeight: 600,
+            cursor: "pointer",
           }}
         >
           Get Started
         </button>
       </div>
+
+      {/* RESPONSIVE CSS */}
+    <style>
+{`
+/* ===== BASE (ALL SCREENS) ===== */
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* ================= DESKTOP ================= */
+@media (min-width: 769px) {
+  .otp-card {
+    width: 460px;
+  }
+}
+
+/* ================= TABLET ================= */
+@media (max-width: 1024px) {
+  .otp-back {
+    left: 24px !important;
+    top: 24px !important;
+  }
+
+  .otp-card {
+    width: 440px !important;
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+  .otp-wrapper {
+    align-items: flex-start !important;
+    padding-top: 70px !important;
+    margin-top:80px !important;
+  }
+
+  /* BACK button fixed and visible */
+  .otp-back {
+    position: fixed !important;
+    top: 20px !important;
+    left: 16px !important;
+    z-index: 1000;
+    font-size: 15px;
+    background: transparent;
+    
+  }
+
+  /* Card should be big & centered */
+  .otp-card {
+    width: 100% !important;
+    max-width: 420px !important;
+    padding: 32px 24px !important;
+    border-radius: 18px;
+  }
+
+  /* OTP inputs stay inside card */
+ .otp-inputs {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    padding: 0 2px;
+    box-sizing: border-box;
+  }
+
+  .otp-inputs input {
+    max-width: 52px;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+@media (max-width: 480px) {
+  .otp-card {
+    max-width: 100% !important;
+    padding: 28px 18px !important;
+  }
+
+ .otp-inputs input {
+  padding: 0 !important;              /* ✅ remove default padding */
+  line-height: 1 !important;          /* ✅ reset line height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+}
+`}
+</style>
+
     </div>
   );
 }

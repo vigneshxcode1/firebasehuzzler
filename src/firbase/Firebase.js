@@ -19,7 +19,57 @@ const firebaseConfig = {
 // ❗ Prevent duplicate initialization
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
+// Firebase.js
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { initializeApp, getApps } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+// import { getFirestore } from "firebase/firestore";
+// import { getDatabase } from "firebase/database";
+// import { getStorage } from "firebase/storage";
+
+// const firebaseConfig = {
+//   apiKey: "AI***********zbLvCF3HVrg",
+//   authDomain: "huz********eapp.com",
+//   projectId: "huzz**********6de",
+//   storageBucket: "huzzl**********pot.com",
+//   messagingSenderId: "41**********77",
+//   appId: "1:41427********dc038cce47db710",
+//   measurementId: "G-GGW********5GX",
+//   databaseURL: "https://hu******ebasedatabase.app"
+// };
+
+// // ❗ Prevent duplicate initialization
+// const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+
+// export const auth = getAuth(app);
+// export const db = getFirestore(app);
+// export const rtdb = getDatabase(app);
+// export const storage = getStorage(app);

@@ -1,4 +1,4 @@
-// import React, { useState } from "react";
+// import React, { useState, useEffect } from "react";
 // import { useNavigate, useLocation } from "react-router-dom";
 // import { getAuth } from "firebase/auth";
 // import { getFirestore, doc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -6,6 +6,12 @@
 // export default function ProfessionalStatusScreen() {
 //   const navigate = useNavigate();
 //   const location = useLocation();
+
+//   // ✅ SCROLL REMOVE
+//   useEffect(() => {
+//     document.body.style.overflow = "hidden";
+//     return () => (document.body.style.overflow = "auto");
+//   }, []);
 
 //   const navState = location.state || {};
 
@@ -26,153 +32,6 @@
 //   const [isLoading, setIsLoading] = useState(false);
 
 //   const experienceOptions = ["Beginner", "Intermediate", "Expert"];
-
-//   const auth = getAuth();
-//   const db = getFirestore();
-
-//   const handleSave = async () => {
-//     if (!title.trim()) return alert("Enter your professional title");
-//     if (!selectedExperience) return alert("Select experience level");
-
-//     try {
-//       setIsLoading(true);
-
-//       await setDoc(
-//         doc(db, "users", uid),
-//         {
-//           uid,
-//           firstName,
-//           lastName,
-//           email,
-//           expertise,
-//           location: userLocation,
-//           referral,
-//           linkedin,
-//           professional_title: title.trim(),
-//           experience_level: selectedExperience,
-//           current_status: currentStatus,
-//           role: "freelancer",
-//           profileCompleted: true,
-//           updated_at: serverTimestamp(),
-//         },
-//         { merge: true }
-//       );
-
-//       navigate("/freelance-dashboard/freelanceHome", {
-//         replace: true,
-//         state: { uid },
-//       });
-
-//     } catch (err) {
-//       alert("Saving failed: " + err.message);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div style={{ padding: 20, maxWidth: 450, margin: "auto" }}>
-//       <h2>Professional Details</h2>
-
-//       <input
-//         type="text"
-//         placeholder="Professional Title"
-//         value={title}
-//         onChange={(e) => setTitle(e.target.value)}
-//         style={{ width: "100%", padding: 12, marginTop: 20 }}
-//       />
-
-//       <select
-//         value={selectedExperience}
-//         onChange={(e) => setSelectedExperience(e.target.value)}
-//         style={{ width: "100%", padding: 12, marginTop: 20 }}
-//       >
-//         <option value="">Select Experience Level</option>
-//         {experienceOptions.map((lvl) => (
-//           <option key={lvl}>{lvl}</option>
-//         ))}
-//       </select>
-
-//       <h4 style={{ marginTop: 20 }}>Current Status</h4>
-
-//       <div style={{ display: "flex", gap: 10 }}>
-//         <button
-//           onClick={() => setCurrentStatus("Professional")}
-//           style={{
-//             flex: 1,
-//             padding: 12,
-//             background: currentStatus === "Professional" ? "#000" : "#fff",
-//             color: currentStatus === "Professional" ? "#fff" : "#000",
-//             borderRadius: 8,
-//             border: "1px solid #000",
-//           }}
-//         >
-//           Professional
-//         </button>
-
-//         <button
-//           onClick={() => setCurrentStatus("Student")}
-//           style={{
-//             flex: 1,
-//             padding: 12,
-//             background: currentStatus === "Student" ? "#000" : "#fff",
-//             color: currentStatus === "Student" ? "#fff" : "#000",
-//             borderRadius: 8,
-//             border: "1px solid #000",
-//           }}
-//         >
-//           Student
-//         </button>
-//       </div>
-
-//       <button
-//         onClick={handleSave}
-//         disabled={isLoading}
-//         style={{
-//           marginTop: 40,
-//           width: "100%",
-//           padding: 14,
-//           borderRadius: 8,
-//           background: "#f4d742",
-//           border: "1px solid black",
-//         }}
-//       >
-//         {isLoading ? "Saving..." : "Continue"}
-//       </button>
-//     </div>
-//   );
-// }
-
-
-// import React, { useState } from "react";
-// import { useNavigate, useLocation } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-// import { getFirestore, doc, setDoc, serverTimestamp } from "firebase/firestore";
-
-// export default function ProfessionalStatusScreen() {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const navState = location.state || {};
-
-//   const {
-//     uid = "",
-//     firstName = "",
-//     lastName = "",
-//     email = "",
-//     expertise = "",
-//     location: userLocation = "",
-//     referral = "",
-//     linkedin = "",
-//   } = navState;
-
-//   const [title, setTitle] = useState("");
-//   const [selectedExperience, setSelectedExperience] = useState("");
-//   const [currentStatus, setCurrentStatus] = useState("Professional");
-//   const [isLoading, setIsLoading] = useState(false);
-
-//   const experienceOptions = ["Beginner", "Intermediate", "Expert"];
-
 //   const db = getFirestore();
 
 //   const handleSave = async () => {
@@ -203,7 +62,7 @@
 //         { merge: true }
 //       );
 
-//       navigate("/client-dashboard/home", {
+//       navigate("/freelance-dashboard/freelanceHome", {
 //         replace: true,
 //         state: { uid },
 //       });
@@ -216,17 +75,14 @@
 
 //   return (
 //     <div style={styles.pageBg}>
-//       {/* BACK ROW */}
 //       <div style={styles.topRow}>
 //         <span style={styles.backArrow} onClick={() => navigate(-1)}>←</span>
 //         <span style={styles.topTitle}>sign up as Client</span>
-//       </div><br />
+//       </div><br /><br />
 
-//       {/* CARD */}
 //       <div style={styles.card}>
 //         <h3 style={styles.heading}>Please complete the following step.</h3>
 
-//         {/* PROFESSIONAL TITLE INPUT */}
 //         <input
 //           type="text"
 //           placeholder="Professional Title"
@@ -235,7 +91,6 @@
 //           style={styles.input}
 //         />
 
-//         {/* EXPERIENCE DROPDOWN */}
 //         <select
 //           value={selectedExperience}
 //           onChange={(e) => setSelectedExperience(e.target.value)}
@@ -247,10 +102,8 @@
 //           ))}
 //         </select>
 
-//         {/* STATUS LABEL */}
 //         <p style={styles.statusLabel}>What's Your Current Status?</p>
 
-//         {/* STATUS BUTTONS */}
 //         <div style={styles.statusRow}>
 //           <button
 //             onClick={() => setCurrentStatus("Professional")}
@@ -287,7 +140,6 @@
 //           </button>
 //         </div>
 
-//         {/* CONTINUE BUTTON */}
 //         <button
 //           onClick={handleSave}
 //           disabled={isLoading}
@@ -300,7 +152,6 @@
 //   );
 // }
 
-// /* =========================== UI STYLES =========================== */
 // const styles = {
 //   pageBg: {
 //     height: "100vh",
@@ -312,6 +163,8 @@
 //     alignItems: "center",
 //     paddingTop: 50,
 //     fontFamily: "Inter, sans-serif",
+//     overflow: "hidden",
+
 //   },
 
 //   topRow: {
@@ -326,7 +179,7 @@
 //     cursor: "pointer",
 //     fontSize: 20,
 //     fontWeight: 600,
-//     marginLeft:-50,
+//     marginLeft: -50,
 //   },
 
 //   topTitle: {
@@ -343,24 +196,28 @@
 //     textAlign: "center",
 //   },
 
-//   heading: {
-//     fontSize: 16,
-//     fontWeight: 400,
-//     marginBottom: 35,
-//     marginLeft:-380,
-//     color: "#000000",
-//   },
+// heading: {
+//   fontSize: 16,
+//   fontWeight: 400,
+//   marginBottom: 35,
+//   textAlign: "center",
+//   color: "#000000",
+// },
 
-//   input: {
-//     width: "100%",
-//     padding: "16px",
-//     borderRadius: 14,
-//     border: "1px solid #e5e5e5",
-//     marginBottom: 20,
-//     fontSize: 15,
-//     outline: "none",
-//     background: "#fff",
-//   },
+
+//  input: {
+//   width: "100%",
+//   padding: "16px",
+//   borderRadius: 14,
+//   border: "1px solid #e5e5e5",
+//   marginBottom: 20,
+//   fontSize: 15,
+//   outline: "none",
+//   background: "#fff",
+//   boxSizing: "border-box",   // <-- FIX #1
+//   display: "block",          // <-- FIX #2
+// },
+
 
 //   statusLabel: {
 //     marginTop: 10,
@@ -459,7 +316,7 @@ export default function ProfessionalStatusScreen() {
           professional_title: title.trim(),
           experience_level: selectedExperience,
           current_status: currentStatus,
-          role: "client",
+          role: "freelancer",
           profileCompleted: true,
           updated_at: serverTimestamp(),
         },
@@ -558,21 +415,22 @@ export default function ProfessionalStatusScreen() {
 
 const styles = {
   pageBg: {
-    height: "100vh",
+    minHeight: "100vh",
     width: "100%",
-    background:
-      "linear-gradient(140deg, #ffffff 10%, #f4edff 60%, #fffbd9 100%)",
+    background: "linear-gradient(140deg, #ffffff 10%, #f4edff 60%, #fffbd9 100%)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     paddingTop: 50,
     fontFamily: "Inter, sans-serif",
-    overflow: "hidden",
-
+    overflowX: "hidden",
+    paddingLeft: 20,
+    paddingRight: 20,
   },
 
   topRow: {
-    width: 650,
+    width: "100%",
+    maxWidth: 650,
     display: "flex",
     alignItems: "center",
     gap: 8,
@@ -583,7 +441,6 @@ const styles = {
     cursor: "pointer",
     fontSize: 20,
     fontWeight: 600,
-    marginLeft: -50,
   },
 
   topTitle: {
@@ -592,36 +449,36 @@ const styles = {
   },
 
   card: {
-    width: 650,
+    width: "100%",
+    maxWidth: 650,
     background: "#fff",
     borderRadius: 26,
-    padding: "45px 55px 55px",
+    padding: "45px 30px 55px",
     boxShadow: "0px 12px 40px rgba(0,0,0,0.12)",
     textAlign: "center",
+    boxSizing: "border-box",
   },
 
-heading: {
-  fontSize: 16,
-  fontWeight: 400,
-  marginBottom: 35,
-  textAlign: "center",
-  color: "#000000",
-},
+  heading: {
+    fontSize: 16,
+    fontWeight: 400,
+    marginBottom: 35,
+    textAlign: "center",
+    color: "#000000",
+  },
 
-
- input: {
-  width: "100%",
-  padding: "16px",
-  borderRadius: 14,
-  border: "1px solid #e5e5e5",
-  marginBottom: 20,
-  fontSize: 15,
-  outline: "none",
-  background: "#fff",
-  boxSizing: "border-box",   // <-- FIX #1
-  display: "block",          // <-- FIX #2
-},
-
+  input: {
+    width: "100%",
+    padding: "16px",
+    borderRadius: 14,
+    border: "1px solid #e5e5e5",
+    marginBottom: 20,
+    fontSize: 15,
+    outline: "none",
+    background: "#fff",
+    boxSizing: "border-box",
+    display: "block",
+  },
 
   statusLabel: {
     marginTop: 10,
@@ -633,12 +490,15 @@ heading: {
   statusRow: {
     display: "flex",
     justifyContent: "center",
-    gap: 25,
+    gap: 15,
     marginBottom: 35,
+    flexWrap: "wrap", // allow wrapping on small screens
   },
 
   statusBtn: {
-    width: 140,
+    flex: 1, // scale to fit available space
+    minWidth: 120,
+    maxWidth: 200,
     padding: "14px 0",
     borderRadius: 14,
     cursor: "pointer",
@@ -657,5 +517,39 @@ heading: {
     fontWeight: 600,
     border: "none",
     cursor: "pointer",
+  },
+
+  // Media Queries for smaller devices
+  "@media (max-width: 768px)": {
+    card: {
+      padding: "35px 20px 40px",
+    },
+    topRow: {
+      gap: 6,
+    },
+    statusRow: {
+      gap: 10,
+    },
+  },
+
+  "@media (max-width: 480px)": {
+    card: {
+      padding: "25px 15px 30px",
+    },
+    heading: {
+      fontSize: 14,
+    },
+    input: {
+      fontSize: 14,
+      padding: "12px",
+    },
+    statusBtn: {
+      fontSize: 14,
+      minWidth: 100,
+    },
+    continueBtn: {
+      fontSize: 14,
+      padding: "14px",
+    },
   },
 };

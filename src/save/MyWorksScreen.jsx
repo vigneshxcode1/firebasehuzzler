@@ -1,5 +1,14 @@
+// // MyWorksScreen.jsx
 // import React, { useEffect, useState } from "react";
-// import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from "firebase/firestore";
+// import {
+//   getFirestore,
+//   collection,
+//   query,
+//   where,
+//   onSnapshot,
+//   doc,
+//   getDoc,
+// } from "firebase/firestore";
 // import { getAuth } from "firebase/auth";
 // import { useNavigate } from "react-router-dom";
 
@@ -10,9 +19,29 @@
 // import clock from "../assets/clock.png";
 // import impression from "../assets/Impression.png";
 // import arrow from "../assets/arrow.png";
-
 // import { FiPlus } from "react-icons/fi";
-// import { Users } from "lucide-react";
+
+// // Import the empty-state image
+// import Searchjob from "../assets/Searchjob.png";
+
+// // --------------------------
+// // TIME FORMATTER
+// // --------------------------
+// function formatTime(timestamp) {
+//   if (!timestamp?.toDate) return "Unknown";
+
+//   const date = timestamp.toDate();
+//   const seconds = (Date.now() - date.getTime()) / 1000;
+
+//   if (seconds < 60) return "Just now";
+//   if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+//   if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+//   if (seconds < 172800) return "Yesterday";
+//   if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+//   if (seconds < 2592000) return `${Math.floor(seconds / 604800)} weeks ago`;
+
+//   return `${Math.floor(seconds / 2592000)} months ago`;
+// }
 
 // export default function MyWorksScreen() {
 //   const db = getFirestore();
@@ -25,60 +54,50 @@
 //   const [search, setSearch] = useState("");
 //   const [jobs, setJobs] = useState([]);
 //   const [loading, setLoading] = useState(true);
-//   const [profile, setProfile] = useState(null); // <-- Store freelancer profile
+//   const [profile, setProfile] = useState(null);
 
-//   // ----------------- BACKEND -----------------
-//   const viewDetails = (job) => {
-//     navigate(`/freelance-dashboard/jobdetailsscreen/${job.id}`);
-//   };
+//   // Sidebar collapse state
+//   const [collapsed, setCollapsed] = useState(
+//     localStorage.getItem("sidebar-collapsed") === "true"
+//   );
 
-//   const startChat = (job) => {
-//     navigate("/chat", {
-//       state: {
-//         currentUid: user.uid,
-//         otherUid: job.clientId,
-//         otherName: job.clientName || "Client",
-//         otherImage: job.clientImage || "",
-//         initialMessage: "Hello! I have accepted your project. Let's begin!",
-//       },
-//     });
-//   };
+//   useEffect(() => {
+//     function handleToggle(e) {
+//       setCollapsed(e.detail);
+//     }
+//     window.addEventListener("sidebar-toggle", handleToggle);
+//     return () => window.removeEventListener("sidebar-toggle", handleToggle);
+//   }, []);
 
-//    const fetchUserProfile = async (uid) => {
+//   // Fetch user profile
+//   const fetchUserProfile = async (uid) => {
 //     try {
-//       const userRef = doc(db, "users", uid);
-//       const snap = await getDoc(userRef);
-//       if (snap.exists()) {
-//         setProfile(snap.data());
-//       }
+//       const snap = await getDoc(doc(db, "users", uid));
+//       if (snap.exists()) setProfile(snap.data());
 //     } catch (e) {
 //       console.log("Profile fetch error:", e);
 //     }
 //   };
 
-
-//   // Fetch client details from 'users' collection
+//   // Fetch client details
 //   const fetchClientDetails = async (clientId) => {
 //     try {
-//       const userRef = doc(db, "users", clientId);
-//       const snap = await getDoc(userRef);
-//       if (snap.exists()) {
-//         return snap.data();
-//       }
-//     } catch (e) {
-//       console.log("Client fetch error:", e);
+//       const snap = await getDoc(doc(db, "users", clientId));
+//       return snap.exists() ? snap.data() : null;
+//     } catch {
+//       return null;
 //     }
-//     return null;
 //   };
 
+//   // Main Firestore Listener
 //   useEffect(() => {
 //     if (!user) return;
 
-//      fetchUserProfile(user.uid); // <-- fetch freelancer profile
-
-
+//     fetchUserProfile(user.uid);
 //     setLoading(true);
+
 //     const showAccepted = selectedTab === "Accepted";
+
 //     const notifRef = collection(db, "notifications");
 //     const qNotif = query(
 //       notifRef,
@@ -88,223 +107,523 @@
 
 //     const unsubNotif = onSnapshot(qNotif, async (notifSnap) => {
 //       const jobIds = [...new Set(notifSnap.docs.map((d) => d.data().jobId))];
+
 //       if (jobIds.length === 0) {
 //         setJobs([]);
 //         setLoading(false);
 //         return;
 //       }
 
-//       const collectionName = activeTab === 0 ? "jobs" : "jobs_24h";
-//       const jobsRef = collection(db, collectionName);
+//       const jobCollection = activeTab === 0 ? "jobs" : "jobs_24h";
 
-//       const unsubJobs = onSnapshot(jobsRef, async (jobsSnap) => {
-//         const clientCache = {}; // cache to prevent multiple fetches
-//         const list = [];
+//       const unsubJobs = onSnapshot(
+//         collection(db, jobCollection),
+//         async (jobsSnap) => {
+//           const clientCache = {};
+//           const list = [];
 
-//         for (const d of jobsSnap.docs) {
-//           if (!jobIds.includes(d.id)) continue;
-//           const job = { id: d.id, ...d.data() };
+//           for (const d of jobsSnap.docs) {
+//             if (!jobIds.includes(d.id)) continue;
 
-//           // find corresponding notification
-//           const notif = notifSnap.docs.find((n) => n.data().jobId === d.id)?.data();
-//           if (notif) {
-//             job.clientId = notif.clientUid;
+//             const job = { id: d.id, ...d.data() };
+//             const notif = notifSnap.docs.find(
+//               (n) => n.data().jobId === d.id
+//             )?.data();
 
-//             // fetch client data with caching
-//             if (!clientCache[notif.clientUid]) {
-//               clientCache[notif.clientUid] = await fetchClientDetails(notif.clientUid);
+//             if (notif) {
+//               job.clientId = notif.clientUid;
+
+//               // Cache client details
+//               if (!clientCache[notif.clientUid]) {
+//                 clientCache[notif.clientUid] = await fetchClientDetails(
+//                   notif.clientUid
+//                 );
+//               }
+
+//               const client = clientCache[notif.clientUid];
+
+//               job.clientName =
+//                 client?.company_name ||
+//                 client?.firstName ||
+//                 "Client";
+
+//               job.clientImage =
+//                 client?.profileImage ||
+//                 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
 //             }
-//             const client = clientCache[notif.clientUid];
 
-//             job.clientName = client?.company_name || client?.firstName || "Client";
-//             job.clientImage = client?.profileImage || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+//             list.push(job);
 //           }
 
-//           list.push(job);
+//           setJobs(list);
+//           setLoading(false);
 //         }
-
-//         setJobs(list);
-//         setLoading(false);
-//       });
+//       );
 
 //       return () => unsubJobs();
 //     });
 
 //     return () => unsubNotif();
-//   }, [selectedTab, activeTab, user, db]);
+//   }, [selectedTab, activeTab, user]);
 
 //   const filteredJobs = jobs.filter((j) =>
 //     (j.title || "").toLowerCase().includes(search)
 //   );
 
-//   if (!user) return <div style={{ padding: 40 }}>Please log in</div>;
+//   if (!user) return <div style={{ padding: 20 }}>Please log in</div>;
+
+//   const containerStyle = {
+//     marginLeft: collapsed ? "-210px" : "110px",
+//     transition: "margin-left 0.25s ease",
+//     minHeight: "100vh",
+//     paddingBottom: 120,
+//     background: "#fff",
+//     overflowX: "hidden",
+//   };
 
 //   return (
-//     <div style={{ minHeight: "100vh", paddingBottom: 120, width: "100%" }}>
-//       {/* ---------------- HEADER ---------------- */}
-//       <div style={{ padding: "25px 16px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-//         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-//           <div style={{ width: 36, height: 36, borderRadius: 12, background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 14px rgba(0,0,0,0.18)", cursor: "pointer" }} onClick={() => navigate(-1)}>
-//             <img src={backarrow} style={{ width: 20 }} alt="back" />
+//     <div style={containerStyle}>
+//       {/* HEADER */}
+//       <div
+//         style={{
+//           padding: "24px 20px",
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//         }}
+//       >
+//         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+//           <div
+//             style={{
+//               width: 36,
+//               height: 36,
+//               borderRadius: 12,
+//               background: "#fff",
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "center",
+//               boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+//               cursor: "pointer",
+//             }}
+//             onClick={() => navigate(-1)}
+//           >
+//             <img src={backarrow} style={{ width: 18 }} alt="back" />
 //           </div>
-//           <span style={{ fontSize: 26, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>My Job</span>
+
+//           <span style={{ fontSize: 28, fontWeight: 700 }}>My Job</span>
 //         </div>
 
-//         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-//           <img src={message} style={{width:"31px", height:"29px" ,cursor: "pointer"}} onClick={() => navigate("/freelancermessages")} />
-//           <img src={notification} style={{width:"31px", height:"29px" ,cursor: "pointer"}} onClick={() => navigate("/notifications")} />
+//         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
 //           <img
-//              src={profile?.profileImage || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
-//             style={{ width: 34, height: 34, borderRadius: "50%", cursor: "pointer" }}
-//             onClick={() => navigate("/freelance-dashboard/accountfreelancer")}
+//             src={message}
+//             style={{ width: 22, cursor: "pointer" }}
+//             onClick={() => navigate("/freelancermessages")}
 //           />
-
+//           <img
+//             src={notification}
+//             style={{ width: 22, cursor: "pointer" }}
+//             onClick={() => navigate("/notifications")}
+//           />
+//           <img
+//             src={
+//               profile?.profileImage ||
+//               "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+//             }
+//             style={{
+//               width: 36,
+//               height: 36,
+//               borderRadius: "50%",
+//               cursor: "pointer",
+//               objectFit: "cover",
+//             }}
+//             onClick={() =>
+//               navigate("/freelance-dashboard/accountfreelancer")
+//             }
+//           />
 //         </div>
 //       </div>
 
-//       {/* ---------------- SEARCH ---------------- */}
-//       <div style={{ padding: "0 16px" }}>
-//         <div style={{borderRadius: 12, height: 48, display: "flex", alignItems: "center", padding: "0 16px", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
-//           <img src={searchIcon} alt="search" style={{ width: 20, height: 20, marginRight: 10, objectFit: "contain" }} />
-//           <input
-//             value={search}
-//             onChange={(e) => setSearch(e.target.value.toLowerCase())}
-//             placeholder="Search"
-//             style={{ flex: 1, border: "none", marginTop: "14px", marginLeft: '-13px', outline: "none", background: "transparent", fontSize: 15 }}
-//           />
-//         </div>
+//       {/* MAIN CONTENT */}
+//       <div style={{ padding: "0 20px 30px" }}>
+//         <div style={{ maxWidth: 1300, margin: "0 auto" }}>
+//           {/* SEARCH */}
+//           <div
+//             style={{
+//               borderRadius: 14,
+//               height: 56,
+//               display: "flex",
+//               alignItems: "center",
+//               padding: "0 18px",
+//               boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+//               marginLeft: "-90px",
+//             }}
+//           >
+//             <img src={searchIcon} style={{ width: 18, marginRight: 12 }} />
+//             <input
+//               value={search}
+//               onChange={(e) => setSearch(e.target.value.toLowerCase())}
+//               placeholder="Search"
+//               style={{
+//                 flex: 1,
+//                 border: "none",
+//                 outline: "none",
+//                 fontSize: 15,
+//                 marginTop: "15px",
+//               }}
+//             />
+//           </div>
 
-//         <div style={{ height: 28 }} />
+//           {/* Tabs */}
+//           <div
+//             style={{
+//               marginTop: 22,
+//               display: "flex",
+//               gap: 18,
+//             }}
+//           >
+//             <div
+//               style={{
+//                 display: "flex",
+//                 width: "100%",
+//                 height: 52,
+//                 borderRadius: 999,
+//                 background: "rgba(0,0,0,0.04)",
+//                 padding: 6,
+//               }}
+//             >
+//               {["Applied", "Accepted"].map((label) => {
+//                 const active = selectedTab === label;
+//                 return (
+//                   <div
+//                     key={label}
+//                     onClick={() => setSelectedTab(label)}
+//                     style={{
+//                       flex: 1,
+//                       display: "flex",
+//                       alignItems: "center",
+//                       justifyContent: "center",
+//                       borderRadius: 999,
+//                       cursor: "pointer",
+//                       background: active ? "#A259FF" : "transparent",
+//                       color: active ? "#fff" : "#111",
+//                       fontWeight: 600,
+//                     }}
+//                   >
+//                     {label}
+//                   </div>
+//                 );
+//               })}
+//             </div>
+//           </div>
 
-//         {/* Applied / Accepted Tabs */}
-//         <div style={{ background: "#FFFFFF66", backdropFilter: "blur(12px)", borderRadius: 50, display: "flex", height: 48, padding: 14 }}>
-//           {["Applied", "Accepted"].map((label) => {
-//             const isActive = selectedTab === label;
-//             return (
-//               <div key={label} onClick={() => setSelectedTab(label)} style={{ flex: 1, borderRadius: 40, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 16, cursor: "pointer", background: isActive ? "#A259FF" : "#FEFED7", color: isActive ? "#fff" : "#000", transition: "0.25s ease", boxShadow: isActive ? "0 6px 20px rgba(162,89,255,0.35)" : "none" }}>
-//                 {label}
+//           {/* Work / 24 Hours */}
+//           <div style={{ marginTop: 18 }}>
+//             <div
+//               style={{
+//                 width: "106%",
+//                 height: 48,
+//                 borderRadius: 12,
+//                 background: "#fff",
+//                 boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+//                 display: "flex",
+//                 alignItems: "center",
+//                 padding: 6,
+//                 marginLeft: "-90px",
+//               }}
+//             >
+//               {["Work", "24 Hours"].map((label, i) => {
+//                 const active = activeTab === i;
+//                 return (
+//                   <div
+//                     key={label}
+//                     onClick={() => setActiveTab(i)}
+//                     style={{
+//                       width: 140,
+//                       height: 36,
+//                       borderRadius: 10,
+//                       display: "flex",
+//                       alignItems: "center",
+//                       justifyContent: "center",
+//                       marginLeft: i === 0 ? 8 : 12,
+//                       cursor: "pointer",
+//                       background: active ? "#fff" : "transparent",
+//                       boxShadow: active
+//                         ? "0 6px 18px rgba(0,0,0,0.06)"
+//                         : "none",
+//                       fontWeight: 600,
+//                     }}
+//                   >
+//                     {label}
+//                   </div>
+//                 );
+//               })}
+//             </div>
+//           </div>
+
+//           {/* JOB GRID */}
+//           <div
+//             style={{
+//               marginTop: 28,
+//               display: "grid",
+//               gridTemplateColumns: "repeat(2, 1fr)",
+//               gap: 22,
+//             }}
+//           >
+//             {loading ? (
+//               <div style={{ padding: 20 }}>Loading...</div>
+//             ) : filteredJobs.length === 0 ? (
+//               // EMPTY STATE
+//               <div
+//                 style={{
+//                   gridColumn: "1 / -1",
+//                   textAlign: "center",
+//                   padding: "40px 0",
+//                 }}
+//               >
+//                 <img
+//                   src={Searchjob}
+//                   alt="No jobs"
+//                   style={{ width: 220, opacity: 0.9 }}
+//                 />
+
+//                 <h2 style={{ marginTop: 20, fontSize: 22, fontWeight: 700 }}>
+//                   No Job Applications Yet!
+//                 </h2>
+
+//                 <p style={{ marginTop: 10, color: "#777", fontSize: 15 }}>
+//                   Looks like you haven’t {selectedTab}  for any jobs. Start exploring projects and submit your first application now.
+//                   {activeTab === 0 ? "Work" : "24 Hours"}.
+//                 </p>
+//                 <button 
+//                 style={{ marginTop: 20, fontSize: 15, fontWeight: 500 ,width:"150px",background:"#FDFD96",borderRadius:"50px",border:"1px solid #FDFD96",padding:"10px",cursor:"pointer"}}
+//                  onClick={() =>
+//           navigate("/freelance-dashboard/add-service-form")}
+//                 >
+//                   Browse Jobs</button>
 //               </div>
-//             );
-//           })}
+//             ) : (
+//               filteredJobs.map((job) => (
+//                 <JobCard
+//                   key={job.id}
+//                   job={job}
+//                   selectedTab={selectedTab}
+//                   onViewDetails={() =>
+//                     navigate(
+//                       `/freelance-dashboard/jobdetailsscreen/${job.id}`
+//                     )
+//                   }
+//                   onStartChat={() =>
+//                     navigate("/chat", {
+//                       state: {
+//                         currentUid: user.uid,
+//                         otherUid: job.clientId,
+//                         otherName: job.clientName || "Client",
+//                         otherImage: job.clientImage || "",
+//                         initialMessage:
+//                           "Hello! I have accepted your project. Let's begin!",
+//                       },
+//                     })
+//                   }
+//                 />
+//               ))
+//             )}
+//           </div>
 //         </div>
-
-//         {/* Work / 24 Hours */}
-//         <div style={{ marginTop: 22, padding: 6, paddingLeft: 10, background: "#FEFED7", borderRadius: 30, display: "flex", gap: 5, boxShadow: "0 4px 15px rgba(0,0,0,0.10)" }}>
-//           {["Work", "24 Hours"].map((label, i) => {
-//             const isActive = activeTab === i;
-//             return (
-//               <div key={label} onClick={() => setActiveTab(i)} style={{ width: 200, height: 20, textAlign: "center", padding: "6px 0", borderRadius: 40, cursor: "pointer", fontWeight: 600, background: isActive ? "#fff" : "transparent", boxShadow: isActive ? "0 4px 10px rgba(0,0,0,0.10)" : "none" }}>
-//                 {label}
-//               </div>
-//             );
-//           })}
-//         </div>
-//       </div>
-
-//       {/* ---------------- JOB GRID ---------------- */}
-//       <div style={{ padding: "0 16px", marginTop: 35, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-//         {loading ? (
-//           <div>Loading...</div>
-//         ) : filteredJobs.length === 0 ? (
-//           <div>No Jobs</div>
-//         ) : (
-//           filteredJobs.map((job) => (
-//             <JobCard key={job.id} job={job} selectedTab={selectedTab} onViewDetails={() => viewDetails(job)} onStartChat={() => startChat(job)} />
-//           ))
-//         )}
 //       </div>
 
 //       {/* Floating Add Button */}
-//       <button style={fabStyle} onClick={() => navigate("/freelance-dashboard/add-service-form")}>
+//       <button
+//         style={{
+//           position: "fixed",
+//           right: 28,
+//           bottom: 28,
+//           width: 54,
+//           height: 54,
+//           borderRadius: "50%",
+//           background: "linear-gradient(180deg,#A259FF,#6B00FF)",
+//           color: "#fff",
+//           fontSize: 24,
+//           border: 0,
+//           cursor: "pointer",
+//         }}
+//         onClick={() =>
+//           navigate("/freelance-dashboard/add-service-form")
+//         }
+//       >
 //         <FiPlus />
 //       </button>
 //     </div>
 //   );
 // }
 
-// /* Floating Button Style */
-// const fabStyle = {
-//   position: "fixed",
-//   right: 25,
-//   bottom: 28,
-//   width: 56,
-//   height: 56,
-//   borderRadius: "50%",
-//   background: "linear-gradient(#8B2CFF,#6B00FF)",
-//   color: "white",
-//   display: "flex",
-//   alignItems: "center",
-//   justifyContent: "center",
-//   fontSize: 26,
-//   border: 0,
-//   boxShadow: "0 10px 30px rgba(124,58,237,0.20)",
-//   cursor: "pointer",
-// };
+// // ---------------------------
+// // JOB CARD COMPONENT
+// // ---------------------------
+// function JobCard({
+//   job,
+//   selectedTab,
+//   onViewDetails,
+//   onStartChat,
+//   arrowIcon = arrow,
+//   impressionIcon = impression,
+//   clockIcon = clock,
+// }) {
+//   const isAccepted = selectedTab === "Accepted";
 
-// /* ------------------------------------------- */
-// /*                  JOB CARD                   */
-// /* ------------------------------------------- */
-// function JobCard({ job, selectedTab, onViewDetails, onStartChat }) {
+//   const acceptedCardStyle = {
+//     borderRadius: 20,
+//     padding: "22px 22px 26px",
+//     boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+//     cursor: "pointer",
+//     position: "relative",
+//     minHeight: 230,
+//     display: "flex",
+//     flexDirection: "column",
+//   };
+
+//   const appliedCardStyle = {
+//     background: "#fff",
+//     borderRadius: 12,
+//     padding: 20,
+//     boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+//     cursor: "pointer",
+//     position: "relative",
+//     minHeight: 180,
+//     display: "flex",
+//     flexDirection: "column",
+//   };
+
 //   return (
-//     <div onClick={onViewDetails} style={{ background: "#FFFFFF80", fontWeight: 448, borderRadius: 24, padding: 76, boxShadow: "0 8px 20px rgba(0,0,0,0.10)", position: "relative", cursor: "pointer" }}>
-//       {/* Arrow */}
-//       <div style={{ position: "absolute", right: 12, top: 12, fontSize: 20, fontWeight: 700, color: "#777" }}>
-//         <img src={arrow} alt="arrow" style={{ width: 20, height: 20, objectFit: "contain" }} />
-//       </div>
+//     <div
+//       onClick={onViewDetails}
+//       style={isAccepted ? acceptedCardStyle : appliedCardStyle}
+//     >
+//       <img
+//         src={arrowIcon}
+//         alt="arrow"
+//         style={{
+//           width: isAccepted ? 18 : 16,
+//           position: "absolute",
+//           right: isAccepted ? 20 : 16,
+//           top: isAccepted ? 20 : 16,
+//           opacity: 0.8,
+//         }}
+//       />
 
-//       {/* Client image + name */}
-//       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-//         <img
-//           src={job.clientImage}
-//           alt="client"
-//           style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
-//         />
-//         <div style={{ fontWeight: 600, fontSize: 16, color: "#0A0A0A" }}>
-//           {job.clientName}
+//       <div>
+//         <div style={{ fontSize: isAccepted ? 17 : 15, fontWeight: 700 }}>
+//           {job.title || job.clientName || "Company Name"}
+//         </div>
+
+//         <div style={{ marginTop: 6, color: "#777", fontSize: 13 }}>
+//           {job.job_role || "UI/UX Designer"}
+//         </div>
+
+//         <div style={{ marginTop: 12, fontSize: 20, fontWeight: 700 }}>
+//           ₹ {job.budget || 1000}/per day
+//         </div>
+
+//         <div style={{ marginTop: 12, fontSize: 13, fontWeight: 600 }}>
+//           Skills Required
+//         </div>
+
+//         <div style={{ marginTop: 8, display: "flex", gap: 10, flexWrap: "wrap" }}>
+//           {(job.skills || ["UI", "UX", "Web"]).map((s, idx) => (
+//             <div
+//               key={idx}
+//               style={{
+//                 background: "#FFF5A1",
+//                 padding: "6px 12px",
+//                 borderRadius: 999,
+//                 fontSize: 12,
+//                 fontWeight: 600,
+//               }}
+//             >
+//               {s}
+//             </div>
+//           ))}
 //         </div>
 //       </div>
 
-//       {/* Job title */}
-//       <div style={{ color: "#0A0A0A", fontWeight: 400, fontSize: 16 }}>{job.title}</div>
-//       <div style={{ fontSize: 24, fontWeight: 400, marginTop: 10 }}>₹ {job.budget || "1000"}/per day</div>
+//       <div style={{ marginTop: 18 }}>
+//         <div
+//           style={{
+//             display: "flex",
+//             alignItems: "center",
+//             gap: 18,
+//             fontSize: 13,
+//             color: "#777",
+//             marginBottom: 16,
+//           }}
+//         >
+//           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+//             <img src={impressionIcon} style={{ width: 16 }} />
+//             <span>{job.views || 29}</span>
+//             <span>Impression</span>
+//           </span>
 
-//       {/* Skills */}
-//       <div style={{ marginTop: 10, fontSize: 14, fontWeight: 400, color: "#0A0A0A" }}>Skills Required</div>
-//       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-//         {(job.skills || ["UI Design", "Web Design", "UX", "4+"]).map((s) => (
-//           <span key={s} style={{ background: "#FFF7AA", padding: "4px 10px", fontSize: 12, borderRadius: 10, fontWeight: 600 }}>{s}</span>
-//         ))}
-//       </div>
-
-//       {/* Impressions and date */}
-//       <div style={{ marginTop: 10, fontSize: 12, display: "flex", justifyContent: "space-between", color: "#555" }}>
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={impression} alt="impression" style={{ width: 14, height: 14, objectFit: "contain" }} />
-//           {job.views || 0} Impression
-//         </span>
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={clock} alt="clock" style={{ width: 14, height: 14, objectFit: "contain" }} />
-//           {job.created_at?.toDate ? job.created_at.toDate().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "No Date"}
-//         </span>
-//       </div>
-
-//       {/* Buttons for Accepted */}
-//       {selectedTab === "Accepted" && (
-//         <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-//           <button onClick={(e) => { e.stopPropagation(); onViewDetails(); }} style={{ flex: 1, border: "2px solid #B45CFF", borderRadius: 10, background: "#fff", padding: "10px 0", fontWeight: 600, color: "#B45CFF", cursor: "pointer" }}>View Details</button>
-//           <button onClick={(e) => { e.stopPropagation(); onStartChat(); }} style={{ flex: 1, borderRadius: 10, padding: "10px 0", background: "linear-gradient(#B45CFF,#8A00FF)", color: "#fff", fontWeight: 700, cursor: "pointer" }}>Start message</button>
+//           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+//             <img src={clockIcon} style={{ width: 16 }} />
+//             <span>{formatTime(job.created_at)}</span>
+//           </span>
 //         </div>
-//       )}
+
+//         {isAccepted && (
+//           <div style={{ display: "flex", gap: 12 }}>
+//             <button
+//               onClick={(e) => {
+//                 e.stopPropagation();
+//                 onViewDetails();
+//               }}
+//               style={{
+//                 flex: 1,
+//                 padding: "10px 0",
+//                 borderRadius: 14,
+//                 border: "1.5px solid #A259FF",
+//                 background: "#fff",
+//                 color: "#A259FF",
+//                 fontWeight: 700,
+//               }}
+//             >
+//               View Details
+//             </button>
+
+//             <button
+//               onClick={(e) => {
+//                 e.stopPropagation();
+//                 onStartChat();
+//               }}
+//               style={{
+//                 flex: 1,
+//                 padding: "10px 0",
+//                 borderRadius: 14,
+//                 background: "linear-gradient(180deg,#A259FF,#6B00FF)",
+//                 color: "#fff",
+//                 fontWeight: 700,
+//                 border: "none",
+//               }}
+//             >
+//               Start message
+//             </button>
+//           </div>
+//         )}
+//       </div>
 //     </div>
 //   );
 // }
 
 
 
-// ⭐ MyWorksScreen WITH SIDEBAR SUPPORT ⭐
-
 import React, { useEffect, useState } from "react";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -315,8 +634,8 @@ import searchIcon from "../assets/search.png";
 import clock from "../assets/clock.png";
 import impression from "../assets/Impression.png";
 import arrow from "../assets/arrow.png";
-
 import { FiPlus } from "react-icons/fi";
+import Searchjob from "../assets/Searchjob.png";
 
 export default function MyWorksScreen() {
   const db = getFirestore();
@@ -335,6 +654,17 @@ export default function MyWorksScreen() {
   const [collapsed, setCollapsed] = useState(
     localStorage.getItem("sidebar-collapsed") === "true"
   );
+
+  // ⭐ MOBILE DETECTION
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // ⭐ LISTEN FOR SIDEBAR TOGGLE EVENT
   useEffect(() => {
@@ -386,7 +716,6 @@ export default function MyWorksScreen() {
     if (!user) return;
 
     fetchUserProfile(user.uid);
-
     setLoading(true);
 
     const showAccepted = selectedTab === "Accepted";
@@ -449,28 +778,31 @@ export default function MyWorksScreen() {
     (j.title || "").toLowerCase().includes(search)
   );
 
-  if (!user) return <div>Please log in</div>;
+  if (!user) return <div style={{ padding: 20 }}>Please log in</div>;
+
+  const containerStyle = {
+    marginLeft: isMobile ? "0px" : collapsed ? "-100px" : "110px",
+    transition: "margin-left 0.25s ease",
+    minHeight: "100vh",
+    paddingBottom: 120,
+    background: "#fff",
+    overflowX: "hidden",
+  };
 
   return (
-    <div
-      style={{
-        marginLeft: collapsed ? "-100px" : "110px",
-        transition: "margin-left 0.25s ease",
-        minHeight: "100vh",
-        paddingBottom: 120,
-
-      }}
-    >
+    <div style={containerStyle}>
       {/* HEADER */}
       <div
         style={{
-          padding: "25px 16px 10px",
+          padding: "64px 20px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          rowGap: 12,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
               width: 36,
@@ -480,323 +812,411 @@ export default function MyWorksScreen() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
               cursor: "pointer",
             }}
             onClick={() => navigate(-1)}
           >
-            <img src={backarrow} style={{ width: 20 }} />
+            <img src={backarrow} style={{ width: 18 }} alt="back" />
           </div>
 
-          <span style={{ fontSize: 26, fontWeight: 700 }}>My Job</span>
+          <span style={{ fontSize: 28, fontWeight: 700 }}>My Job</span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <img
             src={message}
-            style={{ width: "31px", height: "29px", cursor: "pointer" }}
+            style={{ width: 22, cursor: "pointer" }}
             onClick={() => navigate("/freelancermessages")}
           />
-
           <img
             src={notification}
-            style={{ width: "31px", height: "29px", cursor: "pointer" }}
+            style={{ width: 22, cursor: "pointer" }}
             onClick={() => navigate("/notifications")}
           />
-
           <img
             src={
               profile?.profileImage ||
               "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
             }
             style={{
-              width: 34,
-              height: 34,
+              width: 36,
+              height: 36,
               borderRadius: "50%",
               cursor: "pointer",
+              objectFit: "cover",
             }}
-            onClick={() => navigate("/freelance-dashboard/accountfreelancer")}
+            onClick={() =>
+              navigate("/freelance-dashboard/accountfreelancer")
+            }
           />
         </div>
       </div>
 
-      {/* SEARCH */}
-      <div style={{ padding: "0 16px" }}>
-        <div
-          style={{
-            borderRadius: 12,
-            height: 48,
-            display: "flex",
-            alignItems: "center",
-            padding: "0 16px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-          }}
-        >
-          <img src={searchIcon} style={{ width: 20, marginRight: 10 }} />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value.toLowerCase())}
-            placeholder="Search"
+      {/* MAIN CONTENT */}
+      <div style={{ padding: "0 20px 30px" }}>
+        <div style={{ maxWidth: 1300, margin: "0 auto" }}>
+          {/* SEARCH */}
+          <div
             style={{
-              flex: 1,
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: 15,
+              borderRadius: 14,
+              height: 56,
+              display: "flex",
+              alignItems: "center",
+              padding: "0 18px",
+              boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+              marginLeft: isMobile ? "0px" : "-90px",
             }}
-          />
-        </div>
-
-        {/* Applied / Accepted Tabs */}
-        <div
-          style={{
-            background: "#FFFFFF66",
-            backdropFilter: "blur(12px)",
-            borderRadius: 50,
-            display: "flex",
-            height: 48,
-            padding: 14,
-            marginTop: 30,
-          }}
-        >
-          {["Applied", "Accepted"].map((label) => {
-            const active = selectedTab === label;
-            return (
-              <div
-                key={label}
-                onClick={() => setSelectedTab(label)}
-                style={{
-                  flex: 1,
-                  borderRadius: 40,
-                  textAlign: "center",
-                  fontWeight: 600,
-                  padding: "8px 0",
-                  cursor: "pointer",
-                  background: active ? "#A259FF" : "#FEFED7",
-                  color: active ? "#fff" : "#000",
-                  boxShadow: active
-                    ? "0 6px 20px rgba(162,89,255,0.35)"
-                    : "none",
-                }}
-              >
-                {label}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Work / 24 Hours */}
-        <div
-          style={{
-            marginTop: 22,
-            padding: 6,
-            paddingLeft: 10,
-            background: "#FEFED7",
-            borderRadius: 30,
-            display: "flex",
-            gap: 5,
-            boxShadow: "0 4px 15px rgba(0,0,0,0.10)",
-          }}
-        >
-          {["Work", "24 Hours"].map((label, i) => {
-            const active = activeTab === i;
-            return (
-              <div
-                key={label}
-                onClick={() => setActiveTab(i)}
-                style={{
-                  width: 200,
-                  textAlign: "center",
-                  padding: "6px 0",
-                  borderRadius: 40,
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  background: active ? "#fff" : "transparent",
-                  boxShadow: active ? "0 4px 10px rgba(0,0,0,0.10)" : "none",
-                }}
-              >
-                {label}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* JOB GRID */}
-      <div
-        style={{
-          padding: "0 16px",
-          marginTop: 35,
-          display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          gap: 16,
-        }}
-      >
-        {loading ? (
-          <div>Loading...</div>
-        ) : filteredJobs.length === 0 ? (
-          <div>No Jobs</div>
-        ) : (
-          filteredJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              selectedTab={selectedTab}
-              onViewDetails={() => viewDetails(job)}
-              onStartChat={() => startChat(job)}
+          >
+            <img src={searchIcon} style={{ width: 18, marginRight: 12 }} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value.toLowerCase())}
+              placeholder="Search"
+              style={{
+                flex: 1,
+                border: "none",
+                outline: "none",
+                fontSize: 15,
+                marginTop: "15px",
+              }}
             />
-          ))
-        )}
+          </div>
+
+          {/* Tabs */}
+          <div style={{ marginTop: 22, display: "flex", gap: 18 }}>
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                height: 52,
+                borderRadius: 999,
+                background: "rgba(0,0,0,0.04)",
+                padding: 6,
+              }}
+            >
+              {["Applied", "Accepted"].map((label) => {
+                const active = selectedTab === label;
+                return (
+                  <div
+                    key={label}
+                    onClick={() => setSelectedTab(label)}
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 999,
+                      cursor: "pointer",
+                      background: active ? "#A259FF" : "transparent",
+                      color: active ? "#fff" : "#111",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {label}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Work / 24 Hours */}
+          <div style={{ marginTop: 18 }}>
+            <div
+              style={{
+                width: isMobile ? "100%" : "106%",
+                height: 48,
+                borderRadius: 12,
+                background: "#fff",
+                boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+                display: "flex",
+                alignItems: "center",
+                padding: 6,
+                marginLeft: isMobile ? "0px" : "-90px",
+              }}
+            >
+              {["Work", "24 Hours"].map((label, i) => {
+                const active = activeTab === i;
+                return (
+                  <div
+                    key={label}
+                    onClick={() => setActiveTab(i)}
+                    style={{
+                      width: 140,
+                      height: 36,
+                      borderRadius: 10,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: i === 0 ? 8 : 12,
+                      cursor: "pointer",
+                      background: active ? "#fff" : "transparent",
+                      boxShadow: active
+                        ? "0 6px 18px rgba(0,0,0,0.06)"
+                        : "none",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {label}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* JOB GRID */}
+          <div
+            style={{
+              marginTop: 28,
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+              gap: 22,
+            }}
+          >
+            {loading ? (
+              <div style={{ padding: 20 }}>Loading...</div>
+            ) : filteredJobs.length === 0 ? (
+              <div
+                style={{
+                  gridColumn: "1 / -1",
+                  textAlign: "center",
+                  padding: "40px 0",
+                }}
+              >
+                <img
+                  src={Searchjob}
+                  alt="No jobs"
+                  style={{ width: 220, opacity: 0.9 }}
+                />
+                <h2 style={{ marginTop: 20, fontSize: 22, fontWeight: 700 }}>
+                  No Job Applications Yet!
+                </h2>
+                <p style={{ marginTop: 10, color: "#777", fontSize: 15 }}>
+                  Looks like you haven’t {selectedTab}  for any jobs. Start exploring projects and submit your first application now.
+                  {activeTab === 0 ? "Work" : "24 Hours"}.
+                </p>
+                <button
+                  style={{
+                    marginTop: 20,
+                    fontSize: 15,
+                    fontWeight: 500,
+                    width: "150px",
+                    background: "#FDFD96",
+                    borderRadius: "50px",
+                    border: "1px solid #FDFD96",
+                    padding: "10px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    navigate("/freelance-dashboard/add-service-form")
+                  }
+                >
+                  Browse Jobs
+                </button>
+              </div>
+            ) : (
+              filteredJobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  selectedTab={selectedTab}
+                  onViewDetails={() =>
+                    navigate(
+                      `/freelance-dashboard/jobdetailsscreen/${job.id}`
+                    )
+                  }
+                  onStartChat={() =>
+                    navigate("/chat", {
+                      state: {
+                        currentUid: user.uid,
+                        otherUid: job.clientId,
+                        otherName: job.clientName || "Client",
+                        otherImage: job.clientImage || "",
+                        initialMessage:
+                          "Hello! I have accepted your project. Let's begin!",
+                      },
+                    })
+                  }
+                />
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* FLOATING ADD BUTTON */}
-      <button style={fabStyle} onClick={() => navigate("/freelance-dashboard/add-service-form")}>
+      {/* Floating Add Button */}
+      <button
+        style={{
+          position: "fixed",
+          right: 28,
+          bottom: 28,
+          width: 54,
+          height: 54,
+          borderRadius: "50%",
+          background: "linear-gradient(180deg,#A259FF,#6B00FF)",
+          color: "#fff",
+          fontSize: 24,
+          border: 0,
+          cursor: "pointer",
+        }}
+        onClick={() =>
+          navigate("/freelance-dashboard/add-service-form")
+        }
+      >
         <FiPlus />
       </button>
     </div>
   );
 }
 
-// FLOAT BUTTON STYLE
-const fabStyle = {
-  position: "fixed",
-  right: 25,
-  bottom: 28,
-  width: 56,
-  height: 56,
-  borderRadius: "50%",
-  background: "linear-gradient(#8B2CFF,#6B00FF)",
-  color: "white",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: 26,
-  border: 0,
-  boxShadow: "0 10px 30px rgba(124,58,237,0.20)",
-  cursor: "pointer",
-};
-
-// CARD COMPONENT
+// ---------------------------
+// JOB CARD COMPONENT
+// ---------------------------
 function JobCard({ job, selectedTab, onViewDetails, onStartChat }) {
+  const isAccepted = selectedTab === "Accepted";
+
+  const acceptedCardStyle = {
+    borderRadius: 20,
+    padding: window.innerWidth <= 768 ? 20 : "22px 22px 26px",
+    boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+    cursor: "pointer",
+    position: "relative",
+    minHeight: 230,
+    display: "flex",
+    flexDirection: "column",
+  };
+
+  const appliedCardStyle = {
+    background: "#fff",
+    borderRadius: 12,
+    padding: window.innerWidth <= 768 ? 16 : 20,
+    boxShadow: "0 12px 38px rgba(0,0,0,0.12)",
+    cursor: "pointer",
+    position: "relative",
+    minHeight: 180,
+    display: "flex",
+    flexDirection: "column",
+  };
+
   return (
     <div
       onClick={onViewDetails}
-      style={{
-        background: "#FFFFFF80",
-        borderRadius: 24,
-        padding: 76,
-        boxShadow: "0 8px 20px rgba(0,0,0,0.10)",
-        cursor: "pointer",
-        position: "relative",
-      }}
+      style={isAccepted ? acceptedCardStyle : appliedCardStyle}
     >
-      {/* Arrow */}
-      <div
+      <img
+        src={arrow}
+        alt="arrow"
         style={{
+          width: isAccepted ? 18 : 16,
           position: "absolute",
-          right: 12,
-          top: 12,
+          right: isAccepted ? 20 : 16,
+          top: isAccepted ? 20 : 16,
+          opacity: 0.8,
         }}
-      >
-        <img src={arrow} style={{ width: 20 }} />
-      </div>
+      />
 
-      {/* Client */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <img
-          src={job.clientImage}
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            objectFit: "cover",
-          }}
-        />
-        <div style={{ fontWeight: 600 }}>{job.clientName}</div>
-      </div>
-
-      {/* Title */}
-      <div style={{ marginTop: 10, fontSize: 16 }}>{job.title}</div>
-      <div style={{ fontSize: 24, marginTop: 10 }}>₹ {job.budget}/day</div>
-
-      {/* Skills */}
-      <div style={{ marginTop: 10, fontSize: 14 }}>Skills Required</div>
-      <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {(job.skills || []).map((s) => (
-          <span
-            key={s}
-            style={{
-              background: "#FFF7AA",
-              padding: "4px 10px",
-              fontSize: 12,
-              borderRadius: 10,
-            }}
-          >
-            {s}
-          </span>
-        ))}
-      </div>
-
-      {/* Stats */}
-      <div
-        style={{
-          marginTop: 10,
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: 12,
-        }}
-      >
-        <span>
-          <img src={impression} style={{ width: 14 }} /> {job.views || 0}
-        </span>
-
-        <span>
-          <img src={clock} style={{ width: 14 }} />{" "}
-          {job.created_at?.toDate
-            ? job.created_at.toDate().toLocaleDateString()
-            : "No Date"}
-        </span>
-      </div>
-
-      {/* BUTTONS FOR ACCEPTED */}
-      {selectedTab === "Accepted" && (
-        <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewDetails();
-            }}
-            style={{
-              flex: 1,
-              border: "2px solid #B45CFF",
-              borderRadius: 10,
-              padding: "10px 0",
-              background: "#fff",
-              fontWeight: 600,
-              color: "#B45CFF",
-            }}
-          >
-            View Details
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onStartChat();
-            }}
-            style={{
-              flex: 1,
-              borderRadius: 10,
-              padding: "10px 0",
-              background: "linear-gradient(#B45CFF,#8A00FF)",
-              color: "#fff",
-              fontWeight: 700,
-            }}
-          >
-            Start message
-          </button>
+      <div>
+        <div style={{ fontSize: isAccepted ? 17 : 15, fontWeight: 700 }}>
+          {job.title || job.clientName || "Company Name"}
         </div>
-      )}
+
+        <div style={{ marginTop: 6, color: "#777", fontSize: 13 }}>
+          {job.job_role || "UI/UX Designer"}
+        </div>
+
+        <div style={{ marginTop: 12, fontSize: 20, fontWeight: 700 }}>
+          ₹ {job.budget || 1000}/per day
+        </div>
+
+        <div style={{ marginTop: 12, fontSize: 13, fontWeight: 600 }}>
+          Skills Required
+        </div>
+
+        <div style={{ marginTop: 8, display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {(job.skills || ["UI", "UX", "Web"]).map((s, idx) => (
+            <div
+              key={idx}
+              style={{
+                background: "#FFF5A1",
+                padding: "6px 12px",
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            >
+              {s}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 18,
+            fontSize: 13,
+            color: "#777",
+            marginBottom: 16,
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img src={impression} style={{ width: 16 }} />
+            <span>{job.views || 29}</span>
+            <span>Impression</span>
+          </span>
+
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img src={clock} style={{ width: 16 }} />
+            <span>
+              {job.created_at?.toDate
+                ? job.created_at.toDate().toLocaleDateString()
+                : "No Date"}
+            </span>
+          </span>
+        </div>
+
+        {isAccepted && (
+          <div style={{ display: "flex", gap: 12 }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails();
+              }}
+              style={{
+                flex: 1,
+                padding: "10px 0",
+                borderRadius: 14,
+                border: "1.5px solid #A259FF",
+                background: "#fff",
+                color: "#A259FF",
+                fontWeight: 700,
+              }}
+            >
+              View Details
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartChat();
+              }}
+              style={{
+                flex: 1,
+                padding: "10px 0",
+                borderRadius: 14,
+                border: "none",
+                background: "#A259FF",
+                color: "#fff",
+                fontWeight: 700,
+              }}
+            >
+              Start Chat
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

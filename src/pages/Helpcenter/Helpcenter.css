@@ -1,83 +1,233 @@
-.terms{
-    width: 50%;
-    background-color:none;
-    color: black;
-
-
+/* ================= GLOBAL ================= */
+* {
+  font-family: "Rubik", sans-serif;
+  box-sizing: border-box;
 }
 
-.helptitle{
-    font-weight: 100;
-    font-size: 20px;
-    margin-top: 10px;
-    color:black;
-}
-.helplogo{
-    width: 70px;
-}
-.title-head{
-    color:#622AD3;
-    justify-content: center;text-align: center;
-    font-size: 40px;
-    font-weight: 400;
- 
+body {
+  margin: 0;
+    overflow-x: hidden;
 }
 
-h1{
-      color:#622AD3;
-}
-
-
-/* TOP BAR WRAPPER */
-.helpcenter-top {
-  background: #c39dfa;   /* same purple from screenshot */
+/* ================= NAVBAR ================= */
+.policy-navbar {
   width: 100%;
-  padding: 20px 40px;
+  background-color: #b997ff;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 18px 28px;
+  flex-wrap: wrap;
 }
 
-/* LEFT SIDE: LOGO + TITLE */
-.helpcenter-left {
+/* Left side (logo + text) */
+.policy-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+
 }
 
-.helpcenter-left .helplogo {
-  width: 45px;
-  height: auto;
-  border-radius: 8px;
+.policy-logo {
+ 
+  margin-left: 100px;
+
+  width: 58px;
+height: 58px;
+opacity: 1;
+top: 46px;
+left: 51px;
+
 }
 
-.helpcenter-left .helptitle {
-  font-size: 24px;
+.policy-title {
+
+
+
+font-weight: 400;
+ font-size: 24px;
+
+line-height: 32px;
+
+width: 67px;
+height: 32px;
+
+opacity: 1;
+margin-top: 31px;
+left: 116px;
+
+
+}
+
+/* Center tabs */
+.policy-tabs {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  flex: 1;
+}
+
+/* Tab buttons */
+.policy-tab {
+  background: none;
+  border: none;
   color: #000;
+  padding-bottom: 6px;
+  cursor: pointer;
+  position: relative;
+
+
+
+
+
+
+ 
+font-weight: 400;
+
+font-size: 24px;
+
+line-height: 32px;
+letter-spacing: 0px;
+
+}
+
+/* Active tab (yellow underline like Figma) */
+.policy-tab.active {
+  color: #F8F79B;
   font-weight: 600;
 }
 
-/* TABS ROW */
-.helpcenter-tabs {
-  display: flex;
-  align-items: center;
-  gap: 40px;
+.policy-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #F8F79B;
+  border-radius: 2px;
+
+
+
+
+
+
+
+font-weight: 400;
+
+font-size: 24px;
+
+line-height: 32px;
+letter-spacing: 0px;
+
 }
 
-/* DEFAULT TAB STYLE */
-.helpcenter-tab {
-  background:violet;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  padding-bottom: 6px;
-  border-bottom: 3px solid transparent;
-  color: #000; /* black text */
+/* ================= CONTENT ================= */
+/* ================= CONTENT ================= */
+.policy-content {
+  width: 100%;
+  max-width: none;          /* 🔴 remove desktop limit */
+  margin: 0px 60px;           /* no auto centering */
+  padding: 0 80px;          /* desktop side spacing */
+  line-height: 1.7;
+  font-size: 15px;
+
 }
 
-/* ACTIVE TAB */
-.helpcenter-tab.active {
-  color: #f7ff9d; /* pale yellow text */
-  border-bottom: zspx solid #f7ff9d; /* pale yellow underline */
+/* Headings */
+.title-head {
 
+font-weight: 400;
+
+font-size: 64px;
+
+line-height: 38px;
+letter-spacing: 0px;
+
+}
+
+h1 {
+  font-size: 20px;
+  margin-top: 28px;
+
+
+font-weight: 400;
+
+font-size: 20px;
+
+line-height: 32px;
+letter-spacing: 0px;
+
+}
+
+h2 {
+ 
+font-weight: 400;
+
+font-size: 24px;
+color: #622AD3;
+line-height: 32px;
+letter-spacing: 0px;
+
+}
+
+h3 {
+  font-size: 17px;
+  margin-top: 22px;
+}
+
+p,li{
+  
+font-weight: 400;
+
+font-size: 20px;
+
+line-height: 32px;
+letter-spacing: 0px;
+
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .policy-navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-left: -30px;
+    width: 100%;
+  }
+
+  .policy-tabs {
+    width: 100%;
+    justify-content: space-around;
+    margin-top: 10px;
+  }
+
+  .title-head {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .policy-tab {
+    font-size: 14px;
+  }
+
+  .policy-content {
+    font-size: 14px;
+    
+  }
+}
+@media (max-width: 1024px) {
+  .policy-content {
+    padding: 0 32px;
+   
+  }
+}
+
+@media (max-width: 768px) {
+  .policy-content {
+    padding: 0 16px;
+    margin-left: -20px;
+  }
 }

@@ -992,6 +992,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -1216,11 +1226,25 @@ export default function JobFullDetailJobScreen() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() =>
+                navigate(
+                  `/freelance-dashboard/view-profile/${job.userId}/job/${job.id}`
+                )
+              }
+              style={{
+                cursor: "pointer",
+                background: "transparent",
+                border: "none",
+                color: "#7B2BFF",
+                fontWeight: 600,
+              }}
+            >
+              View Profile
+            </button>
 
-            {/* <button */}
-            {/* onClick={handleShare}
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200" */}
-            {/* > */}
+
+
             <img
               src={share}
               alt="share"
@@ -1430,3 +1454,4 @@ export default function JobFullDetailJobScreen() {
     </div>
   );
 }
+

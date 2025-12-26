@@ -1,12 +1,37 @@
+
 // import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import { getFirestore, doc, getDoc } from "firebase/firestore";
+// import { useParams, useNavigate } from "react-router-dom";
+// import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
+// import { getAuth } from "firebase/auth";
+
+// import {
+//   IoCalendarOutline,
+//   IoLocationOutline,
+//   IoPeopleOutline,
+//   IoTimeOutline,
+//   IoCloseOutline,
+// } from "react-icons/io5";
+
+// import save from "../assets/save2.png";
+// import saved from "../assets/save.png";
+// import share from "../assets/share.png";
 
 // export default function FreelancerviewJobDetailScreen() {
-//   const { id } = useParams(); // get job id from URL
+//   const { id } = useParams();
+//   const navigate = useNavigate();
 //   const db = getFirestore();
+//   const auth = getAuth();
+
+//   const user = auth.currentUser;
+//   const uid = user?.uid;
+
 //   const [job, setJob] = useState(null);
 //   const [loading, setLoading] = useState(true);
+//   const [isSaved, setIsSaved] = useState(false);
+
+//   const removeJobCard = (jobId) => {
+//     setJob((prev) => prev.filter((job) => job.id !== jobId));
+//   };
 
 //   useEffect(() => {
 //     async function fetchJob() {
@@ -16,803 +41,259 @@
 //       if (snap.exists()) {
 //         setJob({ id: snap.id, ...snap.data() });
 //       }
-
 //       setLoading(false);
 //     }
 
 //     fetchJob();
 //   }, [id]);
 
+//   const deletefunction = async (jobId) => {
+//     try {
+//       if (!uid) {
+//         alert("User not logged in");
+//         return;
+//       }
+
+//       const ref = doc(db, "jobs", jobId);
+
+//       const updatedApplicants = job.applicants.filter(
+//         (a) => a.freelancerId !== uid
+//       );
+
+//       await updateDoc(ref, {
+//         applicants: updatedApplicants,
+//         applicants_count: updatedApplicants.length,
+//       });
+
+//       alert("Your applied request has been removed.");
+
+//       if (removeJobCard) {
+//         removeJobCard(jobId);
+//       }
+
+//       navigate("/freelance-dashboard/freelancermyworks");
+//     } catch (error) {
+//       console.error(error);
+//       alert("Failed to remove applied request.");
+//     }
+//   };
+
 //   if (loading) return <div>Loading...</div>;
 //   if (!job) return <div>Job not found</div>;
 
-//   const screenHeight = window.innerHeight;
-//   const screenWidth = window.innerWidth;
-
 //   return (
-//     <div style={{ background: "#fff", minHeight: "100vh" }}>
-//       <div style={{ height: screenHeight * 0.18, position: "relative" }}>
+//     <div
+//       style={{
+//         width: "100%",
+//         minHeight: "120vh",
+//         background: "#ffffff88",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "start",
+//         paddingTop: "80px",
+//         backdropFilter: "blur(10px)",
+//       }}
+//     >
+//       {/* CARD */}
+//       <div
+//         style={{
+//           width: "100%",
+//           maxWidth: "1100px",
+//           background: "#fff",
+//           borderRadius: 18,
+//           boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+//           padding: "38px 32px",
+//           position: "relative",
+//         }}
+//       >
+//         {/* APPLIED BADGE */}
 //         <div
 //           style={{
-//             width: "100%",
-//             height: screenHeight * 0.16,
-//             background: "#FDFD96",
-//             borderBottomLeftRadius: 30,
-//             borderBottomRightRadius: 30,
-//             display: "flex",
-//             alignItems: "center",
-//             justifyContent: "center",
-//             padding: `${screenHeight * 0.06}px ${screenWidth * 0.04}px`,
+//             position: "absolute",
+//             top: 80,
+//             right: 20,
+//             padding: "6px 16px",
+//             background: "#E1FFC2",
+//             color: "#67CC44",
+//             borderRadius: 14,
+//             fontSize: 14,
+//             fontWeight: 600,
+//             width:"123px",
+//             textAlign:"center",
 //           }}
 //         >
-//           <span style={{ fontSize: 22, fontWeight: 500 }}>Job Section</span>
+//           Applied
 //         </div>
-//       </div>
 
-//       <div style={{ padding: 16 }}>
-//         <div style={{ fontSize: 18, fontWeight: 700 }}>{job.title}</div>
-
-//         <img
-//           src="/assets/full photo.png"
-//           alt="preview"
-//           style={{ width: "100%", height: 180, borderRadius: 12, objectFit: "cover", marginTop: 10 }}
-//         />
-
-//         <div style={{ marginTop: 12, fontSize: 15, fontWeight: 500 }}>Description</div>
-//         <div style={{ marginTop: 6, lineHeight: 1.5 }}>{job.description}</div>
-
+//         {/* TOP ICONS */}
 //         <div
 //           style={{
-//             padding: 16,
-//             borderRadius: 30,
-//             border: "1px solid #e0e0e0",
-//             background: "#fff",
-//             margin: "24px 12px",
+//             display: "flex",
+//             gap: 18,
+//             alignItems: "center",
+//             position: "absolute",
+//             right: 30,
+//             top: 30,
 //           }}
 //         >
-//           <div style={{ fontSize: 18, fontWeight: 700 }}>Service Details</div>
-//           <hr style={{ margin: "12px 0", borderColor: "#ddd" }} />
+//           {!isSaved ? (
+//             <img
+//               src={save}
+//               alt="save"
+//               style={{ width: 24, height: 24, cursor: "pointer" }}
+//               onClick={() => setIsSaved(true)}
+//             />
+//           ) : (
+//             <img
+//               src={saved}
+//               alt="saved"
+//               style={{ width: 24, height: 24, cursor: "pointer" }}
+//               onClick={() => setIsSaved(false)}
+//             />
+//           )}
 
-//           <Row label="Price" value={`₹${job.price || job.budget_from || 0}`} />
-//           <div style={{ height: 12 }} />
+//           <img
+//             src={share}
+//             alt="share"
+//             style={{ width: 24, height: 24, cursor: "pointer" }}
+//           />
 
-//           <Row label="Delivery Days" value={job.deliveryDuration || "N/A"} />
-//           <div style={{ height: 12 }} />
+//           <IoCloseOutline
+//             onClick={() => navigate("/freelance-dashboard/freelancermyworks")}
+//             size={26}
+//             color="#444"
+//             style={{ cursor: "pointer" }}
+//           />
+//         </div>
 
-//           <div style={{ fontSize: 16, fontWeight: 500 }}>Category</div>
-//           <Chip text={job.category} />
+//         {/* TITLE */}
+//         <h1 style={{ fontSize: 32, fontWeight: 500, color: "#111" }}>
+//           {job.title}
+//         </h1>
 
-//           <div style={{ marginTop: 16 }} />
+//         <p style={{ marginTop: -6, fontSize: 20, fontWeight: 400, color: "#777" }}>
+//           {job.category}
+//         </p>
 
-//           <div style={{ fontSize: 16, fontWeight: 500 }}>Skills & Tools</div>
-//           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-//             {(job.skills || []).map((s, i) => <Chip key={i} text={s} />)}
-//             {(job.tools || []).map((t, i) => <Chip key={i} text={t} />)}
+//         {/* BUDGET + TIMELINE + LOCATION */}
+//         <div
+//           style={{
+//             display: "flex",
+//             marginTop: 20,
+//             gap: 80,
+//             alignItems: "center",
+//             flexWrap: "wrap",
+//           }}
+//         >
+//           {/* Budget */}
+//           <div>
+//             <p style={{ color: "#666", fontSize: 14 }}>Budget</p>
+//             <p style={{ fontSize: 15, fontWeight: 600 }}>
+//               ₹{job.budget_from} - ₹{job.budget_to}
+//             </p>
+//           </div>
+
+//           {/* TIMELINE */}
+//           <div style={{ display: "flex", alignItems: "center", gap: 8 ,}}>
+//             <IoCalendarOutline size={19} color="#555" style={{marginTop:"30px"}} />
+//             <div>
+//               <p style={{ fontSize: 14, color: "#666" }}>Timeline</p>
+//               <p style={{ fontSize: 15, fontWeight: 600 }}>
+//                 {job.deliveryDuration || job.timeline || "N/A"}
+//               </p>
+//             </div>
+//           </div>
+
+//           {/* LOCATION */}
+//           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+//             <IoLocationOutline size={19} color="#555" style={{marginTop:"30px"}} />
+//             <div>
+//               <p style={{ fontSize: 14, color: "#666" }}>Location</p>
+//               <p style={{ fontSize: 15, fontWeight: 600 }}>Remote</p>
+//             </div>
 //           </div>
 //         </div>
-//       </div>
-//     </div>
-//   );
-// }
 
-// function Row({ label, value }) {
-//   return (
-//     <div style={{ display: "flex", justifyContent: "space-between" }}>
-//       <span style={{ fontSize: 16, fontWeight: 500 }}>{label}</span>
-//       <span style={{ fontSize: 18, fontWeight: 600 }}>{value}</span>
-//     </div>
-//   );
-// }
-
-// function Chip({ text }) {
-//   return (
-//     <div
-//       style={{
-//         border: "1px solid #ddd",
-//         borderRadius: 30,
-//         padding: "4px 10px",
-//         background: "#fff",
-//         fontSize: 14,
-//       }}
-//     >
-//       {text}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import { getFirestore, doc, getDoc } from "firebase/firestore";
-
-// export default function FreelancerviewJobDetailScreen() {
-//   const { id } = useParams();
-//   const db = getFirestore();
-
-//   const [job, setJob] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     async function fetchJob() {
-//       const ref = doc(db, "jobs", id);
-//       const snap = await getDoc(ref);
-
-//       if (snap.exists()) setJob({ id: snap.id, ...snap.data() });
-//       setLoading(false);
-//     }
-
-//     fetchJob();
-//   }, [id]);
-
-//   if (loading) return <div>Loading...</div>;
-//   if (!job) return <div>Job not found</div>;
-
-//   return (
-//     <div style={{ background: "#FBFBFB", minHeight: "100vh", fontFamily: "Inter" }}>
-
-//       {/* ---------- HEADER ---------- */}
-//       <div
-//         style={{
-//           background: "#FFFFFF",
-//           padding: "18px 18px",
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//           fontSize: 20,
-//           fontWeight: 600,
-//           borderBottom: "1px solid #f1f1f1",
-//         }}
-//       >
-//         <span>Project Details</span>
-
-//         <div style={{ display: "flex", gap: 18, fontSize: 22 }}>
-//           <span style={{ cursor: "pointer" }}>🔗</span>
-//           <span style={{ cursor: "pointer" }}>🔔</span>
-//           <span style={{ cursor: "pointer" }}>✖</span>
-//         </div>
-//       </div>
-
-//       {/* ---------- TITLE + APPLIED ---------- */}
-//       <div style={{ padding: "20px 20px 0px 20px" }}>
-//         <div style={{ fontSize: 30, fontWeight: 700 }}>
-//           {job.company || "ZUNTRA DIGITAL PVT"}
-//         </div>
-
+//         {/* APPLICANTS + TIME */}
 //         <div
 //           style={{
-//             marginTop: 10,
-//             display: "inline-block",
-//             background: "#D7FFD7",
-//             color: "#1DA71B",
-//             padding: "6px 16px",
-//             borderRadius: 20,
-//             fontWeight: 600,
+//             marginTop: 15,
+//             display: "flex",
+//             gap: 25,
+//             color: "#555",
 //             fontSize: 14,
+//             flexWrap: "wrap",
 //           }}
 //         >
-//           Applied
+//           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+//             <IoPeopleOutline />
+//             <span>{job.applicantsCount || 0} Applicants</span>
+//           </div>
+
+//           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+//             <IoTimeOutline />
+//             <span>{job.postedAgo || "Recently"}</span>
+//           </div>
 //         </div>
 
-//         <div style={{ marginTop: 12, fontSize: 18, color: "#444", fontWeight: 500 }}>
-//           {job.role || "UIUX Designer"}
-//         </div>
-//       </div>
+//         {/* SKILLS */}
+//         <h3 style={{ marginTop: 25, marginBottom: 10, fontSize: 20 }}>
+//           Skills Required
+//         </h3>
 
-//       {/* ---------- GRID TOP INFO ---------- */}
-//       <div
-//         style={{
-//           marginTop: 25,
-//           padding: "0px 20px",
-//           display: "grid",
-//           gridTemplateColumns: "1fr 1fr",
-//           rowGap: 20,
-//           fontSize: 15,
-//         }}
-//       >
-//         <InfoRow label="Budget" value={`₹${job.budgetMin || 0} - ₹${job.budgetMax || 0}`} />
-//         <InfoRow label="Timeline" value={job.timeline || "2 - 3 weeks"} />
-//         <InfoRow label="Location" value={job.location || "Remote"} />
-//         <InfoRow label="Applicants" value={`${job.applicants || 0} Applicants`} />
-//       </div>
-//            {/* Impressions and date */}
-//       <div style={{ marginTop: 10, fontSize: 12, display: "flex", justifyContent: "space-between", color: "#555" }}>
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={impression} alt="impression" style={{ width: 14, height: 14, objectFit: "contain" }} />
-//           {job.views || 0} Impression
-//         </span>
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={clock} alt="clock" style={{ width: 14, height: 14, objectFit: "contain" }} />
-//           {job.created_at?.toDate ? job.created_at.toDate().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "No Date"}
-//         </span>
-//       </div>
-
-
-
-//       {/* ---------- SKILLS REQUIRED ---------- */}
-//       <div style={{ padding: "0px 20px", marginTop: 10 }}>
-//         <div style={{ fontSize: 18, fontWeight: 600 }}>Skills Required</div>
-
-//         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 15 }}>
-//           {(job.skills || ["UI Design", "Web Design", "UX", "Figma", "Visual Design", "Interactive Design", "Adobe XD"])
-//             .map((skill, i) => (
-//               <div
-//                 key={i}
-//                 style={{
-//                   background: "#FFF8BB",
-//                   padding: "8px 14px",
-//                   borderRadius: 10,
-//                   fontSize: 14,
-//                   fontWeight: 500,
-//                 }}
-//               >
-//                 {skill}
-//               </div>
-//             ))}
-//         </div>
-//       </div>
-
-//       {/* ---------- DESCRIPTION ---------- */}
-//       <div style={{ padding: "20px 20px" }}>
-//         <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>Project Description</div>
-
-//         <div style={{ fontSize: 15, lineHeight: 1.6 }}>
-//           {job.description}
-//         </div>
-
-//         <div style={{ fontSize: 17, fontWeight: 700, marginTop: 20 }}>
-//           Project Requirements:
-//         </div>
-
-//         <ul style={{ marginTop: 10, fontSize: 15, lineHeight: 1.6 }}>
-//           <li>Modern and clean design aesthetic</li>
-//           <li>Mobile-first approach (iOS and Android)</li>
-//           <li>Interactive prototypes</li>
-//           <li>Design system/component library</li>
-//           <li>User flow diagrams</li>
-//           <li>Responsive layouts</li>
-//         </ul>
-//       </div>
-
-//       {/* ---------- DELETE REQUEST FOOTER ---------- */}
-//       <div
-//         style={{
-//           position: "fixed",
-//           bottom: 0,
-//           width: "100%",
-//           background: "#fff",
-//           padding: 20,
-//           boxShadow: "0 -2px 10px rgba(0,0,0,0.07)",
-//         }}
-//       >
-//         <button
-//           style={{
-//             width: "100%",
-//             background: "linear-gradient(90deg, #B44CFC, #6C48FE)",
-//             color: "#fff",
-//             padding: "14px 0",
-//             fontSize: 17,
-//             borderRadius: 50,
-//             border: "none",
-//             fontWeight: 600,
-//             cursor:"pointer"
-//           }}
-//         >
-//           Delete Request
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// /* ---------- SMALL GRID COMPONENT ---------- */
-// function InfoRow({ label, value }) {
-//   return (
-//     <div>
-//       <div style={{ color: "#666", fontSize: 14 }}>{label}</div>
-//       <div style={{ fontWeight: 600, marginTop: 2 }}>{value}</div>
-//     </div>
-//   );
-// }
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import { getFirestore, doc, getDoc } from "firebase/firestore";
-
-// // ADD THIS 🔥
-// import impression from "../assets/impression.png";
-// import clock from "../assets/clock.png";
-
-// export default function FreelancerviewJobDetailScreen() {
-//   const { id } = useParams();
-//   const db = getFirestore();
-
-//   const [job, setJob] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     async function fetchJob() {
-//       const ref = doc(db, "jobs", id);
-//       const snap = await getDoc(ref);
-
-//       if (snap.exists()) setJob({ id: snap.id, ...snap.data() });
-//       setLoading(false);
-//     }
-
-//     fetchJob();
-//   }, [id]);
-
-//   if (loading) return <div>Loading...</div>;
-//   if (!job) return <div>Job not found</div>;
-
-//   return (
-//     <div style={{ background: "#FBFBFB", minHeight: "100vh", fontFamily: "Inter" }}>
-
-//       {/* ---------- HEADER ---------- */}
-//       <div
-//         style={{
-//           background: "#FFFFFF",
-//           padding: "18px 18px",
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//           fontSize: 20,
-//           fontWeight: 600,
-//           borderBottom: "1px solid #f1f1f1",
-//         }}
-//       >
-//         <span>Project Details</span>
-
-//         <div style={{ display: "flex", gap: 18, fontSize: 22 }}>
-//           <span style={{ cursor: "pointer" }}>🔗</span>
-//           <span style={{ cursor: "pointer" }}>🔔</span>
-//           <span style={{ cursor: "pointer" }}>✖</span>
-//         </div>
-//       </div>
-
-//       {/* ---------- TITLE + APPLIED ---------- */}
-//       <div style={{ padding: "20px 20px 0px 20px" }}>
-//         <div style={{ fontSize: 30, fontWeight: 700 }}>
-//           {job.company || "ZUNTRA DIGITAL PVT"}
-//         </div>
-
-//         <div
-//           style={{
-//             marginTop: 10,
-//             display: "inline-block",
-//             background: "#D7FFD7",
-//             color: "#1DA71B",
-//             padding: "6px 16px",
-//             borderRadius: 20,
-//             fontWeight: 600,
-//             fontSize: 14,
-//           }}
-//         >
-//           Applied
-//         </div>
-
-//       {/* Job title */}
-//       <div style={{ color: "#0A0A0A", fontWeight: 400, fontSize: 16 }}>{job.title}</div>
-//       <div style={{ fontSize: 24, fontWeight: 400, marginTop: 10 }}>₹ {job.budget || "1000"}/per day</div>
-//       </div>
-
-//       {/* ---------- GRID TOP INFO ---------- */}
-//       <div
-//         style={{
-//           marginTop: 25,
-//           padding: "0px 20px",
-//           display: "grid",
-//           gridTemplateColumns: "1fr 1fr",
-//           rowGap: 20,
-//           fontSize: 15,
-//         }}
-//       >
-//         <InfoRow label="Budget" value={`₹${job.budgetMin || 0} - ₹${job.budgetMax || 0}`} />
-//         <InfoRow label="Timeline" value={job.timeline || "2 - 3 weeks"} />
-//         <InfoRow label="Location" value={job.location || "Remote"} />
-//         <InfoRow label="Applicants" value={`${job.applicants || 0} Applicants`} />
-//       </div>
-
-//       {/* ---------- Impressions and Date ---------- */}
-//       <div
-//         style={{
-//           marginTop: 10,
-//           fontSize: 12,
-//           display: "flex",
-//           justifyContent: "space-between",
-//           color: "#555",
-//           padding: "0px 20px",
-//         }}
-//       >
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={impression} alt="impression" style={{ width: 14, height: 14 }} />
-//           {job.views || 0} Impression
-//         </span>
-
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={clock} alt="clock" style={{ width: 14, height: 14 }} />
-//           {job.created_at?.toDate
-//             ? job.created_at.toDate().toLocaleDateString("en-IN", {
-//                 day: "2-digit",
-//                 month: "short",
-//                 year: "numeric",
-//               })
-//             : "No Date"}
-//         </span>
-//       </div>
-
-//       {/* ---------- SKILLS ---------- */}
-//       <div style={{ padding: "0px 20px", marginTop: 10 }}>
-//         <div style={{ fontSize: 18, fontWeight: 600 }}>Skills Required</div>
-
-//         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 15 }}>
-//           {(job.skills ||
-//             ["UI Design", "Web Design", "UX", "Figma", "Visual Design", "Interactive Design", "Adobe XD"]
-//           ).map((skill, i) => (
+//         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+//           {(job.skills || []).map((s, i) => (
 //             <div
 //               key={i}
 //               style={{
-//                 background: "#FFF8BB",
-//                 padding: "8px 14px",
+//                 background: "#FFF7A6",
+//                 padding: "6px 14px",
 //                 borderRadius: 10,
-//                 fontSize: 14,
-//                 fontWeight: 500,
+//                 fontSize: 16,
 //               }}
 //             >
-//               {skill}
+//               {s}
 //             </div>
 //           ))}
 //         </div>
-//       </div>
 
-//       {/* ---------- DESCRIPTION ---------- */}
-//       <div style={{ padding: "20px 20px" }}>
-//         <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
+//         {/* DESCRIPTION */}
+//         <h3 style={{ marginTop: 25, marginBottom: 10, fontSize: 20 }}>
 //           Project Description
-//         </div>
+//         </h3>
 
-//         <div style={{ fontSize: 15, lineHeight: 1.6 }}>
+//         <p style={{ fontSize: 15, lineHeight: "22px", color: "#444" }}>
 //           {job.description}
+//         </p>
+
+//         {/* DELETE BUTTON */}
+//         <div style={{ marginTop: 35 }}>
+//           <button
+//             onClick={() => deletefunction(job.id)}
+//             style={{
+//               width: "100%",
+//               padding: "14px 0",
+//               background: "#9810FAE5",
+//               borderRadius: 18,
+//               border: "none",
+//               color: "#fff",
+//               fontSize: 18,
+//               cursor: "pointer",
+//             }}
+//           >
+//             Delete Request
+//           </button>
 //         </div>
-
-//         <div style={{ fontSize: 17, fontWeight: 700, marginTop: 20 }}>
-//           Project Requirements:
-//         </div>
-
-//         <ul style={{ marginTop: 10, fontSize: 15, lineHeight: 1.6 }}>
-//           <li>Modern and clean design aesthetic</li>
-//           <li>Mobile-first approach (iOS and Android)</li>
-//           <li>Interactive prototypes</li>
-//           <li>Design system/component library</li>
-//           <li>User flow diagrams</li>
-//           <li>Responsive layouts</li>
-//         </ul>
-//       </div>
-
-//       {/* ---------- FOOTER ---------- */}
-//       <div
-//         style={{
-//           position: "fixed",
-//           bottom: 0,
-//           width: "100%",
-//           background: "#fff",
-//           padding: 20,
-//           boxShadow: "0 -2px 10px rgba(0,0,0,0.07)",
-//         }}
-//       >
-//         <button
-//           style={{
-//             width: "100%",
-//             background: "linear-gradient(90deg, #B44CFC, #6C48FE)",
-//             color: "#fff",
-//             padding: "14px 0",
-//             fontSize: 17,
-//             borderRadius: 50,
-//             border: "none",
-//             fontWeight: 600,
-//             cursor: "pointer",
-//           }}
-//         >
-//           Delete Request
-//         </button>
 //       </div>
 //     </div>
 //   );
 // }
-
-// function InfoRow({ label, value }) {
-//   return (
-//     <div>
-//       <div style={{ color: "#666", fontSize: 14 }}>{label}</div>
-//       <div style={{ fontWeight: 600, marginTop: 2 }}>{value}</div>
-//     </div>
-//   );
-// }
-
-
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import { getFirestore, doc, getDoc } from "firebase/firestore";
-
-// // ADD THIS 🔥
-// import impression from "../assets/impression.png";
-// import clock from "../assets/clock.png";
-
-// export default function FreelancerviewJobDetailScreen() {
-//   const { id } = useParams();
-//   const db = getFirestore();
-
-//   const [job, setJob] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   // ⭐ 1️⃣ SIDEBAR COLLAPSED STATE
-//   const [collapsed, setCollapsed] = useState(
-//     localStorage.getItem("sidebar-collapsed") === "true"
-//   );
-
-//   // ⭐ 2️⃣ LISTEN FOR SIDEBAR TOGGLE
-//   useEffect(() => {
-//     function handleToggle(e) {
-//       setCollapsed(e.detail);
-//     }
-//     window.addEventListener("sidebar-toggle", handleToggle);
-//     return () => window.removeEventListener("sidebar-toggle", handleToggle);
-//   }, []);
-
-//   useEffect(() => {
-//     async function fetchJob() {
-//       const ref = doc(db, "jobs", id);
-//       const snap = await getDoc(ref);
-
-//       if (snap.exists()) setJob({ id: snap.id, ...snap.data() });
-//       setLoading(false);
-//     }
-
-//     fetchJob();
-//   }, [id]);
-
-//   if (loading) return <div>Loading...</div>;
-//   if (!job) return <div>Job not found</div>;
-
-//   // ⭐ 3️⃣ WRAP ENTIRE SCREEN WITH MARGIN-LEFT (SIDEBAR)
-//   return (
-//     <div
-//       style={{
-//         marginLeft: collapsed ? "-110px" : "50px",
-//         transition: "margin-left 0.25s ease",
-//         background: "#FBFBFB",
-//         minHeight: "100vh",
-//         fontFamily: "Inter",
-//       }}
-//     >
-//       {/* ---------- HEADER ---------- */}
-//       <div
-//         style={{
-//           background: "#FFFFFF",
-//           padding: "18px 18px",
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//           fontSize: 20,
-//           fontWeight: 600,
-//           borderBottom: "1px solid #f1f1f1",
-//         }}
-//       >
-//         <span>Project Details</span>
-
-//         <div style={{ display: "flex", gap: 18, fontSize: 22 }}>
-//           <span style={{ cursor: "pointer" }}>🔗</span>
-//           <span style={{ cursor: "pointer" }}>🔔</span>
-//           <span style={{ cursor: "pointer" }}>✖</span>
-//         </div>
-//       </div>
-
-//       {/* ---------- TITLE + APPLIED ---------- */}
-//       <div style={{ padding: "20px 20px 0px 20px" }}>
-//         <div style={{ fontSize: 30, fontWeight: 700 }}>
-//           {job.company || "ZUNTRA DIGITAL PVT"}
-//         </div>
-
-//         <div
-//           style={{
-//             marginTop: 10,
-//             display: "inline-block",
-//             background: "#D7FFD7",
-//             color: "#1DA71B",
-//             padding: "6px 16px",
-//             borderRadius: 20,
-//             fontWeight: 600,
-//             fontSize: 14,
-//           }}
-//         >
-//           Applied
-//         </div>
-
-//         <div
-//           style={{
-//             color: "#0A0A0A",
-//             fontWeight: 400,
-//             fontSize: 16,
-//             marginTop: 10,
-//           }}
-//         >
-//           {job.title}
-//         </div>
-
-//         <div style={{ fontSize: 24, fontWeight: 400, marginTop: 10 }}>
-//           ₹ {job.budget || "1000"}/per day
-//         </div>
-//       </div>
-
-//       {/* ---------- GRID TOP INFO ---------- */}
-//       <div
-//         style={{
-//           marginTop: 25,
-//           padding: "0px 20px",
-//           display: "grid",
-//           gridTemplateColumns: "1fr 1fr",
-//           rowGap: 20,
-//           fontSize: 15,
-//         }}
-//       >
-//         <InfoRow
-//           label="Budget"
-//           value={`₹${job.budgetMin || 0} - ₹${job.budgetMax || 0}`}
-//         />
-//         <InfoRow label="Timeline" value={job.timeline || "2 - 3 weeks"} />
-//         <InfoRow label="Location" value={job.location || "Remote"} />
-//         <InfoRow
-//           label="Applicants"
-//           value={`${job.applicants || 0} Applicants`}
-//         />
-//       </div>
-
-//       {/* ---------- Impressions and Date ---------- */}
-//       <div
-//         style={{
-//           marginTop: 10,
-//           fontSize: 12,
-//           display: "flex",
-//           justifyContent: "space-between",
-//           color: "#555",
-//           padding: "0px 20px",
-//         }}
-//       >
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img
-//             src={impression}
-//             alt="impression"
-//             style={{ width: 14, height: 14 }}
-//           />
-//           {job.views || 0} Impression
-//         </span>
-
-//         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-//           <img src={clock} style={{ width: 14, height: 14 }} />
-//           {job.created_at?.toDate
-//             ? job.created_at.toDate().toLocaleDateString("en-IN", {
-//                 day: "2-digit",
-//                 month: "short",
-//                 year: "numeric",
-//               })
-//             : "No Date"}
-//         </span>
-//       </div>
-
-//       {/* ---------- SKILLS ---------- */}
-//       <div style={{ padding: "0px 20px", marginTop: 10 }}>
-//         <div style={{ fontSize: 18, fontWeight: 600 }}>Skills Required</div>
-
-//         <div
-//           style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 15 }}
-//         >
-//           {(job.skills ||
-//             [
-//               "UI Design",
-//               "Web Design",
-//               "UX",
-//               "Figma",
-//               "Visual Design",
-//               "Interactive Design",
-//               "Adobe XD",
-//             ]
-//           ).map((skill, i) => (
-//             <div
-//               key={i}
-//               style={{
-//                 background: "#FFF8BB",
-//                 padding: "8px 14px",
-//                 borderRadius: 10,
-//                 fontSize: 14,
-//                 fontWeight: 500,
-//               }}
-//             >
-//               {skill}
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* ---------- DESCRIPTION ---------- */}
-//       <div style={{ padding: "20px 20px" }}>
-//         <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
-//           Project Description
-//         </div>
-
-//         <div style={{ fontSize: 15, lineHeight: 1.6 }}>{job.description}</div>
-
-//         <div style={{ fontSize: 17, fontWeight: 700, marginTop: 20 }}>
-//           Project Requirements:
-//         </div>
-
-//         <ul style={{ marginTop: 10, fontSize: 15, lineHeight: 1.6 }}>
-//           <li>Modern and clean design aesthetic</li>
-//           <li>Mobile-first approach (iOS and Android)</li>
-//           <li>Interactive prototypes</li>
-//           <li>Design system/component library</li>
-//           <li>User flow diagrams</li>
-//           <li>Responsive layouts</li>
-//         </ul>
-//       </div>
-
-//       {/* ---------- FOOTER ---------- */}
-//       <div
-//         style={{
-//           position: "fixed",
-//           bottom: 0,
-//           width: "100%",
-//           background: "#fff",
-//           padding: 20,
-//           boxShadow: "0 -2px 10px rgba(0,0,0,0.07)",
-//         }}
-//       >
-//         <button
-//           style={{
-//             width: "100%",
-//             background: "linear-gradient(90deg, #B44CFC, #6C48FE)",
-//             color: "#fff",
-//             padding: "14px 0",
-//             fontSize: 17,
-//             borderRadius: 50,
-//             border: "none",
-//             fontWeight: 600,
-//             cursor: "pointer",
-//           }}
-//         >
-//           Delete Request
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// function InfoRow({ label, value }) {
-//   return (
-//     <div>
-//       <div style={{ color: "#666", fontSize: 14 }}>{label}</div>
-//       <div style={{ fontWeight: 600, marginTop: 2 }}>{value}</div>
-//     </div>
-//   );
-// }
-
-
 
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-
 
 import {
   IoCalendarOutline,
@@ -839,9 +320,8 @@ export default function FreelancerviewJobDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
 
-
   const removeJobCard = (jobId) => {
-    setJob(prev => prev.filter(job => job.id !== jobId));
+    setJob((prev) => prev.filter((job) => job.id !== jobId));
   };
 
   useEffect(() => {
@@ -867,32 +347,31 @@ export default function FreelancerviewJobDetailScreen() {
 
       const ref = doc(db, "jobs", jobId);
 
-      // Filter this freelancer out of applicants array
       const updatedApplicants = job.applicants.filter(
         (a) => a.freelancerId !== uid
       );
 
       await updateDoc(ref, {
         applicants: updatedApplicants,
-        applicants_count: updatedApplicants.length
+        applicants_count: updatedApplicants.length,
       });
 
       alert("Your applied request has been removed.");
-      
+
       if (removeJobCard) {
         removeJobCard(jobId);
       }
-      navigate("/freelance-dashboard/freelancermyworks");
 
+      navigate("/freelance-dashboard/freelancermyworks");
     } catch (error) {
       console.error(error);
       alert("Failed to remove applied request.");
     }
   };
+
   if (loading) return <div>Loading...</div>;
   if (!job) return <div>Job not found</div>;
 
-  console.log(job)
   return (
     <div
       style={{
@@ -906,19 +385,38 @@ export default function FreelancerviewJobDetailScreen() {
         backdropFilter: "blur(10px)",
       }}
     >
-      {/* MAIN CARD */}
+      {/* CARD */}
       <div
         style={{
           width: "100%",
           maxWidth: "1100px",
           background: "#fff",
           borderRadius: 18,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
           padding: "38px 32px",
           position: "relative",
         }}
       >
-        {/* RIGHT-SIDE ICONS */}
+        {/* APPLIED BADGE */}
+        <div
+          style={{
+            position: "absolute",
+            top: 80,
+            right: 20,
+            padding: "6px 16px",
+            background: "#E1FFC2",
+            color: "#67CC44",
+            borderRadius: 14,
+            fontSize: 14,
+            fontWeight: 600,
+            width:"123px",
+            textAlign:"center",
+          }}
+        >
+          Applied
+        </div>
+
+        {/* TOP ICONS */}
         <div
           style={{
             display: "flex",
@@ -973,12 +471,12 @@ export default function FreelancerviewJobDetailScreen() {
           style={{
             display: "flex",
             marginTop: 20,
-            gap: 35,
+            gap: 80,
             alignItems: "center",
             flexWrap: "wrap",
           }}
         >
-          {/* BUDGET */}
+          {/* Budget */}
           <div>
             <p style={{ color: "#666", fontSize: 14 }}>Budget</p>
             <p style={{ fontSize: 15, fontWeight: 600 }}>
@@ -987,8 +485,8 @@ export default function FreelancerviewJobDetailScreen() {
           </div>
 
           {/* TIMELINE */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <IoCalendarOutline size={18} color="#444" />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 ,}}>
+            <IoCalendarOutline size={19} color="#555" style={{marginTop:"30px"}} />
             <div>
               <p style={{ fontSize: 14, color: "#666" }}>Timeline</p>
               <p style={{ fontSize: 15, fontWeight: 600 }}>
@@ -998,8 +496,8 @@ export default function FreelancerviewJobDetailScreen() {
           </div>
 
           {/* LOCATION */}
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <IoLocationOutline size={18} color="#444" />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <IoLocationOutline size={19} color="#555" style={{marginTop:"30px"}} />
             <div>
               <p style={{ fontSize: 14, color: "#666" }}>Location</p>
               <p style={{ fontSize: 15, fontWeight: 600 }}>Remote</p>
@@ -1007,7 +505,7 @@ export default function FreelancerviewJobDetailScreen() {
           </div>
         </div>
 
-        {/* APPLICANTS + DAYS */}
+        {/* APPLICANTS + TIME */}
         <div
           style={{
             marginTop: 15,
@@ -1043,7 +541,6 @@ export default function FreelancerviewJobDetailScreen() {
                 padding: "6px 14px",
                 borderRadius: 10,
                 fontSize: 16,
-                fontWeight: 400,
               }}
             >
               {s}
@@ -1062,7 +559,8 @@ export default function FreelancerviewJobDetailScreen() {
 
         {/* DELETE BUTTON */}
         <div style={{ marginTop: 35 }}>
-          <button onClick={() => deletefunction(job.id)}
+          <button
+            onClick={() => deletefunction(job.id)}
             style={{
               width: "100%",
               padding: "14px 0",

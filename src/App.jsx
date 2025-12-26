@@ -126,10 +126,12 @@ import Freelancermyjob from "./Firebasejobs/Myjob/FreelancerMyjob"
 import Freelanceaddservice from "./save/FreelanceAddservice"
 import FreelancerOtpVerify from "./Firebaselogin/FreelancerOtpVerify";
 import FreelanceCategoryPage from "./pages/Freelancerpage/FreelancerbrowesPage";
+import FreelanceSideCategoryPage from "./pages/Freelancerpage/FreelanceSideCategoryPage";
 import Clientsavedjob from "./pages/Clientpages/ClientSavedpage/Clientsavedjob"
 
 import Clientdslidesave from "./save/ClientSavedsilde"
 import Clientbrowerpage from "./pages/Clientpages/Clientbrowerpage/Clientbrowercategory"
+import ClientSideCategories from "./pages/Clientpages/Clientbrowerpage/ClientSideCategories"
 import Clientbrowers from "./pages/Clientpages/Clientbrowerpage/Clientbrowers"
 import Clientsetting from "./firebaseClientScreen/clientSetting/ClientSetting"
 import EditServiceForm from "./save/EditServiceForm"
@@ -152,9 +154,15 @@ import FreelancerAcceptedChats from "./Firebasejobs/Chat/Freelancermessagelist";
 import MyHiresScreen from "./pages/Clientpages/CLientmyhires/MyHiresScreen";
 import CompanyProfileView from "./firebaseClientScreen/clientSetting/CompanyProfileView";
 import HelpCenter from "./pages/Helpcenter/Helpcenter";
+import TermsOfService from "./pages/Helpcenter/TermsOfService";
+import PrivacyPolicy from "./pages/Helpcenter/PrivacyPolicy";
+
 import ClientHelpCenter from "./pages/Helpcenter/ClientHelpCenter";
 import ClientHelpCenter1 from "./pages/ClientHelpCenter1";
 import Job_24DetailJobScreen from "./save/Job24FullDetailScreenjob";
+import Blocked from "./Firebasejobs/Blocked";
+import Profile_menu_screen from "./pages/Profile_menu_screen";
+import ClientFullDetailScreen from "./pages/Clientpages/ClientProfile/ClientFullDetailsScreen";
 
 
 export default function App() {
@@ -195,12 +203,13 @@ export default function App() {
       {/* CLIENT DASHBOARD */}
       <Route path="/client-dashbroad2" element={<ClientDashboard2 />}>
         <Route index element={<Clientsearchpage />} />
-        <Route path="clienthome" element={<Clientsearchpage/>} />
+        <Route path="clienthome" element={<Clientsearchpage />} />
         <Route path="ClientProfile" element={<ClientProfileMenuScreen userType={"client"} />} />
         {/* <Route path="exploreclientjob" element={<ExploreClientJobScreen/>}/> */}
         <Route path="AddJobScreen" element={<AddJobScreen />} />
         <Route path="clientbrowesproject" element={<Clientbrowers />} />
         <Route path="clientcategories" element={<Clientbrowerpage />} />
+        <Route path="ClientSideCategories" element={<ClientSideCategories />} />
         <Route path="clientservicelistpage" element={<ClientServiceListPage />} />
         <Route path="serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
         <Route path="account-details" element={<AccountDetails />} />
@@ -210,6 +219,9 @@ export default function App() {
         <Route path="saved" element={<SaveJobButton/>}/> */}
 
         <Route path="saved" element={<Clientsavedjob />} />
+
+        <Route path="Profilemenuscreen" element={<Profile_menu_screen />} />
+
         <Route path="Clientsaved" element={<Clientdslidesave />} />
 
         <Route path="client-job-search" element={<ExploreJobs />} />
@@ -222,8 +234,8 @@ export default function App() {
 
         <Route path="edit-service/:id" element={<EditService />} />
 
-        <Route path="job-full24/:id" element={<Job_24DetailJobScreen/>} />
-        <Route path="job-full/:id" element={<ClientJobFullDetailJobScreen/>} />
+        <Route path="job-full24/:id" element={<Job_24DetailJobScreen />} />
+        <Route path="job-full/:id" element={<ClientJobFullDetailJobScreen />} />
 
 
         <Route path="/client-dashbroad2/clienteditjob" element={<Clienteditjob />} />
@@ -235,12 +247,12 @@ export default function App() {
         <Route path="clientNotification" element={<ClientNotification />} />
         <Route path="companyprofileview" element={<CompanyProfileView />} />
         <Route path="clientsetting" element={<Clientsetting />} />
-{/* /client-dashbroad2/clientsetting */}
+        {/* /client-dashbroad2/clientsetting */}
 
         <Route path="clientpausedjobs" element={<ClientPausedJobsPage />} />
 
         <Route path="messages" element={<Message />} />
-        {/* <Route path="helpcenter" element={<ClientHelpCenter />} /> */}
+        <Route path="helpcenter" element={<HelpCenter />} />
         <Route path="helpcenter1" element={<ClientHelpCenter1 />} />
 
 
@@ -257,6 +269,7 @@ export default function App() {
         <Route path="freelanceHome" element={<FreelanceHome />} />
         <Route path="browse-projects" element={<BrowseProjects />} />
         <Route path="freelancebrowesproject" element={<FreelanceCategoryPage />} />
+        <Route path="freelancesidecategorypage" element={<FreelanceSideCategoryPage />} />
         <Route path="serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
         <Route path="account-details" element={<AccountDetails />} />
         <Route path="settings" element={<Settings />} />
@@ -268,6 +281,11 @@ export default function App() {
         <Route path="job-full/:id" element={<JobFullDetailJobScreen />} />
         <Route path="job-full/:id" element={<JobFullDetailJobScreen />} />
         <Route path="CompanyProfileScreen" element={<CompanyProfileScreen />} />
+        <Route
+          path="/freelance-dashboard/view-profile/:userId/job/:jobid"
+          element={<ClientFullDetailScreen />}
+        />
+
 
         <Route path="myjobs" element={<Freelancermyjob />} />
         <Route path="AddJobScreen" element={<AddJobScreen />} />
@@ -286,19 +304,20 @@ export default function App() {
         <Route path="add-service-form" element={<Freelanceaddservice />} />
         <Route path="add-24h-service" element={<Add24HoursScreen />} />
         <Route path="freelanceredit-service/:id" element={<EditServiceForm />} />
-        <Route path="freelanceredit-service24h/:id" element={<EditService24h />}/>
+        <Route path="freelanceredit-service24h/:id" element={<EditService24h />} />
 
         <Route path="paused-services" element={<FreelancerPausedpage />} />
+        <Route path="blocked" element={<Blocked />} />
 
 
 
 
-      <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
-      <Route path="helpcenter" element={<HelpCenter />} />
-      
+        <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
+        <Route path="helpcenter" element={<HelpCenter />} />
 
 
-      
+
+
 
       </Route>
 
@@ -409,7 +428,7 @@ export default function App() {
       {/* ========== freelancer job firebase  ========== */}
       <Route path="/redirect/:uid" element={<RedirectHandler />} />
 
-
+      <Route path="/helpcenter" element={<HelpCenter />} />
 
       <Route path="/freelancer/:uid/job/:jobid" element={<FreelancerPage />} />
 
@@ -436,7 +455,8 @@ export default function App() {
 
 
 
-     <Route path="helpcenter" element={<ClientHelpCenter />} />
+      <Route path="termsofservice" element={<TermsOfService />} />
+      <Route path="/privacypolicy" element={<PrivacyPolicy />} />
 
       <Route path="/job-full/:id" element={<ClientJobFullDetailJobScreen />} />
 
