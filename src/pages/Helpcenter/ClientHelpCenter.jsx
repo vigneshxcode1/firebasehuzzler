@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Helpcenterimg from "../../assets/logo.png"
+import helpcenterImg from "../../assets/logo.png"
 import "./ClientHelpcenter.css"
 
 
@@ -11,7 +11,7 @@ const HelpCenter = () => {
 
       <div style={styles.tabRow}>
 
-        <img className="helplogo" src={Helpcenterimg} alt="" />
+        <img className="helplogo" src={helpcenterImg} alt="" />
 
         <h1 className="helptitle">Policy</h1>
 
