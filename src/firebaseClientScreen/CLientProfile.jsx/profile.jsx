@@ -1187,9 +1187,9 @@ export default function ClientProfileMenuScreen() {
           <MenuItem img={settings} title="Account Settings"
             onClick={() => navigate("/client-dashbroad2/companyprofileview")}
           />
-          {/* <MenuItem img={helpcenter} title="Help Centerr" onClick={() => navigate("/client-dashbroad2/helpcenter")} /> */}
-          {/* <MenuItem img={helpcenter} title="Terms Of Service" onClick={() => navigate("/termsofservice")} />
-          <MenuItem img={helpcenter} title="Privacy Policy" onClick={() => navigate("/privacypolicy")} /> */}
+          <MenuItem img={helpcenter} title="Help Centerr" onClick={() => navigate("/client-dashbroad2/helpcenter")} />
+          <MenuItem img={helpcenter} title="Terms Of Service" onClick={() => navigate("/termsofservice")} />
+          <MenuItem img={helpcenter} title="Privacy Policy" onClick={() => navigate("/privacypolicy")} />
         </div>
 
         {/* LOGOUT + DELETE */}

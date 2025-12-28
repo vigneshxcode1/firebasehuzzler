@@ -812,9 +812,9 @@ export default function ClientProfileMenuScreen() {
           {
             title: "Support",
             items: [
-              // ["Help Center", helpcenter, "/freelance-dashboard/helpcenter"],
-              // ["Terms of Service", helpcenter,"/termsofservice"],
-              // ["Privacy Policy", helpcenter, "/privacypolicy"],
+              ["Help Center", helpcenter, "/freelance-dashboard/helpcenter"],
+              ["Terms of Service", helpcenter,"/termsofservice"],
+              ["Privacy Policy", helpcenter, "/privacypolicy"],
               ["Sign out", Logout, "/firelogin"],
             ],
           },

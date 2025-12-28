@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import helpcenterimg from "../../assets/logo.png";
-import "./HelpCenter.css";
-
+import "./helpcenter.css";
 import { useSearchParams } from "react-router-dom";
 
 const HelpCenter = () => {

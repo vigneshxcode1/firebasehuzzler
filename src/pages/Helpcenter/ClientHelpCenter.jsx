@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import helpcenterImg from "../../assets/logo.png"
+import helpcenterimg from "../../assets/logo.png"
 import "./Clienthelpcenter.css"
 
 
@@ -11,7 +11,7 @@ const HelpCenter = () => {
 
       <div style={styles.tabRow}>
 
-        <img className="helplogo" src={helpcenterImg} alt="" />
+        <img className="helplogo" src={helpcenterimg} alt="" />
 
         <h1 className="helptitle">Policy</h1>
 
@@ -584,7 +584,16 @@ const styles = {
     cursor: "pointer",
   },
 
-
+  activeTab: {
+     backgroundColor: "transparent",        // remove selection background
+    color: "yellow",                        // highlight active text if you want
+    padding: "10px 15px",
+    border: "none",
+    borderBottom: "3px solid yellow",       // ACTIVE underline only
+    cursor: "pointer",
+    fontSize: "16px",
+    fontWeight: "600",
+  },
 
 
   activeTab: {

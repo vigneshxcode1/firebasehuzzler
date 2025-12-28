@@ -3923,7 +3923,7 @@ export default function PostJobScreen(props) {
 const styles = {
   page: {
     width: "100%",
-    
+    minHeight: "100vh",
 
     display: "flex",
     justifyContent: "center",

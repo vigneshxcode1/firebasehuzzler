@@ -656,8 +656,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../../firbase/Firebase";
-import backArrow from "../../../assets/mani.png";
-
+import backarrow from "../../../assets/backArrow.png"
 export default function ClientEditJob() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -740,7 +739,7 @@ alert("Job saved successfully!");
           {/* HEADER */}
           <div className="editJobHeader">
              <div className="backbtn" onClick={() => navigate(-1)} >
-                       <img src={backArrow} alt="back arrow" height={20} className="backarrow"/>
+                       <img src={backarrow} alt="back arrow" height={20} className="backarrow"/>
                      </div>
             <div className="editJobTitle">
               {jobData.id ? "Edit Job Proposal" : "Job Proposal"}

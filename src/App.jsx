@@ -153,16 +153,16 @@ import ClientPausedJobsPage from "./save/ClientPausedJobsPage";
 import FreelancerAcceptedChats from "./Firebasejobs/Chat/Freelancermessagelist";
 import MyHiresScreen from "./pages/Clientpages/CLientmyhires/MyHiresScreen";
 import CompanyProfileView from "./firebaseClientScreen/clientSetting/CompanyProfileView";
-import HelpCenter from "./pages/helpcenter/helpcenter";
+import HelpCenter from "./pages/Helpcenter/Helpcenter";
 import TermsOfService from "./pages/Helpcenter/TermsOfService";
-import PrivacyPolicy from "./pages/helpcenter/PrivacyPolicy";
+import PrivacyPolicy from "./pages/Helpcenter/PrivacyPolicy";
 
-import ClientHelpCenter from "./pages/helpcenter/ClientHelpCenter";
+import ClientHelpCenter from "./pages/Helpcenter/ClientHelpCenter";
 import ClientHelpCenter1 from "./pages/ClientHelpCenter1";
 import Job_24DetailJobScreen from "./save/Job24FullDetailScreenjob";
 import Blocked from "./Firebasejobs/Blocked";
 import Profile_menu_screen from "./pages/Profile_menu_screen";
-import ClientFullDetailsScreen from "./pages/Clientpages/ClientProfile/Mani.jsx"
+import ClientFullDetailScreen from "./pages/Clientpages/ClientProfile/ClientFullDetailsScreen";
 
 
 export default function App() {
@@ -283,7 +283,7 @@ export default function App() {
         <Route path="CompanyProfileScreen" element={<CompanyProfileScreen />} />
         <Route
           path="/freelance-dashboard/view-profile/:userId/job/:jobid"
-          element={<ClientFullDetailsScreen />}
+          element={<ClientFullDetailScreen />}
         />
 
 
