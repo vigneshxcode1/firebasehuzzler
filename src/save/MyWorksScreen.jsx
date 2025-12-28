@@ -781,12 +781,12 @@ export default function MyWorksScreen() {
   if (!user) return <div style={{ padding: 20 }}>Please log in</div>;
 
   const containerStyle = {
-    marginLeft: isMobile ? "0px" : collapsed ? "-100px" : "110px",
+    marginLeft: isMobile ? "0px" : collapsed ? "-100px" : "140px",
     transition: "margin-left 0.25s ease",
     minHeight: "100vh",
     paddingBottom: 120,
     background: "#fff",
-    overflowX: "hidden",
+    
   };
 
   return (

@@ -419,6 +419,7 @@
 
 
 
+
 import React, { useEffect, useState } from "react";
 import logo from "../../../assets/logo.png";
 import hire from "../../../assets/hire.png";
@@ -561,7 +562,7 @@ export default function ClientSidebar() {
             }
           >
             <img src={myjobs} width={18} />
-            {!collapsed && "My Jobs"}
+            {!collapsed && "Job Posted"}
           </button>
 
           <button
@@ -573,7 +574,7 @@ export default function ClientSidebar() {
             }
           >
             <img src={hire} width={18} />
-            {!collapsed && "My Service"}
+            {!collapsed && "Hire"}
           </button>
 
           <button
@@ -630,7 +631,7 @@ export default function ClientSidebar() {
               <p className="hz-user-name">
                 {userInfo.firstName} {userInfo.lastName}
               </p>
-              <p className="hz-user-role">Premium Member</p>
+              <p className="hz-user-role">Client</p>
             </div>
           )}
         </div>

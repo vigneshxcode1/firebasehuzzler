@@ -133,7 +133,7 @@ import Clientdslidesave from "./save/ClientSavedsilde"
 import Clientbrowerpage from "./pages/Clientpages/Clientbrowerpage/Clientbrowercategory"
 import ClientSideCategories from "./pages/Clientpages/Clientbrowerpage/ClientSideCategories"
 import Clientbrowers from "./pages/Clientpages/Clientbrowerpage/Clientbrowers"
-import Clientsetting from "./firebaseClientScreen/clientSetting/ClientSetting"
+import CompanyProfileEdit from "./firebaseClientScreen/clientSetting/CompanyProfileEdit.jsx"
 import EditServiceForm from "./save/EditServiceForm"
 import EditService24h from "./save/EditService24h";
 
@@ -246,7 +246,7 @@ export default function App() {
 
         <Route path="clientNotification" element={<ClientNotification />} />
         <Route path="companyprofileview" element={<CompanyProfileView />} />
-        <Route path="clientsetting" element={<Clientsetting />} />
+        <Route path="companyprofileedit" element={<CompanyProfileEdit />} />
         {/* /client-dashbroad2/clientsetting */}
 
         <Route path="clientpausedjobs" element={<ClientPausedJobsPage />} />

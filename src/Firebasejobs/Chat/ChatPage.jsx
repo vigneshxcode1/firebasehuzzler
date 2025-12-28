@@ -360,6 +360,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 // import React, { useEffect, useState, useRef } from "react";
 // import {
 //   getDatabase,
@@ -760,6 +770,10 @@
 
 
 
+
+
+
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   getDatabase,
@@ -1063,7 +1077,7 @@ export default function ChatPage() {
         <button
           onClick={sendMessage}
           style={{
-            background: "#1877f2",
+            background: "red",
             border: "none",
             color: "white",
             padding: "12px 15px",

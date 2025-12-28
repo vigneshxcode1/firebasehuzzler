@@ -651,6 +651,8 @@ import editIcon from "../../assets/edit.png";
 import logoutIcon from "../../assets/icons/logout.png";
 import MyJobs from "../../assets/icons/myjobs.png";
 import Logout from "../../assets/icons/logout.png";
+import blocked from "../../assets/blocked.png";
+
 
 export default function ClientProfileMenuScreen() {
   const auth = getAuth();
@@ -804,6 +806,7 @@ export default function ClientProfileMenuScreen() {
               ["Invite friends", invite, ""],
               ["Notifications", notification],
               ["Account Settings", settings, "/freelance-dashboard/settings"],
+              ["Blocked", blocked, "/freelance-dashboard/blocked"],
             ],
           },
           {
