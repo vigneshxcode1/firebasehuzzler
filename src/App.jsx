@@ -162,8 +162,7 @@ import ClientHelpCenter1 from "./pages/ClientHelpCenter1";
 import Job_24DetailJobScreen from "./save/Job24FullDetailScreenjob";
 import Blocked from "./Firebasejobs/Blocked";
 import Profile_menu_screen from "./pages/Profile_menu_screen";
-import ClientFullDetailsScreen from"./pages/Clientpages/ClientProfile/ClientFullDetailsScreen.jsx/index.js";
-
+import ClientFullDetailsScreen from "./pages/Clientpages/ClientProfile/Mani.jsx"
 
 
 export default function App() {
@@ -284,7 +283,7 @@ export default function App() {
         <Route path="CompanyProfileScreen" element={<CompanyProfileScreen />} />
         <Route
           path="/freelance-dashboard/view-profile/:userId/job/:jobid"
-          element={<ClientFullDetailScreen />}
+          element={<ClientFullDetailsScreen />}
         />
 
 
