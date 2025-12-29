@@ -565,11 +565,11 @@ export default function LoginPage() {
       const role = (user.role || "").trim().toLowerCase();
       role === "client"
         ? navigate("/clientloginotp", {
-            state: { email: normalizedEmail },
-          })
+          state: { email: normalizedEmail },
+        })
         : navigate("/freelancer-loginotp", {
-            state: { email: normalizedEmail },
-          });
+          state: { email: normalizedEmail },
+        });
     } catch {
       showMsg("Login failed");
     } finally {
@@ -615,13 +615,16 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <button
-              type="button"
-              style={styles.forgot}
-              onClick={() => navigate("/forgot-password")}
-            >
-              Forgot Password?
-            </button>
+            <div style={styles.forgotWrap}>
+              <button
+                type="button"
+                style={styles.forgot}
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot Password?
+              </button>
+            </div>
+
 
             <button
               type="submit"
@@ -691,6 +694,7 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     gap: 20,
+    marginBottom: "100px"
   },
 
   header: { textAlign: "center" },
@@ -721,14 +725,19 @@ const styles = {
     marginBottom: 12,
   },
 
-  forgot: {
-    background: "none",
-    border: "none",
-    color: "#6A7282",
-    marginLeft: "auto",
-    marginBottom: 18,
-    cursor: "pointer",
-  },
+forgotWrap: {
+  display: "flex",
+  justifyContent: "flex-end",
+},
+
+forgot: {
+  background: "none",
+  border: "none",
+  color: "#6A7282",
+  marginBottom: 18,
+  cursor: "pointer",
+  marginRight: 0, // 👈 desktop adjust
+},
 
   loginBtn: {
     width: "100%",
@@ -765,13 +774,14 @@ const styles = {
 
   socialIcon: { width: 22 },
 
-  signupText: { fontSize: 16, textAlign: "center", marginTop: 18 ,fontWeight: 400,},
+  signupText: { fontSize: 16, textAlign: "center", marginTop: 18, fontWeight: 400, },
 
   signupLink: { color: "#6b31ff", fontWeight: 600, cursor: "pointer" },
 
-  terms: { fontSize: 16, textAlign: "center", marginTop: 14 ,fontWeight: 400,
+  terms: {
+    fontSize: 16, textAlign: "center", marginTop: 14, fontWeight: 400,
 
-    
+
   },
 
   link: {

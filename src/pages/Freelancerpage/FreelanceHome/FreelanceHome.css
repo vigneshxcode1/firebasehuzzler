@@ -1,4 +1,3 @@
-
 /* FreelanceHome.css
    Styles crafted to match the uploaded screenshot.
    Tweak variables below for color adjustments.
@@ -229,14 +228,14 @@ padding: 22px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin:8px 0 10px;
+  margin:10px 0 10px;
 }
 .arrow{
   margin-bottom: 60px;
 }
 .section-header h2{
   margin:0;
-  font-size:24px;
+  font-size:20px;
   font-weight:400;
 }
 
@@ -244,6 +243,8 @@ padding: 22px;
   color: rgba(152, 16, 250, 1);
   text-decoration:none;
   font-weight:600;
+  margin-top: 1px;
+
 }
 
 /* JOB CARDS LIST */
@@ -309,18 +310,20 @@ padding: 22px;
 }
 
 .save-btn {
-  margin-top: 4px;
-  background: transparent;
+  background: none;
   border: none;
-  font-size: 18px;
   cursor: pointer;
+  font-size: 20px;
+  color: #666;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.save-btn.saved {
+  color: #000; /* yellow / gold */
+  
 }
 
 
-
-.save-btn.saved{
-  color: rgba(124,60,255,1);
-}
 
 
 /* description */
@@ -725,12 +728,13 @@ padding: 22px;
    body, html {
     overflow-y: auto;
     overflow-x: hidden;
-    height: auto;
+    height: auto;.img-4 {  right: 120px;width: 340px;height: 400px;  }
   }
   .freelance-wrapper {
     margin-left: 0 !important;
     padding: 22px;
   }
+  .img-4, .img-2 {  left: 80px;width: 340px;height: 400px;  }
  
 }
 
@@ -814,6 +818,7 @@ padding: 22px;
     right: 44px;
     font-size: 10px;
   }
+ 
 }
 
 /* ===============================
@@ -823,4 +828,19 @@ padding: 22px;
 /* Ensure nothing forces fixed or static */
 .fh-header-right {
   position: absolute !important;
+}
+/* MOBILE: sidebar must be above homepage content */
+@media (max-width: 768px) {
+  .sidebar {
+    z-index: 9999;
+  }
+
+  .fh-header,
+  .fh-header-right {
+    z-index: 1;
+    position: relative;
+  }
+}
+.job-card {
+  -webkit-tap-highlight-color: transparent;
 }

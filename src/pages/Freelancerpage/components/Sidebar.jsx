@@ -591,7 +591,7 @@ export default function FreelanceSideBar() {
 
             <button
               className="hz-menu-btn"
-              onClick={() => handleMobileNav("/logout")}
+              onClick={() => handleMobileNav("/firelogin")}
             >
                  <img src={signout} width={18} className="icon" />
               {!collapsed && "Logout"}

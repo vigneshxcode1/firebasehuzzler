@@ -614,7 +614,7 @@ export default function ClientSidebar() {
               {!collapsed && "Settings"}
             </button>
 
-            <button className="hz-menu-btn" onClick={() => navigate("/logout")}>
+            <button className="hz-menu-btn" onClick={() => navigate("/firelogin")}>
               <img src={signout} width={18} />
               {!collapsed && "Logout"}
             </button>

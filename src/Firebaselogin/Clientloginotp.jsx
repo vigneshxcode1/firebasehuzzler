@@ -132,7 +132,7 @@ export default function OtpVerify() {
         }}
       >
         <h2 style={{ fontSize: 22, fontWeight: 600 }}>
-          You're almost there! We just need to verify your email.....
+          You're almost there! We just need to verify your email
         </h2>
 
         <p style={{ fontSize: 16, color: "#777", marginTop: 10 }}>

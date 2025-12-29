@@ -1226,24 +1226,6 @@ export default function JobFullDetailJobScreen() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() =>
-                navigate(
-                  `/freelance-dashboard/view-profile/${job.userId}/job/${job.id}`
-                )
-              }
-              style={{
-                cursor: "pointer",
-                background: "transparent",
-                border: "none",
-                color: "#7B2BFF",
-                fontWeight: 600,
-              }}
-            >
-              View Profile
-            </button>
-
-
 
             <img
               src={share}
@@ -1259,6 +1241,10 @@ export default function JobFullDetailJobScreen() {
 
           <FiX onClick={() => navigate(-1)} style={{ cursor: "pointer" }} />
         </div>
+
+
+
+
 
         {/* PAGE TITLE */}
         <h2
@@ -1285,6 +1271,25 @@ export default function JobFullDetailJobScreen() {
         >
           {job.title}
         </h1>
+                <button
+          onClick={() =>
+            navigate(
+              `/freelance-dashboard/view-profile/${job.userId}/job/${job.id}`
+            )
+          }
+          style={{
+            cursor: "pointer",
+            background: "transparent",
+            borderRadius:"10px",
+            color: "white",
+            fontWeight: 600,
+            marginLeft:"450px",
+            backgroundColor:"#7B2BFF",
+            padding:'10px',
+          }}
+        >
+          View Profile
+        </button>
 
         <p
           style={{

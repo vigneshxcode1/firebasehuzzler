@@ -374,6 +374,7 @@ line-height: 24px;
           cursor: pointer;
           margin-left: 8px;
           box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+          margin-bottom:54px
         }
 
         /* ================= MOBILE RESPONSIVE ================= */
@@ -383,6 +384,7 @@ line-height: 24px;
             height: auto;
             padding: 22px; /* ✅ EXACT as requested */
             border-radius: 22px;
+            margin-bottom:14px
           }
 
           .btn-row {

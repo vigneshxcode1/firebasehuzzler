@@ -573,7 +573,7 @@
 //           cursor: "pointer",
 //           fontFamily: "Rubik",
 //           width:"195px",
-         
+
 //         }}
 //       >
 //         {actionLabel}
@@ -852,7 +852,7 @@
 // frontend/src/firebaseClientScreen/Postjob/AddJobScreen.jsx
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   collection,
   query,
@@ -866,10 +866,14 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import backarrow from "../../assets/backarrow.png";
-// 🔹 KEEP YOUR FIREBASE PATH (unchanged)
+
 import { db } from "../../firbase/Firebase";
 import emptyWorks from "../../assets/job.png"; // dummy image
 import empty24 from "../../assets/job24.png"; // dummy image
+
+import "./addjobpost.css"
+import sortimg from "../../../src/assets/sort.png"
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState(
     window.innerWidth < 1024
@@ -885,9 +889,11 @@ function useIsMobile() {
   return isMobile;
 }
 
-// ----------------- Styles (based on ServiceScreenOne) -----------------
+
 const styles = {
+
   page: {
+
     backgroundColor: "#FFFFFF",
     minHeight: "100vh",
     fontFamily:
@@ -898,8 +904,28 @@ const styles = {
     paddingTop: 32,
     paddingBottom: 80,
     color: "#111827",
-     overflowX: "hidden",
+    overflowX: "hidden",
   },
+  addjobpostimg: {
+    width: 100,
+    height: "auto",
+    marginBottom: 20,
+    marginLeft: 200,
+    opacity: 0.9,
+  },
+
+  sortMenu: {
+  position: "absolute",
+  top: 48,
+  right: 0,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 12,
+  boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+  padding: "8px 8px",
+  minWidth: 180,
+  zIndex: 90,
+},
+
   headerRowWrap: {
     width: 928,
     display: "flex",
@@ -908,7 +934,7 @@ const styles = {
     gap: 8,
     marginLeft: 32,
     marginTop: 0,
-      maxWidth: 928, 
+    maxWidth: 928,
   },
   backbtn: {
     width: "36px",
@@ -925,7 +951,7 @@ const styles = {
     marginBottom: "18px",
   },
   headerTextBlock: { display: "flex", flexDirection: "column", marginLeft: 4 },
-  headerTitle: { fontWeight: 700, fontSize: "28px", lineHeight: "32px" },
+  headerTitle: { fontWeight: 700, fontSize: "28px", lineHeight: "32px", },
   headerSubtitle: {
     fontSize: 13,
     marginTop: 8,
@@ -939,7 +965,7 @@ const styles = {
     borderRadius: 16,
     padding: 6,
     display: "flex",
-       maxWidth: 928, // ✅ FIX
+    maxWidth: 928, // ✅ FIX
     alignItems: "center",
     marginTop: 18,
     marginLeft: 32,
@@ -982,7 +1008,7 @@ const styles = {
     marginLeft: 32,
     paddingRight: 32,
     boxSizing: "border-box",
-      maxWidth: 928,
+    maxWidth: 928,
   },
   searchContainer: {
     flex: 1,
@@ -1016,16 +1042,20 @@ const styles = {
     position: "relative",
   },
   sortBtnBox: {
-    minWidth: 90,
+    minWidth: 10,
     height: 40,
     borderRadius: 12,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    border: "1px solid #E0E0E0",
+
     background: "#FFF",
     cursor: "pointer",
     fontWeight: 600,
+  },
+  sortimg: {
+
+    width: 30
   },
   sortMenu: {
     position: "absolute",
@@ -1048,7 +1078,7 @@ const styles = {
   },
 
   // cards / grid
- cardsWrap: {
+  cardsWrap: {
     width: "100%", // ✅ FIX
     maxWidth: 928, // ✅ FIX
     marginTop: 24,
@@ -1058,8 +1088,8 @@ const styles = {
     boxSizing: "border-box",
   },
   card: {
-    width:"100%",
-        maxWidth: 446,
+    width: "100%",
+    maxWidth: 446,
     minHeight: 220,
     borderRadius: 24,
     borderWidth: 0.8,
@@ -1205,11 +1235,12 @@ const styles = {
     boxShadow: "0 8px 16px rgba(124, 60, 255, 0.4)",
     zIndex: 20,
   },
+
 };
 
-// ----------------- Keep original hashCode helper (unchanged) -----------------
+
 if (!String.prototype.hashCode) {
-  // eslint-disable-next-line no-extend-native
+
   String.prototype.hashCode = function () {
     let hash = 0;
     for (let i = 0; i < this.length; i++) {
@@ -1264,6 +1295,10 @@ export default function AddJobScreen() {
 
   const [pausedWorksJobs, setPausedWorksJobs] = useState([]);
   const [paused24hJobs, setPaused24hJobs] = useState([]);
+
+
+  const { id } = useParams();
+
 
   // 🔻 2️⃣ LISTEN FOR SIDEBAR TOGGLE (UI only, no backend change)
   useEffect(() => {
@@ -1471,10 +1506,12 @@ export default function AddJobScreen() {
     navigate("/client-dashbroad2/PostJob");
   };
 
-  const handleOpenJobDetail = (job) => {
-    // 🔹 Update route to your job detail page (preserved)
-    navigate("", { state: { jobId: job.id } });
-  };
+const handleOpenJobDetail = (job) => {
+  navigate(`/client-dashbroad2/job-full/${job.id}`, {
+    state: { jobData: job }, // optional, still can pass data via state
+  });
+};
+
 
   // ---------------- RENDER HELPERS (adapted to card UI) ---------------- //
   const renderSortOption = (label) => {
@@ -1492,8 +1529,8 @@ export default function AddJobScreen() {
           setShowSortModal(false);
         }}
       >
-          {/* ✅ GLOBAL MOBILE OVERFLOW FIX */}
-      <style>{`
+        {/* ✅ GLOBAL MOBILE OVERFLOW FIX */}
+        <style>{`
         body { overflow-x: hidden; }
       `}</style>
 
@@ -1502,9 +1539,8 @@ export default function AddJobScreen() {
             width: 16,
             height: 16,
             borderRadius: "50%",
-            border: `2px solid ${
-              isActive ? "#7C3CFF" : "#D1D5DB"
-            }`,
+            border: `2px solid ${isActive ? "#7C3CFF" : "#D1D5DB"
+              }`,
             display: "inline-block",
             marginRight: 10,
             boxSizing: "border-box",
@@ -1535,7 +1571,7 @@ export default function AddJobScreen() {
           alignItems: "center",
           textAlign: "center",
           fontFamily: "Rubik",
-          marginLeft: "150px",
+          marginLeft: "10px",
           fontSize: "20px",
           fontWeight: 500,
         }}
@@ -1543,14 +1579,11 @@ export default function AddJobScreen() {
         <img
           src={image}
           alt="empty"
-          style={{
-            width: 180,
-            height: "auto",
-            marginBottom: 20,
-            opacity: 0.9,
-          }}
+          className="addjobpostimg"
+          width={100}
         />
 
+        <br />
         <div style={{ fontSize: 16, fontWeight: 500 }}>{title}</div>
 
         <div
@@ -1598,7 +1631,7 @@ export default function AddJobScreen() {
     const limit = 2;
     const visible = flat.slice(0, limit);
     const hidden = flat.slice(limit);
-   
+
     return (
       <div
         style={{
@@ -1611,8 +1644,8 @@ export default function AddJobScreen() {
         {visible.map((text, idx) => {
           const color =
             chipBgColors[
-              Math.abs(text.hashCode?.() || text.length) %
-                chipBgColors.length
+            Math.abs(text.hashCode?.() || text.length) %
+            chipBgColors.length
             ] || chipBgColors[idx % chipBgColors.length];
           return (
             <div
@@ -1679,21 +1712,27 @@ export default function AddJobScreen() {
             >
               {job.title || "Title"}
             </div>
-            <div style={styles.skillsRowWrapper}>
+
+
+            <div className="skills-row-wrapper">
               {Array.isArray(job.skills) &&
                 job.skills.slice(0, 2).map((s, i) => (
-                  <div key={i} style={styles.skillChip}>
+                  <div key={i} className="skill-chip">
                     {s}
                   </div>
                 ))}
+
               {job.skills?.length > 2 && (
-                <div style={styles.moreChip}>
+                <div className="more-chip">
                   +{job.skills.length - 2}
                 </div>
               )}
             </div>
+
+
           </div>
         </div>
+
 
         <div style={styles.jobInfoRow}>
           <div>
@@ -1779,14 +1818,14 @@ export default function AddJobScreen() {
             </div>
             <div style={styles.skillsRowWrapper}>
               {Array.isArray(job.skills) &&
-                job.skills.slice(0, 2).map((s, i) => (
+                job.skills.slice(0, 3).map((s, i) => (
                   <div key={i} style={styles.skillChip}>
                     {s}
                   </div>
                 ))}
               {job.skills?.length > 2 && (
                 <div style={styles.moreChip}>
-                  +{job.skills.length - 2}
+                  +{job.skills.length - s}
                 </div>
               )}
             </div>
@@ -1907,154 +1946,169 @@ export default function AddJobScreen() {
   // ---------------- Render ----------------
   // 🔻 3️⃣ WRAP WHOLE UI INSIDE MARGIN-LEFT CONTAINER (for sidebar)
 
-   return (
-  <div
-    className="freelance-wrapper"
-    style={{
-      marginLeft: isMobile ? 0 : collapsed ? "-510px" : "-60px",
-      transition: "margin-left 0.25s ease",
-      width: "100%",
-    }}
-  >
-    <div style={styles.page}>
-      {/* HEADER */}
-      <div
-        style={{
-          ...styles.headerRowWrap,
-          width: isMobile ? "100%" : 928,
-          marginLeft: isMobile ? 0 : 32,
-          paddingLeft: isMobile ? 16 : 0,
-          paddingRight: isMobile ? 16 : 0,
-        }}
-      >
-        <div
-          style={styles.backbtn}
-          onClick={() => navigate(-1)}
-        >
-          <img src={backarrow} alt="back" height={20} />
-        </div>
+  return (
+    <div
+      className="freelance-wrapper"
+      style={{
+        marginLeft: isMobile ? 0 : collapsed ? "-510px" : "-60px",
+        transition: "margin-left 0.25s ease",
+        width: "100%",
+      }}
+    >
 
-        <div style={styles.headerTextBlock}>
-          <div style={styles.headerTitle}>
-            job proposal
-          </div>
-          <div style={styles.headerSubtitle}>
-            Turn your ideas into action — post your job
-            today.
-          </div>
-        </div>
-      </div>
-
-      {/* TOGGLE */}
-      <div
-        style={{
-          ...styles.toggleBarWrapper,
-          width: isMobile ? "100%" : 928,
-          marginLeft: isMobile ? 0 : 32,
-          paddingLeft: isMobile ? 12 : 6,
-          paddingRight: isMobile ? 12 : 6,
-        }}
-      >
-        <div style={styles.toggleGroup}>
-          <div
-            onClick={() => setSelectedTab("Works")}
-            style={styles.toggleButton(
-              selectedTab === "Works"
-            )}
-          >
-            Works
-          </div>
-          <div
-            onClick={() => setSelectedTab("24 Hours")}
-            style={styles.toggleButton(
-              selectedTab === "24 Hours"
-            )}
-          >
-            24 Hours
-          </div>
-        </div>
-      </div>
-
-      {/* SEARCH + SORT */}
-      <div
-        style={{
-          ...styles.searchSortRow,
-          width: isMobile ? "100%" : 928,
-          marginLeft: isMobile ? 0 : 32,
-          paddingLeft: isMobile ? 16 : 0,
-          paddingRight: isMobile ? 16 : 32,
-          flexDirection: isMobile ? "column" : "row",
-        }}
-      >
-        <div style={styles.searchContainer}>
-          <span style={styles.searchIcon}>🔍</span>
-          <input
-            style={styles.searchInput}
-            placeholder="Search"
-            value={searchText}
-            onChange={(e) =>
-              setSearchText(e.target.value)
-            }
-          />
-        </div>
+      <div style={styles.page}>
 
         <div
-          style={styles.sortButtonWrapper}
-          ref={sortRef}
+          style={{
+            ...styles.headerRowWrap,
+            width: isMobile ? "100%" : 928,
+            marginLeft: isMobile ? 0 : 32,
+            paddingLeft: isMobile ? 16 : 0,
+            paddingRight: isMobile ? 16 : 0,
+          }}
         >
-          <div
-            style={styles.sortBtnBox}
-            onClick={() =>
-              setShowSortModal((s) => !s)
-            }
-          >
-            Sort
-          </div>
 
-          {showSortModal && (
-            <div style={styles.sortMenu}>
-              {renderSortOption("Newest")}
-              {renderSortOption("Paused")}
-              {renderSortOption("Budget High")}
-              {renderSortOption("Budget Low")}
+
+          <div className="job-header">
+            <div className="back-btn" onClick={() => navigate(-1)}>
+              <img src={backarrow} alt="back" height={20} />
             </div>
-          )}
+
+            <div className="header-text-block">
+              <div className="header-title">Job Proposal</div>
+              <div className="header-subtitle">
+                Turn your ideas into action — post your job today.
+              </div>
+            </div>
+          </div>
+
+
+
         </div>
-      </div>
 
-      {/* CARDS */}
-      <div
-        style={{
-          ...styles.cardsWrap,
-          width: isMobile ? "100%" : 928,
-          marginLeft: isMobile ? 0 : 32,
-          paddingLeft: isMobile ? 16 : 0,
-          paddingRight: isMobile ? 16 : 0,
-          gridTemplateColumns: isMobile
-            ? "1fr"
-            : "repeat(2, 446px)",
-        }}
-      >
-        {listContent}
-      </div>
+        {/* TOGGLE */}
+        <div
+          style={{
+            ...styles.toggleBarWrapper,
+            width: isMobile ? "100%" : 928,
+            marginLeft: isMobile ? 0 : 32,
+            paddingLeft: isMobile ? 12 : 6,
+            paddingRight: isMobile ? 12 : 6,
+          }}
+        >
+          <div style={styles.toggleGroup}>
+            <div
+              onClick={() => setSelectedTab("Works")}
+              style={styles.toggleButton(
+                selectedTab === "Works"
+              )}
+            >
+              Works
+            </div>
+            <div
+              onClick={() => setSelectedTab("24 Hours")}
+              style={styles.toggleButton(
+                selectedTab === "24 Hours"
+              )}
+            >
+              24 Hours
+            </div>
+          </div>
+        </div>
 
-      {/* FAB */}
-      <button
-        style={{
-          ...styles.fab,
-          right: isMobile ? 16 : 32,
-          bottom: isMobile ? 16 : 32,
-        }}
-        onClick={
-          selectedTab === "Works"
-            ? handleOpenPostJob
-            : handleOpenAdd24hJob
-        }
-      >
-        +
-      </button>
+        {/* SEARCH + SORT */}
+        <div
+          style={{
+            ...styles.searchSortRow,
+            width: isMobile ? "100%" : 928,
+            marginLeft: isMobile ? 0 : 32,
+            paddingLeft: isMobile ? 16 : 0,
+            paddingRight: isMobile ? 16 : 32,
+            flexDirection: isMobile ? "column" : "row",
+
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "nowrap",
+          }}
+        >
+          <div className="addjobpostsearch" style={styles.searchContainer}>
+            <span style={styles.searchIcon}>🔍</span>
+            <input
+              style={styles.searchInput}
+              placeholder="Search"
+              value={searchText}
+              onChange={(e) =>
+                setSearchText(e.target.value)
+              }
+            />
+          </div>
+
+          <div
+            style={styles.sortButtonWrapper}
+            ref={sortRef}
+          >
+            <div style={styles.sortBtnBox} onClick={() => setShowSortModal((s) => !s)}>
+              <img className="sortimg" src={sortimg} alt="" srcset="" />
+
+            </div>
+
+            {showSortModal && (
+              <div
+                style={{
+                  ...styles.sortMenu,
+                  position: isMobile ? "fixed" : "absolute",
+                  top: isMobile ? 60 : 48,
+                  right: isMobile ? 16 : 0,
+                  left: isMobile ? 16 : "auto",
+                  minWidth: isMobile ? "calc(100% - 32px)" : 180,
+                  zIndex: 9999,
+                }}
+              >
+                {renderSortOption("Newest")}
+                {renderSortOption("Paused")}
+                {renderSortOption("Budget High")}
+                {renderSortOption("Budget Low")}
+              </div>
+            )}
+
+          </div>
+        </div>
+
+        {/* CARDS */}
+        <div
+          style={{
+            ...styles.cardsWrap,
+            width: isMobile ? "100%" : 928,
+            marginLeft: isMobile ? 0 : 32,
+            paddingLeft: isMobile ? 16 : 0,
+            paddingRight: isMobile ? 16 : 0,
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : "repeat(2, 446px)",
+          }}
+        >
+          {listContent}
+        </div>
+
+        {/* FAB */}
+        <button
+          style={{
+            ...styles.fab,
+            right: isMobile ? 16 : 32,
+            bottom: isMobile ? 16 : 32,
+          }}
+          onClick={
+            selectedTab === "Works"
+              ? handleOpenPostJob
+              : handleOpenAdd24hJob
+          }
+        >
+          +
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
 
 }

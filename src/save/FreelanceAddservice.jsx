@@ -1083,7 +1083,7 @@ export default function AddServiceForm({ jobData = null, jobId = null }) {
   // -------------------- RENDER -------------------- //
 
   return (
-    <div className="add-service-page">
+    <div className="add-service-page" style={{marginTop:"40px"}}>
       <div className="add-service-wrapper">
         {/* Header */}
         <div className="as-header">
