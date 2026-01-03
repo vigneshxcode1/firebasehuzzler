@@ -1570,7 +1570,7 @@ export default function ClientProfileMenuScreen() {
           <MenuItem title="Hiring" icon={hiring} onClick={() => navigate("/my-hires")} />
           <MenuItem title="Paused Service" icon={paused2} onClick={() => navigate("/client-dashbroad2/clientpausedjobs")} />
           <MenuItem title="Invite Friends" icon={invitefriends} />
-        <MenuItem title="Blocked" icon={blocked}  onClick={() => navigate("/clientBlock")} /> 
+        <MenuItem title="Blocked" icon={blocked}  onClick={() => navigate("/client-dashbroad2/clientBlock")} /> 
         </div>
 
         {/* SUPPORT */}

@@ -543,10 +543,10 @@ export default function ClientSidebar() {
 
           <button
             className={`hz-menu-btn ${
-              isActive("/client-dashbroad2/clientcategories") ? "active-btn" : ""
+              isActive("/client-dashbroad2/ClientSideCategoryPage") ? "active-btn" : ""
             }`}
             onClick={() =>
-              handleNav("/client-dashbroad2/clientcategories")
+              handleNav("/client-dashbroad2/ClientSideCategoryPage")
             }
           >
             <img src={search} width={18} />

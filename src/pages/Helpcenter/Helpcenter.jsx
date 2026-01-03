@@ -1,224 +1,567 @@
-import React, { useState, useEffect } from "react";
-import { IoChevronBack } from "react-icons/io5";
+// import React, { useState, useEffect } from "react";
+// import { IoChevronBack } from "react-icons/io5";
 
-const HelpCenter = () => {
-  const [collapsed, setCollapsed] = useState(
-    localStorage.getItem("sidebar-collapsed") === "true"
-  );
+// const HelpCenter = () => {
+//   const [collapsed, setCollapsed] = useState(
+//     localStorage.getItem("sidebar-collapsed") === "true"
+//   );
 
-  useEffect(() => {
-    const handleToggle = (e) => setCollapsed(e.detail);
-    window.addEventListener("sidebar-toggle", handleToggle);
-    return () => window.removeEventListener("sidebar-toggle", handleToggle);
-  }, []);
+//   useEffect(() => {
+//     const handleToggle = (e) => setCollapsed(e.detail);
+//     window.addEventListener("sidebar-toggle", handleToggle);
+//     return () => window.removeEventListener("sidebar-toggle", handleToggle);
+//   }, []);
 
-  const [openIndex, setOpenIndex] = useState(null);
+//   const [openIndex, setOpenIndex] = useState(null);
 
-  const faqData = [
-    {
-      question: "How do I create or delete my account?",
-      answer:
-        "To delete an account, log in, find 'Settings' or 'Account,' then look for 'Data & Privacy' or a similar option."
-    },
-    {
-      question: "How is my personal data protected under the DPDPA Act?",
-      answer:
-        "Your data is protected through strict encryption, access control, and legal compliance."
-    },
-    {
-      question: "Can I withdraw my consent for data processing?",
-      answer: "Yes – via email or profile settings."
-    },
-    {
-      question: "Who can see my freelancer or client profile?",
-      answer:
-        "Visibility depends on your privacy settings. It may be public, private, or restricted."
-    },
-    {
-      question: "Are payments handled?",
-      answer: "Currently, payments are not handled directly."
-    },
-    {
-      question: "What should I do if I face an issue with another user?",
-      answer:
-        "You can lodge a report to our Grievance Officer for investigation."
-    },
-    {
-      question: "Who can I contact for data or privacy concerns?",
-      answer:
-        "You may contact our Privacy Office or support team via the contact page."
-    }
+//   const faqData = [
+//     {
+//       question: "How do I create or delete my account?....................",
+//       answer:
+//         "To delete an account, log in, find 'Settings' or 'Account,' then look for 'Data & Privacy' or a similar option."
+//     },
+//     {
+//       question: "How is my personal data protected under the DPDPA Act?",
+//       answer:
+//         "Your data is protected through strict encryption, access control, and legal compliance."
+//     },
+//     {
+//       question: "Can I withdraw my consent for data processing?",
+//       answer: "Yes – via email or profile settings."
+//     },
+//     {
+//       question: "Who can see my freelancer or client profile?",
+//       answer:
+//         "Visibility depends on your privacy settings. It may be public, private, or restricted."
+//     },
+//     {
+//       question: "Are payments handled?",
+//       answer: "Currently, payments are not handled directly."
+//     },
+//     {
+//       question: "What should I do if I face an issue with another user?",
+//       answer:
+//         "You can lodge a report to our Grievance Officer for investigation."
+//     },
+//     {
+//       question: "Who can I contact for data or privacy concerns?",
+//       answer:
+//         "You may contact our Privacy Office or support team via the contact page."
+//     }
+//   ];
+
+//   const toggleFAQ = (index) => {
+//     setOpenIndex(openIndex === index ? null : index);
+//   };
+
+//   return (
+//     <>
+//       <style>{`
+//         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap');
+
+//         * {
+//           box-sizing: border-box;
+//         }
+
+//         .help-center-container {
+//           min-height: 100vh;
+//           background: #fdfdf6;
+//           padding: 40px 30px 60px;
+//           font-family: "Rubik", sans-serif;
+//           transition: margin-left 0.25s ease;
+//         }
+
+//         /* ---------- Header ---------- */
+//         .header-row {
+//           display: flex;
+//           align-items: center;
+//           gap: 12px;
+//           font-size: 36px;
+//           font-weight: 400;
+//           line-height: 40px;
+//         }
+
+//         /* ---------- Title ---------- */
+//         .faq-title {
+//           margin-top: 60px;
+//           margin-bottom: 50px;
+//           text-align: center;
+//           font-size: 52px;
+//           font-weight: 400;
+//           line-height: 130%;
+//           letter-spacing: 0.5px;
+//           color:#000
+//         }
+
+//         /* ---------- FAQ List ---------- */
+//         .faq-list {
+//           display: flex;
+//           flex-direction: column;
+//           align-items: center;
+//           gap: 14px;
+//         }
+
+//         /* ---------- QUESTION CONTAINER (FIGMA EXACT) ---------- */
+//         .faq-item {
+//           width: 700px;
+//           background: #fdfcea;
+//           border-radius: 28px;
+//           padding: 10px 18px;
+//           cursor: pointer;
+//           transition: background 0.2s ease;
+//         }
+
+//         .faq-item:hover {
+//           background: #faf3c8;
+//         }
+
+//         .faq-question {
+//           display: flex;
+//           align-items: center;
+//           justify-content: space-between;
+//           gap: 10px;
+//           height: 52px;
+//           font-size: 16px;
+//           font-weight: 400;
+//         }
+
+//         .faq-question p {
+//           margin: 0;
+//         }
+
+//         /* ---------- PLUS ICON ---------- */
+//         .plus-icon {
+//           width: 28px;
+//           height: 28px;
+//           border-radius: 50%;
+//           border: 1.2px solid #b47bff;
+//           color: #b47bff;
+//           display: flex;
+//           align-items: center;
+//           justify-content: center;
+//           font-size: 18px;
+//           font-weight: 500;
+//           flex-shrink: 0;
+//         }
+
+//         /* ---------- ANSWER ---------- */
+//         .faq-answer {
+//           margin-top: 10px;
+//           font-size: 14px;
+//           line-height: 1.6;
+//           color: #6b6b6b;
+//           padding-left: 6px;
+//           animation: fade 0.25s ease;
+//         }
+
+//         @keyframes fade {
+//           from {
+//             opacity: 0;
+//             transform: translateY(-4px);
+//           }
+//           to {
+//             opacity: 1;
+//             transform: translateY(0);
+//           }
+//         }
+
+//         /* ---------- MOBILE ---------- */
+//         @media (max-width: 768px) {
+//           .faq-item {
+//             width: 100%;
+//           }
+
+//           .faq-title {
+//             font-size: 34px;
+//           }
+
+//           .faq-question {
+//             font-size: 14px;
+//           }
+//         }
+//       `}</style>
+
+//       <div
+//         className="help-center-container"
+//         style={{ marginLeft: collapsed ? "-110px" : "50px" }}
+//       >
+//         <div className="header-row">
+//           <IoChevronBack size={26} />
+//           <span>Help Center</span>
+//         </div>
+
+//         <h1 className="faq-title">
+//           Frequently Asked
+//           <br />
+//           Questions
+//         </h1>
+
+//         <div className="faq-list">
+//           {faqData.map((item, index) => (
+//             <div
+//               key={index}
+//               className="faq-item"
+//               onClick={() => toggleFAQ(index)}
+//             >
+//               <div className="faq-question">
+//                 <p>{item.question}</p>
+//                 <div className="plus-icon">
+//                   {openIndex === index ? "−" : "+"}
+//                 </div>
+//               </div>
+
+//               {openIndex === index && (
+//                 <div className="faq-answer">{item.answer}</div>
+//               )}
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default HelpCenter;
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import { getAuth } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "../../firbase/Firebase"; // 🔁 path correct pannu
+import { useNavigate } from "react-router-dom";
+
+/* ======================================================
+   MAIN COMPONENT
+====================================================== */
+export default function RaiseTicketScreen({ selectedCategory: initialCategory }) {
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const user = auth.currentUser;
+
+  /* ================= STATE ================= */
+  const [ticketId, setTicketId] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [isCategoryExpanded, setIsCategoryExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  /* ================= DATA ================= */
+  const categories = [
+    "Chat Message Not Delivered / Duplicate Issue",
+    "Push Notification Failure",
+    "Fake Accounts / Bot Profiles",
+    "Data Loss / Profile Reset Bug",
+    "Slow Home Feed / App Freeze",
+    "Crash on Image Upload",
+    "Logout Login Chat Missing",
+    "Notification Badge Count Wrong",
+    "Account Block / Delete Sync Bug",
   ];
 
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
+  /* ================= INIT ================= */
+  useEffect(() => {
+    generateTicketId();
+    fetchUserEmail();
+  }, []);
+
+  /* ================= HELPERS ================= */
+  const generateTicketId = () => {
+    const random = Math.floor(Math.random() * 999999);
+    setTicketId(`HZ-${new Date().getFullYear()}-${random}`);
   };
 
+  const fetchUserEmail = async () => {
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (snap.exists()) {
+        setEmail(snap.data().email || "");
+      }
+    } catch (e) {
+      console.error("Fetch email error", e);
+    }
+  };
+
+  const showError = (msg) => {
+    alert(msg);
+  };
+
+  /* ================= SUBMIT ================= */
+  const submitTicket = async () => {
+    if (!selectedCategory) {
+      showError("Please select a ticket category");
+      return;
+    }
+    if (!subject.trim()) {
+      showError("Subject cannot be empty");
+      return;
+    }
+    if (!description.trim()) {
+      showError("Description cannot be empty");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // 🔥 1️⃣ Save to Firestore
+      await addDoc(collection(db, "support_tickets"), {
+        ticketId,
+        category: selectedCategory,
+        email,
+        subject,
+        description,
+        userId: user.uid,
+        status: "raised",
+        createdAt: serverTimestamp(),
+      });
+
+      // 🔥 2️⃣ Send Mail API
+      await sendRaiseTicketMail({
+        ticketId,
+        category: selectedCategory,
+        email,
+        subject,
+        description,
+      });
+
+      alert("Ticket submitted successfully");
+      navigate(-1);
+    } catch (e) {
+      console.error("Submit ticket error", e);
+      showError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= MAIL API ================= */
+  const sendRaiseTicketMail = async ({
+    ticketId,
+    category,
+    email,
+    subject,
+    description,
+  }) => {
+    try {
+      const res = await fetch(
+        "https://huzzler.onrender.com/api/support/raise-ticket",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ticketId,
+            category,
+            email,
+            subject,
+            description,
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok || data.success !== true) {
+        console.error("Mail API failed", data);
+      }
+    } catch (e) {
+      console.error("Mail API error", e);
+    }
+  };
+
+  /* ================= UI ================= */
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap');
+    <div style={styles.page}>
+      {/* HEADER */}
+      <div style={styles.appBar}>
+        <button onClick={() => navigate(-1)} style={styles.backBtn}>
+          ←
+        </button>
+        <h2>Raise a Ticket</h2>
+      </div>
 
-        * {
-          box-sizing: border-box;
-        }
+      <div style={styles.container}>
+        {/* TITLE */}
+        <h3>Raise a Support Ticket</h3>
+        <p style={styles.subText}>
+          We’re here to help. Tell us what went wrong and we’ll get back to you.
+        </p>
 
-        .help-center-container {
-          min-height: 100vh;
-          background: #fdfdf6;
-          padding: 40px 30px 60px;
-          font-family: "Rubik", sans-serif;
-          transition: margin-left 0.25s ease;
-        }
+        {/* TICKET ID */}
+        <label>Ticket ID</label>
+        <input value={ticketId} disabled style={styles.readonly} />
 
-        /* ---------- Header ---------- */
-        .header-row {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 36px;
-          font-weight: 400;
-          line-height: 40px;
-        }
+        {/* CATEGORY */}
+        <label>Ticket Category</label>
+        <div style={styles.dropdown}>
+          <div
+            style={styles.dropdownHeader}
+            onClick={() => setIsCategoryExpanded(!isCategoryExpanded)}
+          >
+            <span>{selectedCategory || "Select an issue category"}</span>
+            <span>{isCategoryExpanded ? "▲" : "▼"}</span>
+          </div>
 
-        /* ---------- Title ---------- */
-        .faq-title {
-          margin-top: 60px;
-          margin-bottom: 50px;
-          text-align: center;
-          font-size: 52px;
-          font-weight: 400;
-          line-height: 130%;
-          letter-spacing: 0.5px;
-          color:#000
-        }
-
-        /* ---------- FAQ List ---------- */
-        .faq-list {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 14px;
-        }
-
-        /* ---------- QUESTION CONTAINER (FIGMA EXACT) ---------- */
-        .faq-item {
-          width: 700px;
-          background: #fdfcea;
-          border-radius: 28px;
-          padding: 10px 18px;
-          cursor: pointer;
-          transition: background 0.2s ease;
-        }
-
-        .faq-item:hover {
-          background: #faf3c8;
-        }
-
-        .faq-question {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          height: 52px;
-          font-size: 16px;
-          font-weight: 400;
-        }
-
-        .faq-question p {
-          margin: 0;
-        }
-
-        /* ---------- PLUS ICON ---------- */
-        .plus-icon {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          border: 1.2px solid #b47bff;
-          color: #b47bff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          font-weight: 500;
-          flex-shrink: 0;
-        }
-
-        /* ---------- ANSWER ---------- */
-        .faq-answer {
-          margin-top: 10px;
-          font-size: 14px;
-          line-height: 1.6;
-          color: #6b6b6b;
-          padding-left: 6px;
-          animation: fade 0.25s ease;
-        }
-
-        @keyframes fade {
-          from {
-            opacity: 0;
-            transform: translateY(-4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        /* ---------- MOBILE ---------- */
-        @media (max-width: 768px) {
-          .faq-item {
-            width: 100%;
-          }
-
-          .faq-title {
-            font-size: 34px;
-          }
-
-          .faq-question {
-            font-size: 14px;
-          }
-        }
-      `}</style>
-
-      <div
-        className="help-center-container"
-        style={{ marginLeft: collapsed ? "-110px" : "50px" }}
-      >
-        <div className="header-row">
-          <IoChevronBack size={26} />
-          <span>Help Center</span>
+          {isCategoryExpanded &&
+            categories.map((c) => (
+              <div
+                key={c}
+                style={styles.dropdownItem}
+                onClick={() => {
+                  setSelectedCategory(c);
+                  setIsCategoryExpanded(false);
+                }}
+              >
+                {c}
+              </div>
+            ))}
         </div>
 
-        <h1 className="faq-title">
-          Frequently Asked
-          <br />
-          Questions
-        </h1>
+        {/* EMAIL */}
+        <label>Email</label>
+        <input value={email} disabled style={styles.readonly} />
 
-        <div className="faq-list">
-          {faqData.map((item, index) => (
-            <div
-              key={index}
-              className="faq-item"
-              onClick={() => toggleFAQ(index)}
-            >
-              <div className="faq-question">
-                <p>{item.question}</p>
-                <div className="plus-icon">
-                  {openIndex === index ? "−" : "+"}
-                </div>
-              </div>
+        {/* SUBJECT */}
+        <label>Subject</label>
+        <input
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder="Briefly describe your issue"
+          style={styles.input}
+        />
 
-              {openIndex === index && (
-                <div className="faq-answer">{item.answer}</div>
-              )}
-            </div>
-          ))}
+        {/* DESCRIPTION */}
+        <label>Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Explain the problem in detail"
+          rows={5}
+          style={styles.input}
+        />
+
+        {/* BUTTONS */}
+        <div style={styles.buttonRow}>
+          <button
+            style={styles.cancelBtn}
+            onClick={() => navigate(-1)}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+
+          <button
+            style={styles.submitBtn}
+            onClick={submitTicket}
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit Ticket"}
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
-};
+}
 
-export default HelpCenter;
+/* ======================================================
+   STYLES (INLINE – SINGLE FILE)
+====================================================== */
+const styles = {
+  page: {
+    background: "#fff",
+    minHeight: "100vh",
+  },
+  appBar: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: 16,
+    borderBottom: "1px solid #eee",
+  },
+  backBtn: {
+    border: "none",
+    background: "transparent",
+    fontSize: 20,
+    cursor: "pointer",
+  },
+  container: {
+    padding: 16,
+    maxWidth: 520,
+    margin: "0 auto",
+  },
+  subText: {
+    fontSize: 13,
+    color: "#666",
+    marginBottom: 20,
+  },
+  readonly: {
+    width: "100%",
+    padding: 12,
+    background: "#FFFDC8",
+    borderRadius: 14,
+    border: "none",
+    marginBottom: 14,
+  },
+  input: {
+    width: "100%",
+    padding: 12,
+    background: "#FFFDC8",
+    borderRadius: 14,
+    border: "none",
+    marginBottom: 14,
+  },
+  dropdown: {
+    background: "#FFFDC8",
+    borderRadius: 14,
+    marginBottom: 14,
+  },
+  dropdownHeader: {
+    padding: 14,
+    display: "flex",
+    justifyContent: "space-between",
+    cursor: "pointer",
+  },
+  dropdownItem: {
+    padding: 12,
+    borderTop: "1px solid #eee",
+    cursor: "pointer",
+  },
+  buttonRow: {
+    display: "flex",
+    gap: 12,
+    marginTop: 20,
+  },
+  cancelBtn: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 30,
+    border: "1px solid #ccc",
+    background: "#fff",
+    cursor: "pointer",
+  },
+  submitBtn: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 30,
+    border: "none",
+    background: "#7C3CFF",
+    color: "#fff",
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+};

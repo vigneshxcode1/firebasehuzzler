@@ -86,6 +86,8 @@ import PostJob from "./firebaseClientScreen/Postjob/postjob";
 import PausedJobs from "./firebaseClientScreen/Postjob/PausedJobs";
 import CompanyProfileScreen from "./firebaseClientScreen/Postjob/CompanyProfileScreen";
 import AddJobScreen from "./firebaseClientScreen/Postjob/AddJobScreen";
+import ClientSideCategoryPage from "./firebaseClientScreen/Postjob/ClientSideCategoryPage";
+// import ClientFilter from "./firebaseClientScreen/Postjob/ClientFiller";
 import Add24HoursScreen from "./firebaseClientScreen/Postjob/Add24HoursScreen";
 // import ExploreClientJobScreen from "./firebaseClientScreen/Postjob/ExploreclientJobScreen";
 import ForgotPassword from "./Firebaselogin/Forgetpassword";
@@ -164,6 +166,9 @@ import Blocked from "./Firebasejobs/Blocked";
 import Profile_menu_screen from "./pages/Profile_menu_screen";
 import ClientFullDetailScreen from "./pages/Clientpages/ClientProfile/ClientFullDetailsScreen";
 import MenuBlock from "./pages/Clientpages/ClientBlock/MenuBlock.jsx";
+import ServiceFullDetailScreen from "./save/Servicedetailfullscreen.jsx";
+import Service24hFullDetailScreen from "./save/Service24hFullDetailScreen.jsx";
+import FreelancerBlockSreen from "./pages/FreelancerBlockSreen.jsx";
 
 
 export default function App() {
@@ -208,6 +213,8 @@ export default function App() {
         <Route path="ClientProfile" element={<ClientProfileMenuScreen userType={"client"} />} />
         {/* <Route path="exploreclientjob" element={<ExploreClientJobScreen/>}/> */}
         <Route path="AddJobScreen" element={<AddJobScreen />} />
+        <Route path="ClientSideCategoryPage" element={<ClientSideCategoryPage />} />
+        {/* <Route path="ClientFilter" element={<ClientFilter />} /> */}
         <Route path="clientbrowesproject" element={<Clientbrowers />} />
         <Route path="clientcategories" element={<Clientbrowerpage />} />
         <Route path="ClientSideCategories" element={<ClientSideCategories />} />
@@ -287,7 +294,8 @@ export default function App() {
           path="/freelance-dashboard/view-profile/:userId/job/:jobid"
           element={<ClientFullDetailScreen />}
         />
-
+        <Route path="servicesdetails/:id" element={<ServiceFullDetailScreen />} />
+        <Route path="services24details/:id" element={<Service24hFullDetailScreen />} />
 
         <Route path="myjobs" element={<Freelancermyjob />} />
         <Route path="AddJobScreen" element={<AddJobScreen />} />
@@ -346,6 +354,12 @@ export default function App() {
       <Route path="/test" element={<TestConnection />} />
       <Route path="/clientservicelistpage" element={<ClientServiceListPage />} />
       <Route path="/serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
+
+      <Route
+        path="/freelancerblockSreen/:userId"
+        element={<FreelancerBlockSreen />}
+      />
+
 
       <Route path="/myjobs" element={<MyJobs />} />
       <Route path="/createservice" element={<CreateService />} />
@@ -462,7 +476,7 @@ export default function App() {
 
       <Route path="/job-full/:id" element={<ClientJobFullDetailJobScreen />} />
 
-     <Route path="/Requestmessagefreelancer" element={<RequestChatListScreen/>}></Route>
+      <Route path="/Requestmessagefreelancer" element={<RequestChatListScreen />}></Route>
 
 
     </Routes>

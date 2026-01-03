@@ -1288,7 +1288,7 @@ export default function JobFullDetailJobScreen() {
             padding:'10px',
           }}
         >
-          View Profile
+          View Profile..
         </button>
 
         <p
@@ -1459,4 +1459,6 @@ export default function JobFullDetailJobScreen() {
     </div>
   );
 }
+
+
 

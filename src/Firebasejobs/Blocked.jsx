@@ -758,191 +758,889 @@
 
 
 
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-// Firebase
-import { getAuth } from "firebase/auth";
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+
+// // Firebase
+// import { getAuth } from "firebase/auth";
+// import {
+//   getFirestore,
+//   collection,
+//   query,
+//   where,
+//   onSnapshot,
+//   doc,
+//   getDoc,
+//   deleteDoc,
+// } from "firebase/firestore";
+
+// // Icons
+// import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
+
+// export default function BlockedList() {
+//   const auth = getAuth();
+//   const db = getFirestore();
+//   const navigate = useNavigate();
+
+//   const currentUid = auth.currentUser?.uid;
+
+//   const [blockedUsers, setBlockedUsers] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   /* ================= FETCH BLOCKED USERS ================= */
+//   useEffect(() => {
+//     // 🔥 VERY IMPORTANT
+//     if (!currentUid) {
+//       setLoading(false);
+//       return;
+//     }
+
+//     const q = query(
+//       collection(db, "blocked_users"),
+//       where("blockedBy", "==", currentUid) // ✅ CORRECT
+//     );
+
+//     const unsub = onSnapshot(
+//       q,
+//       async (snap) => {
+//         if (snap.empty) {
+//           setBlockedUsers([]);
+//           setLoading(false);
+//           return;
+//         }
+
+//         // 🔥 Fetch user profiles
+//         const users = await Promise.all(
+//           snap.docs.map(async (d) => {
+//             const data = d.data();
+//             const userDoc = await getDoc(
+//               doc(db, "users", data.blockedUserId)
+//             );
+
+//             return {
+//               id: d.id,
+//               blockedUserId: data.blockedUserId,
+//               ...(userDoc.exists() ? userDoc.data() : {}),
+//             };
+//           })
+//         );
+
+//         setBlockedUsers(users);
+//         setLoading(false);
+//       },
+//       (err) => {
+//         console.error("Blocked list error:", err);
+//         setLoading(false);
+//       }
+//     );
+
+//     return () => unsub();
+//   }, [db, currentUid]);
+
+//   /* ================= UNBLOCK ================= */
+//   const unblockUser = async (docId) => {
+//     if (!window.confirm("Unblock this user?")) return;
+
+//     await deleteDoc(doc(db, "blocked_users", docId));
+//   };
+
+//   /* ================= UI ================= */
+//   if (loading) {
+//     return <div style={styles.center}>Loading blocked users…</div>;
+//   }
+
+//   return (
+//     <div style={styles.page}>
+//       {/* HEADER */}
+//       <div style={styles.header}>
+//         <button onClick={() => navigate(-1)} style={styles.iconBtn}>
+//           <FiArrowLeft />
+//         </button>
+//         <h3>Blocked Users</h3>
+//       </div>
+
+//       {/* EMPTY */}
+//       {blockedUsers.length === 0 && (
+//         <div style={styles.center}>No blocked users</div>
+//       )}
+
+//       {/* LIST */}
+//       {blockedUsers.map((u) => (
+//         <div key={u.id} style={styles.card}>
+//           <img
+//             src={u.profileImage || "/assets/profile.png"}
+//             alt="profile"
+//             style={styles.avatar}
+//           />
+
+//           <div style={{ flex: 1 }}>
+//             <h4>
+//               {`${u.first_name || ""} ${u.last_name || ""}`.trim() || "User"}
+//             </h4>
+//             <p style={styles.sub}>{u.sector || "No title"}</p>
+//           </div>
+
+//           <button
+//             onClick={() => unblockUser(u.id)}
+//             style={styles.unblockBtn}
+//           >
+//             <FiTrash2 />
+//           </button>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
+
+// /* ================= STYLES ================= */
+// const styles = {
+//   page: {
+//     maxWidth: 420,
+//     margin: "0 auto",
+//     minHeight: "100vh",
+//     background: "#f6f6f6",
+//   },
+//   center: {
+//     padding: 40,
+//     textAlign: "center",
+//     color: "#666",
+//   },
+//   header: {
+//     display: "flex",
+//     alignItems: "center",
+//     gap: 12,
+//     padding: 16,
+//   },
+//   iconBtn: {
+//     background: "rgba(0,0,0,0.3)",
+//     border: "none",
+//     borderRadius: "50%",
+//     padding: 8,
+//     color: "#fff",
+//     cursor: "pointer",
+//   },
+//   card: {
+//     background: "#fff",
+//     margin: "10px 16px",
+//     padding: 12,
+//     borderRadius: 14,
+//     display: "flex",
+//     alignItems: "center",
+//     gap: 12,
+//   },
+//   avatar: {
+//     width: 48,
+//     height: 48,
+//     borderRadius: 10,
+//     objectFit: "cover",
+//   },
+//   sub: {
+//     fontSize: 12,
+//     color: "#666",
+//   },
+//   unblockBtn: {
+//     background: "#FFE5E5",
+//     border: "none",
+//     padding: 8,
+//     borderRadius: 10,
+//     cursor: "pointer",
+//   },
+// };
+
+
+// import React, { useEffect, useState } from "react";
+// import {
+//   collection,
+//   query,
+//   where,
+//   onSnapshot,
+//   deleteDoc,
+//   doc,
+// } from "firebase/firestore";
+// import { getAuth, onAuthStateChanged } from "firebase/auth";
+// import { db } from "../firbase/Firebase";
+// import { ArrowLeft, User, X } from "lucide-react";
+
+// /* ======================================================
+//    CLIENT BLOCKED USERS SCREEN – FINAL STABLE VERSION
+// ====================================================== */
+
+// export default function ClientBlockedUsersScreen() {
+//   const auth = getAuth();
+
+//   const [currentUser, setCurrentUser] = useState(null);
+//   const [blockedUsers, setBlockedUsers] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   const [showDialog, setShowDialog] = useState(false);
+//   const [selectedUser, setSelectedUser] = useState(null);
+
+//   /* ================= AUTH ================= */
+//   useEffect(() => {
+//     const unsub = onAuthStateChanged(auth, (user) => {
+//       if (!user) {
+//         window.location.href = "/firelogin";
+//         return;
+//       }
+//       setCurrentUser(user);
+//     });
+
+//     return () => unsub();
+//   }, [auth]);
+
+//   /* ================= FETCH BLOCKED USERS ================= */
+//   useEffect(() => {
+//     if (!currentUser) return;
+
+//     const q = query(
+//       collection(db, "blocked_users"),
+//       where("blockedBy", "==", currentUser.uid)
+//     );
+
+//     const unsub = onSnapshot(
+//       q,
+//       (snap) => {
+//         const list = snap.docs.map((d) => ({
+//           id: d.id,
+//           ...d.data(),
+//         }));
+//         setBlockedUsers(list);
+//         setLoading(false);
+//       },
+//       (err) => {
+//         console.error(err);
+//         setError("Failed to load blocked users");
+//         setLoading(false);
+//       }
+//     );
+
+//     return () => unsub();
+//   }, [currentUser]);
+
+//   /* ================= UNBLOCK ================= */
+//   const unblockUser = async () => {
+//     if (!selectedUser) return;
+
+//     try {
+//       await deleteDoc(doc(db, "blocked_users", selectedUser.id));
+//       showToast("User unblocked", "success");
+//       setShowDialog(false);
+//       setSelectedUser(null);
+//     } catch (err) {
+//       console.error(err);
+//       showToast("Failed to unblock user", "error");
+//     }
+//   };
+
+//   /* ================= TOAST ================= */
+//   const showToast = (msg, type = "info") => {
+//     const toast = document.createElement("div");
+//     toast.innerText = msg;
+
+//     toast.style.position = "fixed";
+//     toast.style.bottom = "20px";
+//     toast.style.right = "20px";
+//     toast.style.padding = "12px 20px";
+//     toast.style.color = "#fff";
+//     toast.style.borderRadius = "10px";
+//     toast.style.zIndex = 9999;
+//     toast.style.fontWeight = 600;
+
+//     toast.style.background =
+//       type === "success"
+//         ? "#16a34a"
+//         : type === "error"
+//         ? "#dc2626"
+//         : "#6b7280";
+
+//     document.body.appendChild(toast);
+//     setTimeout(() => toast.remove(), 3000);
+//   };
+
+//   /* ================= UI STATES ================= */
+//   if (loading) {
+//     return (
+//       <div style={styles.center}>
+//         <div style={styles.spinner}></div>
+//         <p>Loading blocked users…</p>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <div style={styles.center}>
+//         <p style={{ color: "red" }}>{error}</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div style={styles.container}>
+//       {/* HEADER */}
+//       <div style={styles.header}>
+//         <button onClick={() => window.history.back()} style={styles.backBtn}>
+//           <ArrowLeft />
+//         </button>
+//         <h2>Blocked Accounts</h2>
+//         <div style={{ width: 40 }} />
+//       </div>
+
+//       {/* LIST */}
+//       {blockedUsers.length === 0 ? (
+//         <div style={styles.empty}>
+//           <User size={50} color="#9ca3af" />
+//           <p>No blocked users</p>
+//         </div>
+//       ) : (
+//         blockedUsers.map((u) => (
+//           <div key={u.id} style={styles.row}>
+//             {u.blockedUserImage ? (
+//               <img src={u.blockedUserImage} alt="" style={styles.avatar} />
+//             ) : (
+//               <div style={styles.avatarFallback}>
+//                 <User color="#fff" />
+//               </div>
+//             )}
+
+//             <div style={{ flex: 1, fontWeight: 600 }}>
+//               {u.blockedUserName || "Unknown User"}
+//             </div>
+
+//             <button
+//               style={styles.unblockBtn}
+//               onClick={() => {
+//                 setSelectedUser(u);
+//                 setShowDialog(true);
+//               }}
+//             >
+//               Unblock
+//             </button>
+//           </div>
+//         ))
+//       )}
+
+//       {/* DIALOG */}
+//       {showDialog && (
+//         <div style={styles.overlay} onClick={() => setShowDialog(false)}>
+//           <div style={styles.dialog} onClick={(e) => e.stopPropagation()}>
+//             <button
+//               style={styles.close}
+//               onClick={() => setShowDialog(false)}
+//             >
+//               <X />
+//             </button>
+
+//             <h3>Unblock {selectedUser?.blockedUserName}?</h3>
+//             <p>This user will be able to contact you again.</p>
+
+//             <div style={{ display: "flex", gap: 12 }}>
+//               <button
+//                 style={styles.cancelBtn}
+//                 onClick={() => setShowDialog(false)}
+//               >
+//                 Cancel
+//               </button>
+//               <button style={styles.confirmBtn} onClick={unblockUser}>
+//                 Unblock
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// /* ================= STYLES ================= */
+// const styles = {
+//   container: { minHeight: "100vh", background: "#fff" },
+
+//   header: {
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "space-between",
+//     padding: 16,
+//     borderBottom: "1px solid #eee",
+//   },
+
+//   backBtn: {
+//     border: "none",
+//     background: "none",
+//     cursor: "pointer",
+//   },
+
+//   row: {
+//     display: "flex",
+//     alignItems: "center",
+//     padding: 14,
+//     borderBottom: "1px solid #f1f1f1",
+//   },
+
+//   avatar: {
+//     width: 44,
+//     height: 44,
+//     borderRadius: "50%",
+//     marginRight: 12,
+//     objectFit: "cover",
+//   },
+
+//   avatarFallback: {
+//     width: 44,
+//     height: 44,
+//     borderRadius: "50%",
+//     background: "#9ca3af",
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     marginRight: 12,
+//   },
+
+//   unblockBtn: {
+//     background: "#7C3CFF",
+//     color: "#fff",
+//     border: "none",
+//     borderRadius: 20,
+//     padding: "8px 18px",
+//     cursor: "pointer",
+//     fontWeight: 600,
+//   },
+
+//   empty: {
+//     textAlign: "center",
+//     marginTop: 80,
+//     color: "#6b7280",
+//   },
+
+//   center: {
+//     minHeight: "100vh",
+//     display: "flex",
+//     flexDirection: "column",
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+
+//   spinner: {
+//     width: 40,
+//     height: 40,
+//     border: "4px solid #eee",
+//     borderTop: "4px solid #7C3CFF",
+//     borderRadius: "50%",
+//     animation: "spin 1s linear infinite",
+//   },
+
+//   overlay: {
+//     position: "fixed",
+//     inset: 0,
+//     background: "rgba(0,0,0,0.5)",
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     zIndex: 999,
+//   },
+
+//   dialog: {
+//     background: "#fff",
+//     padding: 24,
+//     borderRadius: 20,
+//     width: "90%",
+//     maxWidth: 400,
+//     position: "relative",
+//   },
+
+//   close: {
+//     position: "absolute",
+//     top: 10,
+//     right: 10,
+//     border: "none",
+//     background: "none",
+//     cursor: "pointer",
+//   },
+
+//   cancelBtn: {
+//     flex: 1,
+//     padding: 12,
+//     borderRadius: 30,
+//     border: "2px solid #999",
+//     background: "#fff",
+//     fontWeight: 700,
+//     cursor: "pointer",
+//   },
+
+//   confirmBtn: {
+//     flex: 1,
+//     padding: 12,
+//     borderRadius: 30,
+//     border: "none",
+//     background: "#7C3CFF",
+//     color: "#fff",
+//     fontWeight: 700,
+//     cursor: "pointer",
+//   },
+// };
+
+
+
+
+import React, { useState, useEffect } from 'react';
 import {
-  getFirestore,
+  Box,
+  Container,
+  Typography,
+  Avatar,
+  Button,
+  IconButton,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  AppBar,
+  Toolbar,
+  List,
+  ListItem,
+  Snackbar,
+  Alert
+} from '@mui/material';
+import {
+  ArrowBack as ArrowBackIcon,
+  Person as PersonIcon
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { db, auth } from '../firbase/Firebase';
+import {
   collection,
   query,
   where,
   onSnapshot,
   doc,
-  getDoc,
-  deleteDoc,
-} from "firebase/firestore";
+  deleteDoc
+} from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
-// Icons
-import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
-
-export default function BlockedList() {
-  const auth = getAuth();
-  const db = getFirestore();
+const BlockedUsersScreen = () => {
   const navigate = useNavigate();
-
-  const currentUid = auth.currentUser?.uid;
-
+  const [currentUser, setCurrentUser] = useState(null);
   const [blockedUsers, setBlockedUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [unblockDialog, setUnblockDialog] = useState({
+    open: false,
+    docId: null,
+    name: ''
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
-  /* ================= FETCH BLOCKED USERS ================= */
+  // Auth listener
   useEffect(() => {
-    // 🔥 VERY IMPORTANT
-    if (!currentUid) {
-      setLoading(false);
-      return;
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (!user) {
+        navigate('/login');
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
+  // Fetch blocked users with real-time updates
+  useEffect(() => {
+    if (!currentUser) return;
+
+    setIsLoading(true);
     const q = query(
-      collection(db, "blocked_users"),
-      where("blockedBy", "==", currentUid) // ✅ CORRECT
+      collection(db, 'blocked_users'),
+      where('blockedBy', '==', currentUser.uid)
     );
 
-    const unsub = onSnapshot(
+    const unsubscribe = onSnapshot(
       q,
-      async (snap) => {
-        if (snap.empty) {
-          setBlockedUsers([]);
-          setLoading(false);
-          return;
-        }
-
-        // 🔥 Fetch user profiles
-        const users = await Promise.all(
-          snap.docs.map(async (d) => {
-            const data = d.data();
-            const userDoc = await getDoc(
-              doc(db, "users", data.blockedUserId)
-            );
-
-            return {
-              id: d.id,
-              blockedUserId: data.blockedUserId,
-              ...(userDoc.exists() ? userDoc.data() : {}),
-            };
-          })
-        );
-
+      (snapshot) => {
+        const users = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
         setBlockedUsers(users);
-        setLoading(false);
+        setIsLoading(false);
+        setError(null);
       },
       (err) => {
-        console.error("Blocked list error:", err);
-        setLoading(false);
+        console.error('Error fetching blocked users:', err);
+        setError(err.message);
+        setIsLoading(false);
       }
     );
 
-    return () => unsub();
-  }, [db, currentUid]);
+    return () => unsubscribe();
+  }, [currentUser]);
 
-  /* ================= UNBLOCK ================= */
-  const unblockUser = async (docId) => {
-    if (!window.confirm("Unblock this user?")) return;
+  const handleUnblock = async () => {
+    if (!unblockDialog.docId) return;
 
-    await deleteDoc(doc(db, "blocked_users", docId));
+    try {
+      await deleteDoc(doc(db, 'blocked_users', unblockDialog.docId));
+      
+      setSnackbar({
+        open: true,
+        message: 'User unblocked',
+        severity: 'success'
+      });
+      
+      setUnblockDialog({ open: false, docId: null, name: '' });
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to unblock user',
+        severity: 'error'
+      });
+    }
   };
 
-  /* ================= UI ================= */
-  if (loading) {
-    return <div style={styles.center}>Loading blocked users…</div>;
+  const openUnblockDialog = (docId, name) => {
+    setUnblockDialog({ open: true, docId, name });
+  };
+
+  const closeUnblockDialog = () => {
+    setUnblockDialog({ open: false, docId: null, name: '' });
+  };
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Alert severity="error">Error: {error}</Alert>
+        <Button onClick={() => navigate(-1)} sx={{ mt: 2 }}>Go Back</Button>
+      </Container>
+    );
   }
 
   return (
-    <div style={styles.page}>
-      {/* HEADER */}
-      <div style={styles.header}>
-        <button onClick={() => navigate(-1)} style={styles.iconBtn}>
-          <FiArrowLeft />
-        </button>
-        <h3>Blocked Users</h3>
-      </div>
-
-      {/* EMPTY */}
-      {blockedUsers.length === 0 && (
-        <div style={styles.center}>No blocked users</div>
-      )}
-
-      {/* LIST */}
-      {blockedUsers.map((u) => (
-        <div key={u.id} style={styles.card}>
-          <img
-            src={u.profileImage || "/assets/profile.png"}
-            alt="profile"
-            style={styles.avatar}
-          />
-
-          <div style={{ flex: 1 }}>
-            <h4>
-              {`${u.first_name || ""} ${u.last_name || ""}`.trim() || "User"}
-            </h4>
-            <p style={styles.sub}>{u.sector || "No title"}</p>
-          </div>
-
-          <button
-            onClick={() => unblockUser(u.id)}
-            style={styles.unblockBtn}
+    <Box sx={{ bgcolor: 'white', minHeight: '100vh' }}>
+      {/* App Bar */}
+      <AppBar 
+        position="sticky" 
+        elevation={0}
+        sx={{ 
+          bgcolor: 'white',
+          color: 'black'
+        }}
+      >
+        <Toolbar>
+          <IconButton 
+            edge="start" 
+            onClick={() => navigate(-1)}
+            sx={{ color: 'black' }}
           >
-            <FiTrash2 />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              flexGrow: 1, 
+              textAlign: 'center',
+              fontWeight: 500,
+              fontSize: 22
+            }}
+          >
+            Blocked Accounts
+          </Typography>
+          <Box sx={{ width: 40 }} /> {/* Spacer for centering */}
+        </Toolbar>
+      </AppBar>
 
-/* ================= STYLES ================= */
-const styles = {
-  page: {
-    maxWidth: 420,
-    margin: "0 auto",
-    minHeight: "100vh",
-    background: "#f6f6f6",
-  },
-  center: {
-    padding: 40,
-    textAlign: "center",
-    color: "#666",
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: 16,
-  },
-  iconBtn: {
-    background: "rgba(0,0,0,0.3)",
-    border: "none",
-    borderRadius: "50%",
-    padding: 8,
-    color: "#fff",
-    cursor: "pointer",
-  },
-  card: {
-    background: "#fff",
-    margin: "10px 16px",
-    padding: 12,
-    borderRadius: 14,
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 10,
-    objectFit: "cover",
-  },
-  sub: {
-    fontSize: 12,
-    color: "#666",
-  },
-  unblockBtn: {
-    background: "#FFE5E5",
-    border: "none",
-    padding: 8,
-    borderRadius: 10,
-    cursor: "pointer",
-  },
+      {/* Main Content */}
+      <Container maxWidth="md" sx={{ py: 2 }}>
+        {blockedUsers.length === 0 ? (
+          <Box 
+            display="flex" 
+            justifyContent="center" 
+            alignItems="center" 
+            minHeight="60vh"
+          >
+            <Typography variant="h6" color="text.secondary">
+              No blocked accounts
+            </Typography>
+          </Box>
+        ) : (
+          <List sx={{ px: 0 }}>
+            {blockedUsers.map((user) => (
+              <BlockedUserRow
+                key={user.id}
+                docId={user.id}
+                name={user.blockedUserName || 'Unknown'}
+                image={user.blockedUserImage || ''}
+                onUnblock={openUnblockDialog}
+              />
+            ))}
+          </List>
+        )}
+      </Container>
+
+      {/* Unblock Confirmation Dialog */}
+      <Dialog 
+        open={unblockDialog.open} 
+        onClose={closeUnblockDialog}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 5,
+            p: 1
+          }
+        }}
+      >
+        <DialogContent sx={{ px: 3, py: 4 }}>
+          <Typography 
+            variant="h6" 
+            align="center" 
+            gutterBottom
+            sx={{ fontWeight: 600, mb: 2 }}
+          >
+            Unblock {unblockDialog.name}?
+          </Typography>
+
+          <Typography 
+            variant="body2" 
+            align="center" 
+            color="text.secondary"
+            sx={{ mb: 3 }}
+          >
+            Unblocking will allow this profile to reach out to you again.
+          </Typography>
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={closeUnblockDialog}
+              sx={{
+                py: 1.5,
+                borderWidth: 2,
+                borderColor: 'rgba(0,0,0,0.4)',
+                color: 'black',
+                fontWeight: 700,
+                borderRadius: 8,
+                '&:hover': {
+                  borderWidth: 2,
+                  borderColor: 'rgba(0,0,0,0.6)'
+                }
+              }}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleUnblock}
+              sx={{
+                py: 1.5,
+                bgcolor: '#7C3CFF',
+                fontWeight: 700,
+                borderRadius: 8,
+                '&:hover': {
+                  bgcolor: '#6A2EE6'
+                }
+              }}
+            >
+              Unblock
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
 };
+
+// Blocked User Row Component
+const BlockedUserRow = ({ docId, name, image, onUnblock }) => {
+  return (
+    <ListItem
+      sx={{
+        px: 2,
+        py: 1.5,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2
+      }}
+    >
+      {/* Profile Image */}
+      <Avatar
+        src={image || undefined}
+        sx={{
+          width: 44,
+          height: 44,
+          bgcolor: 'grey.300'
+        }}
+      >
+        {!image && <PersonIcon />}
+      </Avatar>
+
+      {/* Name */}
+      <Typography 
+        variant="body1" 
+        sx={{ 
+          flexGrow: 1,
+          fontWeight: 600,
+          fontSize: 18
+        }}
+      >
+        {name}
+      </Typography>
+
+      {/* Unblock Button */}
+      <Button
+        onClick={() => onUnblock(docId, name)}
+        sx={{
+          bgcolor: '#7C3CFF',
+          color: 'white',
+          px: 3,
+          py: 1,
+          borderRadius: 5,
+          fontWeight: 500,
+          fontSize: 15,
+          textTransform: 'none',
+          '&:hover': {
+            bgcolor: '#6A2EE6'
+          }
+        }}
+      >
+        Unblock
+      </Button>
+    </ListItem>
+  );
+};
+
+export default BlockedUsersScreen;

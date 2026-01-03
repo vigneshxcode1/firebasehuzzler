@@ -908,7 +908,7 @@
 //         {/* ABOUT CARD */}
 //         <Box
 //           sx={{
-  
+
 
 //             borderRadius: "14px",
 //             p: 3,
@@ -1370,7 +1370,7 @@
 //           borderColor: "rgba(124, 60, 255, 1)", borderRadius: "10px",
 //           color: "rgba(124, 60, 255, 1)",
 //             border: "2px solid #7C3CFF",          
-                               
+
 //             textTransform: "none",
 //             width: "120px",
 //         }}>
@@ -2511,6 +2511,8 @@
 
 
 
+
+
 // BuildProfileScreenWithEdit.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -2578,13 +2580,13 @@ const pageStyles = {
     width: "100%",
     minHeight: "100vh",
     background: "#F5F6FA",
-    marginTop:'60px',
+    marginTop: '60px',
     paddingBottom: 80,
     boxSizing: "border-box",
-   
+
   },
   content: {
-    
+
     maxWidth: 1120,
     margin: "0 auto",
     padding: "24px 16px",
@@ -3211,253 +3213,159 @@ export default function BuildProfileScreenWithEdit() {
     );
   };
 
-  // ------------------ render posted jobs panel ------------------
-  // const renderPostedJobsPanel = () => {
-  //   return (
-  //     <Box sx={{ mt: 4 }}>
-  //       <Box style={pageStyles.jobsContainer}>
-  //         <Box style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-  //           <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Posted Jobs</Typography>
-
-  //           <Box style={{ display: "flex", alignItems: "center", gap: 12 }}>
-  //             <div style={pageStyles.toggleBarWrapper}>
-  //               <div style={pageStyles.toggleGroup}>
-  //                 <div
-  //                   tabIndex={0}
-  //                   onClick={() => setSelectedJobsTab("Works")}
-  //                   style={pageStyles.toggleButton(selectedJobsTab === "Works")}
-  //                 >
-  //                   Works
-  //                 </div>
-
-  //                 <div
-  //                   tabIndex={0}
-  //                   onClick={() => setSelectedJobsTab("24 Hours")}
-  //                   style={pageStyles.toggleButton(selectedJobsTab === "24 Hours")}
-  //                 >
-  //                   24 Hours
-  //                 </div>
-  //               </div>
-  //             </div>
-  //           </Box>
-  //         </Box>
-
-  //         <Box style={pageStyles.searchSortRow}>
-  //           <div style={{ ...pageStyles.searchContainer, marginTop: 8 }}>
-  //             <input
-  //               style={{ border: "none", outline: "none", flex: 1, fontSize: 14 }}
-  //               placeholder="Search services"
-  //               value={searchText}
-  //               onChange={(e) => setSearchText(e.target.value)}
-  //             />
-  //           </div>
-
-  //           <div style={{ minWidth: 120 }}>
-  //             <select
-  //               value={sortOption}
-  //               onChange={(e) => setSortOption(e.target.value)}
-  //               style={{
-  //                 width: "100%",
-  //                 height: 40,
-  //                 borderRadius: 12,
-  //                 border: "1px solid #E0E0E0",
-  //                 paddingLeft: 10,
-  //               }}
-  //             >
-  //               <option value="newest">Newest</option>
-  //               <option value="oldest">Oldest</option>
-  //               <option value="paused">Paused</option>
-  //             </select>
-  //           </div>
-  //         </Box>
-  //         {/* two post and view more */}
-
-  //         <div style={pageStyles.cardsWrap}>
-  //           {selectedJobsTab === "Works" ? (
-  //             servicesLoading ? (
-  //               <div style={{ marginTop: 40 }}>Loading...</div>
-  //             ) : finalServices.length === 0 ? (
-  //               renderEmptyState("Create Service", () => navigate("/freelance-dashboard/add-service-form"))
-  //             ) : (
-  //               <>
-  //                 {/* SHOW ONLY 2 CARDS UNLESS VIEW MORE CLICKED */}
-  //                 {(showAll ? finalServices : finalServices.slice(0, 2)).map((s) => WorkCard(s))}
-
-                  
-                 
-  //               </>
-  //             )
-  //           ) : jobs24Loading ? (
-  //             <div style={{ marginTop: 40 }}>Loading...</div>
-  //           ) : final24.length === 0 ? (
-  //             renderEmptyState("Create 24h Service", () => navigate("/freelance-dashboard/add-service-form"))
-  //           ) : (
-  //             <>
-  //               {/* SHOW ONLY 2 CARDS UNLESS VIEW MORE CLICKED */}
-  //               {(showAll ? final24 : final24.slice(0, 2)).map((j) => Card24(j))}
-
-              
-  //             </>
-  //           )}
-  //         </div>
-
-  //       </Box>
-  //     </Box>
-  //   );
-  // };
-
+  <Typography sx={{ fontSize: 20, fontWeight: 700 }}>Posted Jobs</Typography>
 
   const renderPostedJobsPanel = () => {
-  const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 768;
 
-  return (
-    <Box sx={{ mt: 4 }}>
-      <Box style={pageStyles.jobsContainer}>
-        {/* HEADER ROW */}
-        <Box
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: isMobile ? "flex-start" : "center",
-            flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? 12 : 0,
-          }}
-        >
-          <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
-            Posted Jobs
-          </Typography>
+    return (
+      <Box sx={{ mt: 4 }}>
+        <Box style={pageStyles.jobsContainer}>
+          {/* HEADER ROW */}
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: isMobile ? "flex-start" : "center",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 12 : 0,
+            }}
+          >
+            <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
+              Posted Jobs
+            </Typography>
 
-          <Box style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={pageStyles.toggleBarWrapper}>
-              <div style={pageStyles.toggleGroup}>
-                <div
-                  tabIndex={0}
-                  onClick={() => setSelectedJobsTab("Works")}
-                  style={pageStyles.toggleButton(
-                    selectedJobsTab === "Works"
-                  )}
-                >
-                  Works
-                </div>
+            <Box style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={pageStyles.toggleBarWrapper}>
+                <div style={pageStyles.toggleGroup}>
+                  <div
+                    tabIndex={0}
+                    onClick={() => setSelectedJobsTab("Works")}
+                    style={pageStyles.toggleButton(
+                      selectedJobsTab === "Works"
+                    )}
+                  >
+                    Works
+                  </div>
 
-                <div
-                  tabIndex={0}
-                  onClick={() => setSelectedJobsTab("24 Hours")}
-                  style={pageStyles.toggleButton(
-                    selectedJobsTab === "24 Hours"
-                  )}
-                >
-                  24 Hours
+                  <div
+                    tabIndex={0}
+                    onClick={() => setSelectedJobsTab("24 Hours")}
+                    style={pageStyles.toggleButton(
+                      selectedJobsTab === "24 Hours"
+                    )}
+                  >
+                    24 Hours
+                  </div>
                 </div>
               </div>
+            </Box>
+          </Box>
+
+          {/* SEARCH + SORT */}
+          <Box
+            style={{
+              ...pageStyles.searchSortRow,
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 12 : 16,
+              alignItems: isMobile ? "stretch" : "center",
+            }}
+          >
+            <div
+              style={{
+                ...pageStyles.searchContainer,
+                marginTop: 8,
+                width: "100%",
+              }}
+            >
+              <input
+                style={{
+                  border: "none",
+                  outline: "none",
+                  flex: 1,
+                  fontSize: 14,
+                }}
+                placeholder="Search services"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
+
+            <div style={{ minWidth: isMobile ? "100%" : 120 }}>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+                style={{
+                  width: "100%",
+                  height: 40,
+                  borderRadius: 12,
+                  border: "1px solid #E0E0E0",
+                  paddingLeft: 10,
+                }}
+              >
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="paused">Paused</option>
+              </select>
             </div>
           </Box>
-        </Box>
 
-        {/* SEARCH + SORT */}
-        <Box
-          style={{
-            ...pageStyles.searchSortRow,
-            flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? 12 : 16,
-            alignItems: isMobile ? "stretch" : "center",
-          }}
-        >
+          {/* CARDS */}
           <div
             style={{
-              ...pageStyles.searchContainer,
-              marginTop: 8,
+              ...pageStyles.cardsWrap,
+
+              /* ❌ center panna vendam */
+              justifyContent: "flex-start",
+
+              /* ✅ mobile la single column but card width same */
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+
+              gap: 20,
               width: "100%",
             }}
           >
-            <input
-              style={{
-                border: "none",
-                outline: "none",
-                flex: 1,
-                fontSize: 14,
-              }}
-              placeholder="Search services"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
+            {selectedJobsTab === "Works" ? (
+              servicesLoading ? (
+                <div style={{ marginTop: 40 }}>Loading...</div>
+              ) : finalServices.length === 0 ? (
+                renderEmptyState("Create Service", () =>
+                  navigate("/freelance-dashboard/add-service-form")
+                )
+              ) : (
+                <>
+                  {(showAll ? finalServices : finalServices.slice(0, 2)).map((s) =>
+                    WorkCard(s)
+                  )}
+                </>
+              )
+            ) : jobs24Loading ? (
+              <div style={{ marginTop: 40 }}>Loading...</div>
+            ) : final24.length === 0 ? (
+              renderEmptyState("Create 24h Service", () =>
+                navigate("/freelance-dashboard/add-service-form")
+              )
+            ) : (
+              <>
+                {(showAll ? final24 : final24.slice(0, 2)).map((j) =>
+                  Card24(j)
+                )}
+              </>
+            )}
           </div>
 
-          <div style={{ minWidth: isMobile ? "100%" : 120 }}>
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              style={{
-                width: "100%",
-                height: 40,
-                borderRadius: 12,
-                border: "1px solid #E0E0E0",
-                paddingLeft: 10,
-              }}
-            >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="paused">Paused</option>
-            </select>
-          </div>
         </Box>
-
-{/* CARDS */}
-<div
-  style={{
-    ...pageStyles.cardsWrap,
-
-    /* ❌ center panna vendam */
-    justifyContent: "flex-start",
-
-    /* ✅ mobile la single column but card width same */
-    display: "grid",
-    gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
-
-    gap: 20,
-    width: "100%",
-  }}
->
-  {selectedJobsTab === "Works" ? (
-    servicesLoading ? (
-      <div style={{ marginTop: 40 }}>Loading...</div>
-    ) : finalServices.length === 0 ? (
-      renderEmptyState("Create Service", () =>
-        navigate("/freelance-dashboard/add-service-form")
-      )
-    ) : (
-      <>
-        {(showAll ? finalServices : finalServices.slice(0, 2)).map((s) =>
-          WorkCard(s)
-        )}
-      </>
-    )
-  ) : jobs24Loading ? (
-    <div style={{ marginTop: 40 }}>Loading...</div>
-  ) : final24.length === 0 ? (
-    renderEmptyState("Create 24h Service", () =>
-      navigate("/freelance-dashboard/add-service-form")
-    )
-  ) : (
-    <>
-      {(showAll ? final24 : final24.slice(0, 2)).map((j) =>
-        Card24(j)
-      )}
-    </>
-  )}
-</div>
-
       </Box>
-    </Box>
-  );
-};
+    );
+  };
 
 
   // ------------------ JSX return ------------------
   return (
     <Box sx={{ ...pageStyles.pageWrapper, marginLeft: collapsed ? "-190px" : "0px", transition: "margin-left 0.25s ease" }}>
       <Box sx={pageStyles.content}>
-        
+
         <Box
           sx={{
             background: "linear-gradient(90deg, #f8ffb0, #e3ffd9)",
