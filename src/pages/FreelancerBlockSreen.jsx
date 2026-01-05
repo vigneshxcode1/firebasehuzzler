@@ -1728,6 +1728,837 @@
 
 
 
+// import React, { useEffect, useMemo, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import {
+//   collection,
+//   doc,
+//   onSnapshot,
+//   query,
+//   orderBy,
+//   updateDoc,
+//   deleteDoc,
+//   serverTimestamp,
+//   addDoc,
+// } from "firebase/firestore";
+// import { getAuth, onAuthStateChanged } from "firebase/auth";
+// import { db } from "../firbase/Firebase";
+// import { FiTrash2 } from "react-icons/fi";
+// import { Share2, ArrowLeft, Flag } from 'lucide-react';
+
+// import share from "../assets/share.png";
+// import block_report from "../assets/block_report.png";
+// import ReportBlockPopup from "./BlockPopup.jsx";
+
+// /* ======================================================
+//    FREELANCER FULL DETAIL SCREEN - ERROR FREE VERSION
+// ====================================================== */
+
+// export default function FreelancerFullDetailScreen() {
+//   const { userId } = useParams();
+//   const navigate = useNavigate();
+//   const auth = getAuth();
+
+//   const [currentUser, setCurrentUser] = useState(null);
+//   const [profile, setProfile] = useState(null);
+//   const [loadingProfile, setLoadingProfile] = useState(true);
+  
+//   const [services, setServices] = useState([]);
+//   const [services24, setServices24] = useState([]);
+//   const [loadingServices, setLoadingServices] = useState(true);
+
+//   const [portfolio, setPortfolio] = useState([]);
+
+//   const [activeTab, setActiveTab] = useState("works"); // works | 24h
+//   const [search, setSearch] = useState("");
+//   const [sort, setSort] = useState("newest");
+//   const [showBlockPopup, setShowBlockPopup] = useState(false);
+  
+//   const fullName =
+//   `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
+//   "Helen Angel";
+
+//   /* ================= AUTH ================= */
+//   useEffect(() => {
+//     const unsub = onAuthStateChanged(auth, (u) => {
+//       if (!u) navigate("/firelogin");
+//       setCurrentUser(u);
+//     });
+//     return () => unsub();
+//   }, [auth, navigate]);
+
+//   /* ================= PROFILE ================= */
+//   useEffect(() => {
+//     if (!userId) return;
+
+//     const unsub = onSnapshot(doc(db, "users", userId), (snap) => {
+//       setProfile(snap.exists() ? { id: snap.id, ...snap.data() } : null);
+//       setLoadingProfile(false);
+//     });
+
+//     return () => unsub();
+//   }, [userId]);
+
+//   /* ================= SERVICES ================= */
+//   useEffect(() => {
+//     if (!userId) return;
+
+//     const q1 = query(
+//       collection(db, "users", userId, "services"),
+//       orderBy("createdAt", "desc")
+//     );
+
+//     const q2 = query(
+//       collection(db, "users", userId, "services_24h"),
+//       orderBy("createdAt", "desc")
+//     );
+
+//     const u1 = onSnapshot(q1, (s) => {
+//       setServices(s.docs.map((d) => ({ id: d.id, ...d.data() })));
+//       setLoadingServices(false);
+//     });
+
+//     const u2 = onSnapshot(q2, (s) => {
+//       setServices24(s.docs.map((d) => ({ id: d.id, ...d.data() })));
+//       setLoadingServices(false);
+//     });
+
+//     return () => {
+//       u1();
+//       u2();
+//     };
+//   }, [userId]);
+
+//   /* ================= PORTFOLIO ================= */
+//   useEffect(() => {
+//     if (!currentUser) return;
+
+//     const q = query(
+//       collection(db, "users", currentUser.uid, "portfolio"),
+//       orderBy("createdAt", "desc")
+//     );
+
+//     const unsub = onSnapshot(q, (snap) => {
+//       setPortfolio(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+//     });
+
+//     return () => unsub();
+//   }, [currentUser]);
+
+//   /* ================= DELETE PORTFOLIO ================= */
+//   const deletePortfolio = async (id) => {
+//     if (!currentUser) return;
+//     if (!window.confirm("Delete this portfolio?")) return;
+
+//     try {
+//       await deleteDoc(doc(db, "users", currentUser.uid, "portfolio", id));
+//       alert("Portfolio deleted successfully");
+//     } catch (error) {
+//       console.error("Error deleting portfolio:", error);
+//       alert("Failed to delete portfolio");
+//     }
+//   };
+
+//   /* ================= TOGGLE PAUSE ================= */
+//   const togglePause = async (job) => {
+//     const col = activeTab === "works" ? "services" : "services_24h";
+
+//     try {
+//       await updateDoc(doc(db, "users", userId, col, job.id), {
+//         paused: !job.paused,
+//         pausedAt: !job.paused ? serverTimestamp() : null,
+//       });
+//     } catch (error) {
+//       console.error("Error toggling pause:", error);
+//     }
+//   };
+
+//   /* ================= FORMAT BUDGET ================= */
+//   const formatBudget = (v) => {
+//     if (!v) return "0";
+//     if (v >= 100000) return (v / 100000).toFixed(1) + "L";
+//     if (v >= 1000) return (v / 1000).toFixed(1) + "k";
+//     return v;
+//   };
+
+//   /* ================= SHARE PROFILE ================= */
+//   const shareProfile = () => {
+//     const shareText = `Check out ${profile?.first_name} ${profile?.last_name}'s professional profile`;
+//     if (navigator.share) {
+//       navigator.share({
+//         title: "Professional Profile",
+//         text: shareText,
+//         url: window.location.href,
+//       });
+//     } else {
+//       navigator.clipboard.writeText(window.location.href);
+//       alert("Link copied to clipboard!");
+//     }
+//   };
+
+//   /* ================= EXTRACT SKILLS & TOOLS ================= */
+//   const skills = useMemo(() => {
+//     return Array.isArray(profile?.skills) ? profile.skills : [];
+//   }, [profile]);
+
+//   const tools = useMemo(() => {
+//     return Array.isArray(profile?.tools) ? profile.tools : [];
+//   }, [profile]);
+
+//   /* ================= FILTERED DATA ================= */
+//   const filteredData = useMemo(() => {
+//     let data = activeTab === "works" ? services : services24;
+
+//     if (search) {
+//       data = data.filter((i) =>
+//         (i.title || "").toLowerCase().includes(search.toLowerCase())
+//       );
+//     }
+
+//     if (sort === "paused") {
+//       data = data.filter((i) => i.paused);
+//     } else if (sort === "oldest") {
+//       data = [...data].sort(
+//         (a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)
+//       );
+//     } else {
+//       data = [...data].sort(
+//         (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+//       );
+//     }
+
+//     return data;
+//   }, [services, services24, activeTab, search, sort]);
+
+//   /* ================= LOADING STATE ================= */
+//   if (loadingProfile) {
+//     return (
+//       <div style={{ padding: 40, textAlign: "center" }}>
+//         <div style={{ fontSize: 18 }}>Loading profile...</div>
+//       </div>
+//     );
+//   }
+
+//   if (!profile) {
+//     return (
+//       <div style={{ padding: 40, textAlign: "center" }}>
+//         <div style={{ fontSize: 18, color: "#666" }}>User not found</div>
+//         <button
+//           onClick={() => navigate(-1)}
+//           style={{
+//             marginTop: 20,
+//             padding: "10px 20px",
+//             borderRadius: 10,
+//             border: "none",
+//             color: "#fff",
+//             cursor: "pointer",
+//           }}
+//         >
+//           Go Back
+//         </button>
+//       </div>
+//     );
+//   }
+
+//   /* ================= RENDER ================= */
+//   return (
+//     <div style={{ background: "#F6F6F6", minHeight: "100vh", paddingBottom: 60 }}>
+//       {/* HEADER */}
+//       <div style={{ background: "#fff", paddingBottom: 40 }}>
+//         {/* Cover Image */}
+//         <div
+//           style={{
+//             height: 220,
+//             background: profile.coverImage
+//               ? `url(${profile.coverImage}) center/cover`
+//               : "",
+//             position: "relative",
+//           }}
+//         >
+//           <button
+//             onClick={() => navigate(-1)}
+//             style={{
+//               position: "absolute",
+//               top: 20,
+//               left: 20,
+//               width: 40,
+//               height: 40,
+//               borderRadius: "50%",
+//               border: "none",
+//               background: "rgba(0,0,0,0.3)",
+//               color: "#fff",
+//               cursor: "pointer",
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "center",
+//             }}
+//           >
+//             <ArrowLeft size={20} />
+//           </button>
+//         </div>
+
+//         {/* Profile Image */}
+//         <img
+//           src={profile.profileImage || "/assets/profile.png"}
+//           alt="profile"
+//           style={{
+//             width: 120,
+//             height: 120,
+//             borderRadius: "50%",
+//             marginTop: -60,
+//             marginLeft: 20,
+//             border: "4px solid #fff",
+//             objectFit: "cover",
+//           }}
+//         />
+
+//         {/* Action Buttons */}
+//         <div style={{ padding: "20px", display: "flex", gap: 12 }}>
+//           <button onClick={shareProfile} style={styles.shareBtn}>
+//             <Share2 size={16} style={{ marginRight: 6 }} />
+//             Share Profile
+//           </button>
+
+//           {currentUser?.uid !== userId && (
+//             <button
+//               onClick={() => setShowBlockPopup(true)}
+//               style={styles.blockBtn}
+//             >
+//               <Flag size={16} style={{ marginRight: 6 }} />
+//               Block / Report
+//             </button>
+//           )}
+//         </div>
+//       </div>
+
+//       {/* BASIC INFO */}
+//       <div style={{ fontSize: 18, fontWeight: 600 }}>{fullName}</div>
+//       <div style={{ padding: 20, background: "#fff", marginTop: 10 }}>
+//         <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>
+//           {profile.first_name} {profile.last_name}
+//         </h2>
+//         <div style={{ color: "#6b7280", marginTop: 4 }}>{profile.email}</div>
+//         <p style={{ margin: "8px 0 0", color: "#374151" }}>
+//           {profile.sector || "Freelancer"} · {profile.location || "India"}
+//         </p>
+//         <p style={{ opacity: 0.7, margin: "4px 0 0" }}>
+//           {profile.professional_title || "Professional"}
+//         </p>
+//                     {/* LINKS */}
+//             <div style={{ display: "flex", gap: 16, marginTop: 6 }}>
+//               {profile.linkedin && (
+//                 <span
+//                   onClick={() => openLink(profile.linkedin)}
+//                   style={{
+//                     color: "#2563eb",
+//                     cursor: "pointer",
+//                     fontSize: 14,
+//                   }}
+//                 >
+//                   Linkedin
+//                 </span>
+//               )}
+
+//               {profile.website && (
+//                 <span
+//                   onClick={() => openLink(profile.website)}
+//                   style={{
+//                     color: "#2563eb",
+//                     cursor: "pointer",
+//                     fontSize: 14,
+//                   }}
+//                 >
+//                   Website
+//                 </span>
+//               )}
+//             </div>
+          
+//       </div>
+
+//       {/* BLOCK POPUP */}
+//       {showBlockPopup && (
+//         <ReportBlockPopup
+//           freelancerId={userId}
+//           freelancerName={`${profile.first_name} ${profile.last_name}`}
+//           onClose={() => setShowBlockPopup(false)}
+//         />
+//       )}
+
+//       {/* ABOUT */}
+//       <Section title="About">
+//         <p style={{ lineHeight: 1.6, color: "#374151" }}>
+//           {profile.about || "No description available."}
+//         </p>
+//       </Section>
+
+//       {/* SKILLS & TOOLS CARD */}
+//       <div style={styles.skillsCard}>
+//         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Skills</h3>
+//         <div style={styles.chipWrap}>
+//           {skills.length ? (
+//             skills.map((s) => (
+//               <span key={s} style={styles.chipYellow}>
+//                 {s}
+//               </span>
+//             ))
+//           ) : (
+//             <span style={styles.muted}>No skills listed</span>
+//           )}
+//         </div>
+
+//         <h3 style={{ margin: "24px 0 0", fontSize: 18, fontWeight: 700 }}>
+//           Tools
+//         </h3>
+//         <div style={styles.chipWrap}>
+//           {tools.length ? (
+//             tools.map((t) => (
+//               <span key={t} style={styles.chipYellow}>
+//                 {t}
+//               </span>
+//             ))
+//           ) : (
+//             <span style={styles.muted}>No tools listed</span>
+//           )}
+//         </div>
+//       </div>
+
+//       {/* PORTFOLIO */}
+//       <div style={styles.portfolioWrapper}>
+//         <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Portfolio</h3>
+//         {portfolio.length === 0 ? (
+//           <p style={{ marginTop: 16, opacity: 0.6 }}>No portfolio items yet</p>
+//         ) : (
+//           <div style={styles.portfolioRow}>
+//             {portfolio.map((p) => (
+//               <div key={p.id} style={styles.portfolioCard}>
+//                 <div style={styles.portfolioImgWrap}>
+//                   <img
+//                     src={p.imageUrl || "/assets/gallery.png"}
+//                     alt={p.title}
+//                     style={styles.portfolioImg}
+//                   />
+//                 </div>
+
+//                 <div style={{ padding: 14 }}>
+//                   <div style={styles.portfolioTitleRow}>
+//                     <h4 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>
+//                       {p.title}
+//                     </h4>
+//                     {currentUser?.uid === userId && (
+//                       <FiTrash2
+//                         style={{ cursor: "pointer", color: "#ef4444" }}
+//                         onClick={() => deletePortfolio(p.id)}
+//                       />
+//                     )}
+//                   </div>
+//                   <p style={styles.portfolioDesc}>{p.description}</p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* POSTED JOBS */}
+//       <div style={styles.wrapper}>
+//         {/* HEADER */}
+//         <div style={styles.header}>
+//           <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>
+//             Posted Jobs
+//           </h3>
+
+//           <div style={styles.toggleWrap}>
+//             <button
+//               onClick={() => setActiveTab("works")}
+//               style={
+//                 activeTab === "works" ? styles.toggleActive : styles.toggle
+//               }
+//             >
+//               Works
+//             </button>
+//             <button
+//               onClick={() => setActiveTab("24h")}
+//               style={activeTab === "24h" ? styles.toggleActive : styles.toggle}
+//             >
+//               24 Hours
+//             </button>
+//           </div>
+//         </div>
+
+
+
+//         {/* CARDS */}
+//         {loadingServices ? (
+//           <p style={{ padding: 30, textAlign: "center" }}>Loading services...</p>
+//         ) : filteredData.length === 0 ? (
+//           <p style={{ padding: 30, opacity: 0.6, textAlign: "center" }}>
+//             No services found
+//           </p>
+//         ) : (
+//           filteredData.map((job) => (
+//             <div key={job.id} style={styles.card}>
+//               <div style={styles.topRow}>
+//                 <div style={styles.avatar}>
+//                   {(job.title || "JOB").substring(0, 2).toUpperCase()}
+//                 </div>
+
+//                 <div style={{ flex: 1 }}>
+//                   <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
+//                     {job.title}
+//                   </h4>
+
+//                   <div style={styles.chips}>
+//                     {job.skills?.slice(0, 2).map((s) => (
+//                       <span key={s} style={styles.chip}>
+//                         {s}
+//                       </span>
+//                     ))}
+//                     {job.skills?.length > 2 && (
+//                       <span style={styles.more}>+{job.skills.length - 2}</span>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div style={styles.meta}>
+//                 <div>
+//                   <div style={styles.label}>Budget</div>
+//                   <div className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
+//                 </div>
+
+//                 <div>
+//                   <div style={styles.label}>Timeline</div>
+//                   <div style={styles.value}>
+//                     {job.deliveryDuration || "N/A"}
+//                   </div>
+//                 </div>
+
+//                 <div>
+//                   <div style={styles.label}>Location</div>
+//                   <div style={styles.value}>{job.location || "Remote"}</div>
+//                 </div>
+//               </div>
+
+//               {currentUser?.uid === userId && (
+//                 <div style={styles.actions}>
+//                   <button
+//                     style={styles.pauseBtn}
+//                     onClick={() => togglePause(job)}
+//                   >
+//                     {job.paused ? "Unpause Service" : "Pause Service"}
+//                   </button>
+
+//                   <button
+//                     style={styles.editBtn}
+//                     onClick={() =>
+//                       navigate(
+//                         activeTab === "works"
+//                           ? `/freelance-dashboard/freelanceredit-service/${job.id}`
+//                           : `/service-24h-edit/${job.id}`,
+//                         { state: { job } }
+//                       )
+//                     }
+//                   >
+//                     Edit Service
+//                   </button>
+//                 </div>
+//               )}
+//             </div>
+//           ))
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ================= SECTION COMPONENT ================= */
+// function Section({ title, children }) {
+//   return (
+//     <div
+//       style={{
+//         background: "#fff",
+//         margin: "10px 0",
+//         padding: 20,
+//         borderRadius: 12,
+//       }}
+//     >
+//       <h3 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 700 }}>
+//         {title}
+//       </h3>
+//       {children}
+//     </div>
+//   );
+// }
+
+// /* ================= STYLES ================= */
+// const styles = {
+//   shareBtn: {
+//     padding: "10px 18px",
+//     border: "1px solid #ddd",
+//     borderRadius: 10,
+//     cursor: "pointer",
+//     background: "#fff",
+//     display: "flex",
+//     alignItems: "center",
+//     fontWeight: 600,
+//     fontSize: 14,
+//   },
+
+//   blockBtn: {
+//     padding: "10px 18px",
+//     border: "1px solid #ef4444",
+//     borderRadius: 10,
+//     cursor: "pointer",
+//     background: "#fff",
+//     color: "#ef4444",
+//     display: "flex",
+//     alignItems: "center",
+//     fontWeight: 600,
+//     fontSize: 14,
+//   },
+
+//   skillsCard: {
+//     background: "#FFFEEF",
+//     borderRadius: 28,
+//     padding: 28,
+//     margin: "10px 20px",
+//     boxShadow: "0 14px 30px rgba(0,0,0,0.12)",
+//   },
+
+//   chipWrap: {
+//     display: "flex",
+//     gap: 10,
+//     flexWrap: "wrap",
+//     marginTop: 12,
+//   },
+
+//   chipYellow: {
+//     background: "#FFF9A8",
+//     padding: "8px 14px",
+//     borderRadius: 18,
+//     fontWeight: 600,
+//     fontSize: 13,
+//   },
+
+//   muted: {
+//     opacity: 0.6,
+//     fontSize: 14,
+//   },
+
+//   portfolioWrapper: {
+//     background: "#fff",
+//     margin: "10px 20px",
+//     padding: 20,
+//     borderRadius: 20,
+//   },
+
+//   portfolioRow: {
+//     display: "flex",
+//     gap: 16,
+//     overflowX: "auto",
+//     marginTop: 16,
+//     paddingBottom: 10,
+//   },
+
+//   portfolioCard: {
+//     minWidth: 260,
+//     border: "1px solid #eee",
+//     borderRadius: 16,
+//     overflow: "hidden",
+//     background: "#fff",
+//   },
+
+//   portfolioImgWrap: {
+//     height: 140,
+//     background: "#e5e7eb",
+//   },
+
+//   portfolioImg: {
+//     width: "100%",
+//     height: "100%",
+//     objectFit: "cover",
+//   },
+
+//   portfolioTitleRow: {
+//     display: "flex",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//   },
+
+//   portfolioDesc: {
+//     fontSize: 13,
+//     opacity: 0.7,
+//     marginTop: 6,
+//     lineHeight: 1.4,
+//   },
+
+//   wrapper: {
+//     background: "#fff",
+//     borderRadius: 20,
+//     padding: 20,
+//     margin: "10px 20px",
+//     boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+//   },
+
+//   header: {
+//     display: "flex",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     flexWrap: "wrap",
+//     gap: 16,
+//   },
+
+//   toggleWrap: {
+//     background: "#FFF8E1",
+//     padding: 6,
+//     borderRadius: 16,
+//     display: "flex",
+//     gap: 6,
+//   },
+
+//   toggle: {
+//     padding: "8px 22px",
+//     borderRadius: 12,
+//     border: "none",
+//     background: "transparent",
+//     cursor: "pointer",
+//     fontWeight: 600,
+//     fontSize: 14,
+//   },
+
+//   toggleActive: {
+//     padding: "8px 22px",
+//     borderRadius: 12,
+//     border: "none",
+//     background: "#fff",
+//     cursor: "pointer",
+//     fontWeight: 700,
+//     fontSize: 14,
+//   },
+
+//   searchRow: {
+//     display: "flex",
+//     gap: 12,
+//     marginTop: 16,
+//   },
+
+//   search: {
+//     flex: 1,
+//     height: 42,
+//     borderRadius: 14,
+//     border: "1px solid #ddd",
+//     paddingLeft: 14,
+//     fontSize: 14,
+//   },
+
+//   select: {
+//     height: 42,
+//     borderRadius: 14,
+//     border: "1px solid #ddd",
+//     padding: "0 12px",
+//     fontSize: 14,
+//     cursor: "pointer",
+//   },
+
+//   card: {
+//     border: "1px solid #E0E0E0",
+//     borderRadius: 20,
+//     padding: 20,
+//     marginTop: 20,
+//   },
+
+//   topRow: {
+//     display: "flex",
+//     gap: 16,
+//   },
+
+//   avatar: {
+//     width: 56,
+//     height: 56,
+//     borderRadius: 16,
+//     background: "linear-gradient(135deg, #6A5CFF, #9B42FF)",
+//     color: "#fff",
+//     fontWeight: 800,
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     fontSize: 14,
+//   },
+
+//   chips: {
+//     display: "flex",
+//     gap: 8,
+//     marginTop: 6,
+//     flexWrap: "wrap",
+//   },
+
+//   chip: {
+//     background: "#FFF7A8",
+//     padding: "4px 12px",
+//     borderRadius: 16,
+//     fontSize: 13,
+//     fontWeight: 600,
+//   },
+
+//   more: {
+//     background: "#FFF7A8",
+//     padding: "4px 12px",
+//     borderRadius: 16,
+//     fontSize: 13,
+//   },
+
+//   meta: {
+//     display: "flex",
+//     justifyContent: "space-between",
+//     marginTop: 16,
+//     gap: 12,
+//   },
+
+//   label: {
+//     fontSize: 13,
+//     opacity: 0.6,
+//   },
+
+//   value: {
+//     fontSize: 14,
+//     fontWeight: 700,
+//     marginTop: 2,
+//   },
+
+//   actions: {
+//     display: "flex",
+//     gap: 12,
+//     marginTop: 18,
+//   },
+
+//   pauseBtn: {
+//     flex: 1,
+//     height: 40,
+//     borderRadius: 30,
+//     border: "1px solid #bbb",
+//     background: "#fff",
+//     fontWeight: 600,
+//     cursor: "pointer",
+//     fontSize: 14,
+//   },
+
+//   editBtn: {
+//     flex: 1,
+//     height: 40,
+//     borderRadius: 30,
+//     border: "none",
+//     background: "#FFF97A",
+//     fontWeight: 700,
+//     cursor: "pointer",
+//     fontSize: 14,
+//   },
+// };
+
+
+
+
+
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -1739,20 +2570,12 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
-  addDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../firbase/Firebase";
 import { FiTrash2 } from "react-icons/fi";
-import { Share2, ArrowLeft, Flag } from 'lucide-react';
-
-import share from "../assets/share.png";
-import block_report from "../assets/block_report.png";
+import { ArrowLeft } from "lucide-react";
 import ReportBlockPopup from "./BlockPopup.jsx";
-
-/* ======================================================
-   FREELANCER FULL DETAIL SCREEN - ERROR FREE VERSION
-====================================================== */
 
 export default function FreelancerFullDetailScreen() {
   const { userId } = useParams();
@@ -1762,21 +2585,17 @@ export default function FreelancerFullDetailScreen() {
   const [currentUser, setCurrentUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
-  
+
   const [services, setServices] = useState([]);
   const [services24, setServices24] = useState([]);
-  const [loadingServices, setLoadingServices] = useState(true);
-
   const [portfolio, setPortfolio] = useState([]);
 
-  const [activeTab, setActiveTab] = useState("works"); // works | 24h
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("newest");
+  const [activeTab, setActiveTab] = useState("works");
+  const [showMenu, setShowMenu] = useState(false);
   const [showBlockPopup, setShowBlockPopup] = useState(false);
-  
+
   const fullName =
-  `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
-  "Helen Angel";
+    `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim();
 
   /* ================= AUTH ================= */
   useEffect(() => {
@@ -1790,12 +2609,10 @@ export default function FreelancerFullDetailScreen() {
   /* ================= PROFILE ================= */
   useEffect(() => {
     if (!userId) return;
-
     const unsub = onSnapshot(doc(db, "users", userId), (snap) => {
       setProfile(snap.exists() ? { id: snap.id, ...snap.data() } : null);
       setLoadingProfile(false);
     });
-
     return () => unsub();
   }, [userId]);
 
@@ -1807,21 +2624,17 @@ export default function FreelancerFullDetailScreen() {
       collection(db, "users", userId, "services"),
       orderBy("createdAt", "desc")
     );
-
     const q2 = query(
       collection(db, "users", userId, "services_24h"),
       orderBy("createdAt", "desc")
     );
 
-    const u1 = onSnapshot(q1, (s) => {
-      setServices(s.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoadingServices(false);
-    });
-
-    const u2 = onSnapshot(q2, (s) => {
-      setServices24(s.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoadingServices(false);
-    });
+    const u1 = onSnapshot(q1, (s) =>
+      setServices(s.docs.map((d) => ({ id: d.id, ...d.data() })))
+    );
+    const u2 = onSnapshot(q2, (s) =>
+      setServices24(s.docs.map((d) => ({ id: d.id, ...d.data() })))
+    );
 
     return () => {
       u1();
@@ -1838,718 +2651,331 @@ export default function FreelancerFullDetailScreen() {
       orderBy("createdAt", "desc")
     );
 
-    const unsub = onSnapshot(q, (snap) => {
-      setPortfolio(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    const unsub = onSnapshot(q, (snap) =>
+      setPortfolio(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+    );
 
     return () => unsub();
   }, [currentUser]);
 
-  /* ================= DELETE PORTFOLIO ================= */
-  const deletePortfolio = async (id) => {
-    if (!currentUser) return;
-    if (!window.confirm("Delete this portfolio?")) return;
-
-    try {
-      await deleteDoc(doc(db, "users", currentUser.uid, "portfolio", id));
-      alert("Portfolio deleted successfully");
-    } catch (error) {
-      console.error("Error deleting portfolio:", error);
-      alert("Failed to delete portfolio");
-    }
-  };
-
   /* ================= TOGGLE PAUSE ================= */
   const togglePause = async (job) => {
     const col = activeTab === "works" ? "services" : "services_24h";
-
-    try {
-      await updateDoc(doc(db, "users", userId, col, job.id), {
-        paused: !job.paused,
-        pausedAt: !job.paused ? serverTimestamp() : null,
-      });
-    } catch (error) {
-      console.error("Error toggling pause:", error);
-    }
+    await updateDoc(doc(db, "users", userId, col, job.id), {
+      paused: !job.paused,
+      pausedAt: !job.paused ? serverTimestamp() : null,
+    });
   };
 
-  /* ================= FORMAT BUDGET ================= */
-  const formatBudget = (v) => {
-    if (!v) return "0";
-    if (v >= 100000) return (v / 100000).toFixed(1) + "L";
-    if (v >= 1000) return (v / 1000).toFixed(1) + "k";
-    return v;
-  };
+  const jobs = useMemo(
+    () => (activeTab === "works" ? services : services24),
+    [services, services24, activeTab]
+  );
 
-  /* ================= SHARE PROFILE ================= */
-  const shareProfile = () => {
-    const shareText = `Check out ${profile?.first_name} ${profile?.last_name}'s professional profile`;
-    if (navigator.share) {
-      navigator.share({
-        title: "Professional Profile",
-        text: shareText,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
-    }
-  };
+  if (loadingProfile || !profile) return null;
 
-  /* ================= EXTRACT SKILLS & TOOLS ================= */
-  const skills = useMemo(() => {
-    return Array.isArray(profile?.skills) ? profile.skills : [];
-  }, [profile]);
-
-  const tools = useMemo(() => {
-    return Array.isArray(profile?.tools) ? profile.tools : [];
-  }, [profile]);
-
-  /* ================= FILTERED DATA ================= */
-  const filteredData = useMemo(() => {
-    let data = activeTab === "works" ? services : services24;
-
-    if (search) {
-      data = data.filter((i) =>
-        (i.title || "").toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    if (sort === "paused") {
-      data = data.filter((i) => i.paused);
-    } else if (sort === "oldest") {
-      data = [...data].sort(
-        (a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)
-      );
-    } else {
-      data = [...data].sort(
-        (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
-      );
-    }
-
-    return data;
-  }, [services, services24, activeTab, search, sort]);
-
-  /* ================= LOADING STATE ================= */
-  if (loadingProfile) {
-    return (
-      <div style={{ padding: 40, textAlign: "center" }}>
-        <div style={{ fontSize: 18 }}>Loading profile...</div>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div style={{ padding: 40, textAlign: "center" }}>
-        <div style={{ fontSize: 18, color: "#666" }}>User not found</div>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            marginTop: 20,
-            padding: "10px 20px",
-            borderRadius: 10,
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          Go Back
-        </button>
-      </div>
-    );
-  }
-
-  /* ================= RENDER ================= */
   return (
-    <div style={{ background: "#F6F6F6", minHeight: "100vh", paddingBottom: 60 }}>
-      {/* HEADER */}
-      <div style={{ background: "#fff", paddingBottom: 40 }}>
-        {/* Cover Image */}
-        <div
-          style={{
-            height: 220,
-            background: profile.coverImage
-              ? `url(${profile.coverImage}) center/cover`
-              : "",
-            position: "relative",
-          }}
-        >
-          <button
-            onClick={() => navigate(-1)}
-            style={{
-              position: "absolute",
-              top: 20,
-              left: 20,
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              border: "none",
-              background: "rgba(0,0,0,0.3)",
-              color: "#fff",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ArrowLeft size={20} />
-          </button>
-        </div>
+    <div style={{ background: "#F6F6F6", minHeight: "100vh", paddingBottom: 40 }}>
+      {/* ================= PROFILE SUMMARY ================= */}
+      <div style={styles.profileHeader}>
+        <button onClick={() => navigate(-1)} style={styles.backBtn}>
+          <ArrowLeft size={18} />
+        </button>
 
-        {/* Profile Image */}
+        {currentUser?.uid !== userId && (
+          <div style={styles.menuWrap}>
+            <button style={styles.menuBtn} onClick={() => setShowMenu(!showMenu)}>
+              ⋮
+            </button>
+            {showMenu && (
+              <div style={styles.menuDropdown}>
+                <div
+                  style={styles.menuItem}
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowBlockPopup(true);
+                  }}
+                >
+                  Report
+                </div>
+                <div
+                  style={{ ...styles.menuItem, color: "#ef4444" }}
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowBlockPopup(true);
+                  }}
+                >
+                  Block
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <img
           src={profile.profileImage || "/assets/profile.png"}
-          alt="profile"
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: "50%",
-            marginTop: -60,
-            marginLeft: 20,
-            border: "4px solid #fff",
-            objectFit: "cover",
-          }}
+          alt=""
+          style={styles.profileImg}
         />
 
-        {/* Action Buttons */}
-        <div style={{ padding: "20px", display: "flex", gap: 12 }}>
-          <button onClick={shareProfile} style={styles.shareBtn}>
-            <Share2 size={16} style={{ marginRight: 6 }} />
-            Share Profile
-          </button>
+        <div>
+          <h2 style={{ margin: 0 }}>{fullName}</h2>
+          <p style={{ margin: "6px 0", opacity: 0.7 }}>
+            {profile.professional_title}
+          </p>
 
-          {currentUser?.uid !== userId && (
-            <button
-              onClick={() => setShowBlockPopup(true)}
-              style={styles.blockBtn}
-            >
-              <Flag size={16} style={{ marginRight: 6 }} />
-              Block / Report
-            </button>
-          )}
+          <div style={styles.linksRow}>
+            {profile.behance && <span>Behance</span>}
+            {profile.github && <span>GitHub</span>}
+            {profile.linkedin && <span>LinkedIn</span>}
+            {profile.website && <span>Website</span>}
+          </div>
         </div>
       </div>
 
-      {/* BASIC INFO */}
-      <div style={{ fontSize: 18, fontWeight: 600 }}>{fullName}</div>
-      <div style={{ padding: 20, background: "#fff", marginTop: 10 }}>
-        <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>
-          {profile.first_name} {profile.last_name}
-        </h2>
-        <div style={{ color: "#6b7280", marginTop: 4 }}>{profile.email}</div>
-        <p style={{ margin: "8px 0 0", color: "#374151" }}>
-          {profile.sector || "Freelancer"} · {profile.location || "India"}
-        </p>
-        <p style={{ opacity: 0.7, margin: "4px 0 0" }}>
-          {profile.professional_title || "Professional"}
-        </p>
-                    {/* LINKS */}
-            <div style={{ display: "flex", gap: 16, marginTop: 6 }}>
-              {profile.linkedin && (
-                <span
-                  onClick={() => openLink(profile.linkedin)}
-                  style={{
-                    color: "#2563eb",
-                    cursor: "pointer",
-                    fontSize: 14,
-                  }}
-                >
-                  Linkedin
-                </span>
-              )}
+      {/* ================= ABOUT + SKILLS ROW ================= */}
+      <div style={styles.twoCol}>
+        <div style={styles.card}>
+          <h3>About</h3>
+          <p>{profile.about}</p>
+        </div>
 
-              {profile.website && (
-                <span
-                  onClick={() => openLink(profile.website)}
-                  style={{
-                    color: "#2563eb",
-                    cursor: "pointer",
-                    fontSize: 14,
-                  }}
-                >
-                  Website
-                </span>
-              )}
-            </div>
-          
+        <div style={{ ...styles.card, background: "#FFFEEF" }}>
+          <h3>Skills</h3>
+          <div style={styles.chips}>
+            {profile.skills?.map((s) => (
+              <span key={s} style={styles.chip}>{s}</span>
+            ))}
+          </div>
+
+          <h3 style={{ marginTop: 20 }}>Tools</h3>
+          <div style={styles.chips}>
+            {profile.tools?.map((t) => (
+              <span key={t} style={styles.chip}>{t}</span>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* BLOCK POPUP */}
-      {showBlockPopup && (
+      {/* ================= PORTFOLIO ================= */}
+      <div style={styles.section}>
+        <h3>Portfolio</h3>
+        <div style={styles.portfolioRow}>
+          {portfolio.map((p) => (
+            <div key={p.id} style={styles.portfolioCard}>
+              <img src={p.imageUrl} alt="" style={styles.portfolioImg} />
+              <div style={{ padding: 14 }}>
+                <h4>{p.title}</h4>
+                <p style={{ opacity: 0.7 }}>{p.description}</p>
+                {currentUser?.uid === userId && (
+                  <FiTrash2
+                    onClick={() =>
+                      deleteDoc(
+                        doc(db, "users", currentUser.uid, "portfolio", p.id)
+                      )
+                    }
+                    style={{ cursor: "pointer", color: "#ef4444" }}
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ================= POSTED JOBS ================= */}
+      <div style={styles.section}>
+        <div style={styles.tabs}>
+          <button
+            style={activeTab === "works" ? styles.tabActive : styles.tab}
+            onClick={() => setActiveTab("works")}
+          >
+            Works
+          </button>
+          <button
+            style={activeTab === "24h" ? styles.tabActive : styles.tab}
+            onClick={() => setActiveTab("24h")}
+          >
+            24 Hours
+          </button>
+        </div>
+
+       {jobs.map((job) => (
+  <div key={job.id} style={styles.jobCard}>
+    <div>
+      <h4 style={{ marginBottom: 8 }}>{job.title}</h4>
+      <p style={{ marginBottom: 12, color: "#555" }}>{job.description}</p>
+    </div>
+    {currentUser?.uid === userId && (
+      <button
+        onClick={() => togglePause(job)}
+        style={{
+          ...styles.pauseBtn,
+          backgroundColor: job.paused ? "#ef4444" : "#34d399",
+        }}
+      >
+        {job.paused ? "Unpause" : "Pause"}
+      </button>
+    )}
+  </div>
+))}
+
+      </div>
+
+     {showBlockPopup && (
+  <>
+    {/* Overlay behind popup */}
+    <div
+      style={styles.popupOverlay}
+      onClick={() => setShowBlockPopup(false)}
+    />
+
+    {/* Centered popup container */}
+    <div style={styles.popupCentered}>
+      <ReportBlockPopup
+        freelancerId={userId}
+        freelancerName={fullName}
+        onClose={() => setShowBlockPopup(false)}
+      />
+    </div>
+  </>
+)}
+ {showBlockPopup && (
         <ReportBlockPopup
           freelancerId={userId}
-          freelancerName={`${profile.first_name} ${profile.last_name}`}
+          freelancerName={fullName}
           onClose={() => setShowBlockPopup(false)}
         />
       )}
-
-      {/* ABOUT */}
-      <Section title="About">
-        <p style={{ lineHeight: 1.6, color: "#374151" }}>
-          {profile.about || "No description available."}
-        </p>
-      </Section>
-
-      {/* SKILLS & TOOLS CARD */}
-      <div style={styles.skillsCard}>
-        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Skills</h3>
-        <div style={styles.chipWrap}>
-          {skills.length ? (
-            skills.map((s) => (
-              <span key={s} style={styles.chipYellow}>
-                {s}
-              </span>
-            ))
-          ) : (
-            <span style={styles.muted}>No skills listed</span>
-          )}
-        </div>
-
-        <h3 style={{ margin: "24px 0 0", fontSize: 18, fontWeight: 700 }}>
-          Tools
-        </h3>
-        <div style={styles.chipWrap}>
-          {tools.length ? (
-            tools.map((t) => (
-              <span key={t} style={styles.chipYellow}>
-                {t}
-              </span>
-            ))
-          ) : (
-            <span style={styles.muted}>No tools listed</span>
-          )}
-        </div>
-      </div>
-
-      {/* PORTFOLIO */}
-      <div style={styles.portfolioWrapper}>
-        <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Portfolio</h3>
-        {portfolio.length === 0 ? (
-          <p style={{ marginTop: 16, opacity: 0.6 }}>No portfolio items yet</p>
-        ) : (
-          <div style={styles.portfolioRow}>
-            {portfolio.map((p) => (
-              <div key={p.id} style={styles.portfolioCard}>
-                <div style={styles.portfolioImgWrap}>
-                  <img
-                    src={p.imageUrl || "/assets/gallery.png"}
-                    alt={p.title}
-                    style={styles.portfolioImg}
-                  />
-                </div>
-
-                <div style={{ padding: 14 }}>
-                  <div style={styles.portfolioTitleRow}>
-                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>
-                      {p.title}
-                    </h4>
-                    {currentUser?.uid === userId && (
-                      <FiTrash2
-                        style={{ cursor: "pointer", color: "#ef4444" }}
-                        onClick={() => deletePortfolio(p.id)}
-                      />
-                    )}
-                  </div>
-                  <p style={styles.portfolioDesc}>{p.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* POSTED JOBS */}
-      <div style={styles.wrapper}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>
-            Posted Jobs
-          </h3>
-
-          <div style={styles.toggleWrap}>
-            <button
-              onClick={() => setActiveTab("works")}
-              style={
-                activeTab === "works" ? styles.toggleActive : styles.toggle
-              }
-            >
-              Works
-            </button>
-            <button
-              onClick={() => setActiveTab("24h")}
-              style={activeTab === "24h" ? styles.toggleActive : styles.toggle}
-            >
-              24 Hours
-            </button>
-          </div>
-        </div>
-
-
-
-        {/* CARDS */}
-        {loadingServices ? (
-          <p style={{ padding: 30, textAlign: "center" }}>Loading services...</p>
-        ) : filteredData.length === 0 ? (
-          <p style={{ padding: 30, opacity: 0.6, textAlign: "center" }}>
-            No services found
-          </p>
-        ) : (
-          filteredData.map((job) => (
-            <div key={job.id} style={styles.card}>
-              <div style={styles.topRow}>
-                <div style={styles.avatar}>
-                  {(job.title || "JOB").substring(0, 2).toUpperCase()}
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-                    {job.title}
-                  </h4>
-
-                  <div style={styles.chips}>
-                    {job.skills?.slice(0, 2).map((s) => (
-                      <span key={s} style={styles.chip}>
-                        {s}
-                      </span>
-                    ))}
-                    {job.skills?.length > 2 && (
-                      <span style={styles.more}>+{job.skills.length - 2}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.meta}>
-                <div>
-                  <div style={styles.label}>Budget</div>
-                  <div className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
-                </div>
-
-                <div>
-                  <div style={styles.label}>Timeline</div>
-                  <div style={styles.value}>
-                    {job.deliveryDuration || "N/A"}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={styles.label}>Location</div>
-                  <div style={styles.value}>{job.location || "Remote"}</div>
-                </div>
-              </div>
-
-              {currentUser?.uid === userId && (
-                <div style={styles.actions}>
-                  <button
-                    style={styles.pauseBtn}
-                    onClick={() => togglePause(job)}
-                  >
-                    {job.paused ? "Unpause Service" : "Pause Service"}
-                  </button>
-
-                  <button
-                    style={styles.editBtn}
-                    onClick={() =>
-                      navigate(
-                        activeTab === "works"
-                          ? `/freelance-dashboard/freelanceredit-service/${job.id}`
-                          : `/service-24h-edit/${job.id}`,
-                        { state: { job } }
-                      )
-                    }
-                  >
-                    Edit Service
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ================= SECTION COMPONENT ================= */
-function Section({ title, children }) {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        margin: "10px 0",
-        padding: 20,
-        borderRadius: 12,
-      }}
-    >
-      <h3 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 700 }}>
-        {title}
-      </h3>
-      {children}
     </div>
   );
 }
 
 /* ================= STYLES ================= */
 const styles = {
-  shareBtn: {
-    padding: "10px 18px",
-    border: "1px solid #ddd",
-    borderRadius: 10,
-    cursor: "pointer",
-    background: "#fff",
-    display: "flex",
-    alignItems: "center",
-    fontWeight: 600,
-    fontSize: 14,
-  },
-
-  blockBtn: {
-    padding: "10px 18px",
-    border: "1px solid #ef4444",
-    borderRadius: 10,
-    cursor: "pointer",
-    background: "#fff",
-    color: "#ef4444",
-    display: "flex",
-    alignItems: "center",
-    fontWeight: 600,
-    fontSize: 14,
-  },
-
-  skillsCard: {
-    background: "#FFFEEF",
-    borderRadius: 28,
-    padding: 28,
-    margin: "10px 20px",
-    boxShadow: "0 14px 30px rgba(0,0,0,0.12)",
-  },
-
-  chipWrap: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    marginTop: 12,
-  },
-
-  chipYellow: {
+  profileHeader: {
     background: "#FFF9A8",
-    padding: "8px 14px",
-    borderRadius: 18,
-    fontWeight: 600,
-    fontSize: 13,
+    padding: 24,
+    display: "flex",
+    gap: 20,
+    alignItems: "center",
+    position: "relative",
   },
-
-  muted: {
-    opacity: 0.6,
-    fontSize: 14,
-  },
-
-  portfolioWrapper: {
+  backBtn: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    border: "none",
     background: "#fff",
-    margin: "10px 20px",
+    borderRadius: "50%",
+    width: 36,
+    height: 36,
+  },
+  profileImg: {
+    width: 80,
+    height: 80,
+    borderRadius: "50%",
+    objectFit: "cover",
+  },
+  menuWrap: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+  },
+  menuBtn: {
+    border: "none",
+    background: "#fff",
+    borderRadius: "50%",
+    width: 36,
+    height: 36,
+    fontSize: 20,
+  },
+  menuDropdown: {
+    position: "absolute",
+    right: 0,
+    top: 42,
+    background: "#fff",
+    borderRadius: 12,
+    boxShadow: "0 10px 30px rgba(0,0,0,.15)",
+  },
+  menuItem: {
+    padding: "12px 18px",
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+  linksRow: {
+    display: "flex",
+    gap: 12,
+    fontSize: 14,
+    color: "#2563eb",
+  },
+  twoCol: {
+    display: "grid",
+    gridTemplateColumns: "2fr 1fr",
+    gap: 20,
+    padding: 20,
+  },
+  card: {
+    background: "#fff",
     padding: 20,
     borderRadius: 20,
   },
-
+  chips: {
+    display: "flex",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  chip: {
+    background: "#FFF9A8",
+    padding: "6px 14px",
+    borderRadius: 16,
+    fontWeight: 600,
+    fontSize: 13,
+  },
+  section: {
+    background: "#fff",
+    margin: "0 20px 20px",
+    padding: 20,
+    borderRadius: 20,
+  },
   portfolioRow: {
     display: "flex",
     gap: 16,
     overflowX: "auto",
-    marginTop: 16,
-    paddingBottom: 10,
   },
-
   portfolioCard: {
     minWidth: 260,
-    border: "1px solid #eee",
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: "hidden",
-    background: "#fff",
+    boxShadow: "0 8px 20px rgba(0,0,0,.08)",
   },
-
-  portfolioImgWrap: {
-    height: 140,
-    background: "#e5e7eb",
-  },
-
   portfolioImg: {
     width: "100%",
-    height: "100%",
+    height: 140,
     objectFit: "cover",
   },
-
-  portfolioTitleRow: {
+  tabs: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    gap: 10,
+    marginBottom: 16,
   },
-
-  portfolioDesc: {
-    fontSize: 13,
-    opacity: 0.7,
-    marginTop: 6,
-    lineHeight: 1.4,
-  },
-
-  wrapper: {
-    background: "#fff",
-    borderRadius: 20,
-    padding: 20,
-    margin: "10px 20px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 16,
-  },
-
-  toggleWrap: {
-    background: "#FFF8E1",
-    padding: 6,
+  tab: {
+    padding: "8px 20px",
     borderRadius: 16,
-    display: "flex",
-    gap: 6,
-  },
-
-  toggle: {
-    padding: "8px 22px",
-    borderRadius: 12,
     border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontWeight: 600,
-    fontSize: 14,
+    background: "#eee",
   },
-
-  toggleActive: {
-    padding: "8px 22px",
-    borderRadius: 12,
+  tabActive: {
+    padding: "8px 20px",
+    borderRadius: 16,
     border: "none",
-    background: "#fff",
-    cursor: "pointer",
+    background: "#FFF9A8",
     fontWeight: 700,
-    fontSize: 14,
   },
-
-  searchRow: {
-    display: "flex",
-    gap: 12,
-    marginTop: 16,
-  },
-
-  search: {
-    flex: 1,
-    height: 42,
-    borderRadius: 14,
-    border: "1px solid #ddd",
-    paddingLeft: 14,
-    fontSize: 14,
-  },
-
-  select: {
-    height: 42,
-    borderRadius: 14,
-    border: "1px solid #ddd",
-    padding: "0 12px",
-    fontSize: 14,
-    cursor: "pointer",
-  },
-
-  card: {
-    border: "1px solid #E0E0E0",
-    borderRadius: 20,
-    padding: 20,
-    marginTop: 20,
-  },
-
-  topRow: {
-    display: "flex",
-    gap: 16,
-  },
-
-  avatar: {
-    width: 56,
-    height: 56,
+  jobCard: {
+    border: "1px solid #eee",
+    padding: 16,
     borderRadius: 16,
-    background: "linear-gradient(135deg, #6A5CFF, #9B42FF)",
-    color: "#fff",
-    fontWeight: 800,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 14,
-  },
-
-  chips: {
-    display: "flex",
-    gap: 8,
-    marginTop: 6,
-    flexWrap: "wrap",
-  },
-
-  chip: {
-    background: "#FFF7A8",
-    padding: "4px 12px",
-    borderRadius: 16,
-    fontSize: 13,
-    fontWeight: 600,
-  },
-
-  more: {
-    background: "#FFF7A8",
-    padding: "4px 12px",
-    borderRadius: 16,
-    fontSize: 13,
-  },
-
-  meta: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: 16,
-    gap: 12,
-  },
-
-  label: {
-    fontSize: 13,
-    opacity: 0.6,
-  },
-
-  value: {
-    fontSize: 14,
-    fontWeight: 700,
-    marginTop: 2,
-  },
-
-  actions: {
-    display: "flex",
-    gap: 12,
-    marginTop: 18,
-  },
-
-  pauseBtn: {
-    flex: 1,
-    height: 40,
-    borderRadius: 30,
-    border: "1px solid #bbb",
-    background: "#fff",
-    fontWeight: 600,
-    cursor: "pointer",
-    fontSize: 14,
-  },
-
-  editBtn: {
-    flex: 1,
-    height: 40,
-    borderRadius: 30,
-    border: "none",
-    background: "#FFF97A",
-    fontWeight: 700,
-    cursor: "pointer",
-    fontSize: 14,
+    marginBottom: 12,
   },
 };

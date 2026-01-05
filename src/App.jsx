@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate, useParams } from "react-router-dom";
-
+import { useEffect } from "react";
 // Auth Pages
 import RoleSelect from "./pages/RoleSelect";
 import RegisterStep1 from "./pages/Registerform/RegisterStep1";
@@ -178,6 +178,14 @@ export default function App() {
 
   const { id } = useParams();
 
+ // ✅ SCROLL TO TOP ON EVERY ROUTE CHANGE
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant", // change to "smooth" if you want
+    });
+  }, [location.pathname]);
 
   return (
     <Routes>

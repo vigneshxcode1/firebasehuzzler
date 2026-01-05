@@ -1689,6 +1689,7 @@ import worksImg1 from "../assets/file.png";
 import worksImg2 from "../assets/yellowwave.png";
 import arrow from "../assets/arrow.png";
 import profile from "../assets/profile.png";
+// import  "./ClientHome.css"
 
 // ====== ICONS ======
 import {
@@ -2055,7 +2056,7 @@ export default function ClientHomeUI() {
 
 
         {/* ================= MAIN ================= */}
-        <main className="fh-main">
+        <main className="fh-main1">
           {/* HERO */}
           <section className="fh-hero">
             <div

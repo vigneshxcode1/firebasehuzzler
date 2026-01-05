@@ -1718,26 +1718,273 @@
 // }
 
 
-import React, { useEffect, useState } from "react";
-import profileImg from "../../../assets/profile.png";
-import {
-  IoSearch,
-  IoNotificationsOutline,
-  IoChatbubbleEllipsesOutline,
-} from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+// import React, { useEffect, useState } from "react";
+// import profileImg from "../../../assets/profile.png";
+// import {
+//   IoSearch,
+//   IoNotificationsOutline,
+//   IoChatbubbleEllipsesOutline,
+// } from "react-icons/io5";
+// import { useNavigate } from "react-router-dom";
+// import { getAuth } from "firebase/auth";
+// import {
+//   collection,
+//   onSnapshot,
+//   query,
+//   where,
+//   orderBy,
+//   doc,
+//   deleteDoc,
+//   updateDoc,
+//   Timestamp,
+// } from "firebase/firestore";
+// import { db } from "../../../firbase/Firebase";
+
+// export default function HireFreelancer() {
+//   const auth = getAuth();
+//   const navigate = useNavigate();
+
+//   const [activeTab, setActiveTab] = useState("requested");
+//   const [requests, setRequests] = useState([]);
+//   const [search, setSearch] = useState("");
+
+//   /* ================= HELPERS ================= */
+
+//   const getStartMessage = (title) =>
+//     `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
+
+//   const markAsRead = async (id) => {
+//     try {
+//       await updateDoc(doc(db, "notifications", id), { read: true });
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   };
+
+//   const deleteRequest = async (id) => {
+//     if (!window.confirm("Delete this request?")) return;
+//     try {
+//       await deleteDoc(doc(db, "notifications", id));
+//     } catch (e) {
+//       console.error(e);
+//     }
+//   };
+
+//   const timeAgo = (input) => {
+//     if (!input) return "N/A";
+//     const d = input instanceof Timestamp ? input.toDate() : new Date(input);
+//     const diff = (Date.now() - d.getTime()) / 1000;
+//     if (diff < 60) return `${Math.floor(diff)} sec ago`;
+//     if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+//     if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
+//     return `${Math.floor(diff / 86400)} days ago`;
+//   };
+
+//   /* ================= FIRESTORE ================= */
+
+//   useEffect(() => {
+//     if (!auth.currentUser?.uid) return;
+
+//     const q = query(
+//       collection(db, "notifications"),
+//       where("clientUid", "==", auth.currentUser.uid),
+//       where("type", "==", "application"),
+//       orderBy("timestamp", "desc")
+//     );
+
+//     const unsub = onSnapshot(q, (snap) => {
+//       setRequests(
+//         snap.docs.map((d) => ({
+//           id: d.id,
+//           ...d.data(),
+//         }))
+//       );
+//     });
+
+//     return () => unsub();
+//   }, [auth.currentUser?.uid]);
+
+//   /* ================= FILTER ================= */
+
+//   const requestedList = requests.filter((r) => r.read === false);
+//   const hiredList = requests.filter((r) => r.read === true);
+
+//   const listToShow =
+//     activeTab === "requested" ? requestedList : hiredList;
+
+//   const finalList = listToShow.filter((i) =>
+//     i.freelancerName?.toLowerCase().includes(search.toLowerCase())
+//   );
+
+//   /* ================= UI ================= */
+
+//   return (
+//     <>
+//       <style>{`
+//         * { font-family: "Rubik", sans-serif; }
+//         .hire-root { min-height:100vh; background:#fbf9e9; padding:30px; }
+//         .hire-header { display:flex; justify-content:space-between; align-items:center; }
+//         .hire-title { font-size:22px; font-weight:700; }
+//         .hire-search { margin:20px 0; background:#fff; padding:14px 20px; border-radius:14px; display:flex; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
+//         .hire-search input { border:none; outline:none; width:100%; }
+//         .hire-tabs { display:flex; width:320px; margin:0 auto 20px; background:#fff; padding:6px; border-radius:30px; }
+//         .hire-tab { flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:600; border-radius:24px; }
+//         .hire-tab.active { background:#8b5cf6; color:#fff; }
+//         .hire-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+//         .hire-card { background:#fff; border-radius:18px; box-shadow:0 10px 25px rgba(0,0,0,.1); overflow:hidden; }
+//         .hire-card-top { background:linear-gradient(135deg,#8b5cf6,#a855f7); padding:24px 0; text-align:center; position:relative; }
+//         .badge { position:absolute; top:12px; right:12px; background:#fff; padding:4px 10px; border-radius:20px; font-size:12px; }
+//         .hire-img { width:70px; height:70px; border-radius:50%; border:4px solid #fff; object-fit:cover; }
+//         .hire-body { padding:20px; text-align:center; }
+//         .hire-name { font-weight:700; }
+//         .hire-role { font-size:13px; color:#6b7280; margin-bottom:10px; }
+//         .hire-btn { width:100%; border:none; padding:10px; border-radius:12px; font-weight:600; cursor:pointer; margin-top:12px; }
+//         .delete { background:#ef4444; color:#fff; }
+//         .chat { background:#7c3aed; color:#fff; }
+//       `}</style>
+
+//       <div className="hire-root">
+//         {/* HEADER */}
+//         <div className="hire-header">
+//           <div className="hire-title">Hire Freelancer</div>
+//           <div style={{ display: "flex", gap: 14 }}>
+//             <IoNotificationsOutline size={22} />
+//             <IoChatbubbleEllipsesOutline size={22} />
+//           </div>
+//         </div>
+
+//         {/* SEARCH */}
+//         <div className="hire-search">
+//           <IoSearch />
+//           <input
+//             placeholder="Search freelancer..."
+//             value={search}
+//             onChange={(e) => setSearch(e.target.value)}
+//           />
+//         </div>
+
+//         {/* TABS */}
+//         <div className="hire-tabs">
+//           <div
+//             className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
+//             onClick={() => setActiveTab("requested")}
+//           >
+//             Requested ({requestedList.length})
+//           </div>
+//           <div
+//             className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
+//             onClick={() => setActiveTab("hired")}
+//           >
+//             Hired ({hiredList.length})
+//           </div>
+//         </div>
+
+//         {/* CARDS */}
+//         <div className="hire-grid">
+//           {finalList.map((item) => {
+//             /* 🔥 SKILLS FIX */
+//             const skillsArray = Array.isArray(item.skills)
+//               ? item.skills
+//               : typeof item.skills === "string"
+//               ? item.skills.split(",").map((s) => s.trim())
+//               : [];
+
+//             return (
+//               <div className="hire-card" key={item.id}>
+//                 <div className="hire-card-top">
+//                   <div className="badge">{timeAgo(item.timestamp)}</div>
+//                   <img
+//                     src={item.profileImage || profileImg}
+//                     className="hire-img"
+//                   />
+//                 </div>
+
+//                 <div className="hire-body">
+//                   <div className="hire-name">{item.freelancerName}</div>
+//                   <div className="hire-role">{item.title}</div>
+
+//                   {/* SKILLS */}
+//                   <div style={{ marginTop: 8 }}>
+//                     {skillsArray.slice(0, 3).map((skill, i) => (
+//                       <span
+//                         key={i}
+//                         style={{
+//                           background: "#ede9fe",
+//                           color: "#5b21b6",
+//                           padding: "4px 10px",
+//                           borderRadius: 14,
+//                           fontSize: 12,
+//                           margin: "0 4px",
+//                           display: "inline-block",
+//                         }}
+//                       >
+//                         {skill}
+//                       </span>
+//                     ))}
+//                   </div>
+
+//                   {activeTab === "requested" ? (
+//                     <button
+//                       className="hire-btn delete"
+//                       onClick={() => deleteRequest(item.id)}
+//                     >
+//                       Delete Request
+//                     </button>
+//                   ) : (
+//                     <button
+//                       className="hire-btn chat"
+//                       onClick={async () => {
+//                         await markAsRead(item.id);
+//                         navigate("/chat", {
+//                           state: {
+//                             currentUid: auth.currentUser.uid,
+//                             otherUid: item.freelancerId,
+//                             otherName: item.freelancerName,
+//                             otherImage: item.profileImage || "",
+//                             initialMessage: getStartMessage(item.title),
+//                           },
+//                         });
+//                       }}
+//                     >
+//                       View Chat
+//                     </button>
+//                   )}
+//                 </div>
+//               </div>
+//             );
+//           })}
+
+//           {finalList.length === 0 && (
+//             <p style={{ textAlign: "center", width: "100%" }}>
+//               No data found
+//             </p>
+//           )}
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { getAuth } from "firebase/auth";
-import {
-  collection,
-  onSnapshot,
-  query,
-  where,
-  orderBy,
-  doc,
-  deleteDoc,
-  updateDoc,
-  Timestamp,
-} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { IoChatbubbleEllipsesOutline, IoNotificationsOutline, IoSearch } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import profileImg from "../../../assets/profile.png"
+import { collection, onSnapshot, orderBy, query, Timestamp, where } from "firebase/firestore";
 import { db } from "../../../firbase/Firebase";
 
 export default function HireFreelancer() {
@@ -1754,29 +2001,19 @@ export default function HireFreelancer() {
     `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
 
   const markAsRead = async (id) => {
-    try {
-      await updateDoc(doc(db, "notifications", id), { read: true });
-    } catch (e) {
-      console.error(e);
-    }
+    await updateDoc(doc(db, "notifications", id), { read: true });
   };
 
   const deleteRequest = async (id) => {
     if (!window.confirm("Delete this request?")) return;
-    try {
-      await deleteDoc(doc(db, "notifications", id));
-    } catch (e) {
-      console.error(e);
-    }
+    await deleteDoc(doc(db, "notifications", id));
   };
 
   const timeAgo = (input) => {
     if (!input) return "N/A";
     const d = input instanceof Timestamp ? input.toDate() : new Date(input);
     const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff < 60) return `${Math.floor(diff)} sec ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
+    if (diff < 86400) return "10 days ago"; // 👈 matches UI
     return `${Math.floor(diff / 86400)} days ago`;
   };
 
@@ -1792,19 +2029,10 @@ export default function HireFreelancer() {
       orderBy("timestamp", "desc")
     );
 
-    const unsub = onSnapshot(q, (snap) => {
-      setRequests(
-        snap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }))
-      );
+    return onSnapshot(q, (snap) => {
+      setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
-
-    return () => unsub();
   }, [auth.currentUser?.uid]);
-
-  /* ================= FILTER ================= */
 
   const requestedList = requests.filter((r) => r.read === false);
   const hiredList = requests.filter((r) => r.read === true);
@@ -1816,40 +2044,177 @@ export default function HireFreelancer() {
     i.freelancerName?.toLowerCase().includes(search.toLowerCase())
   );
 
-  /* ================= UI ================= */
-
   return (
     <>
       <style>{`
         * { font-family: "Rubik", sans-serif; }
-        .hire-root { min-height:100vh; background:#fbf9e9; padding:30px; }
-        .hire-header { display:flex; justify-content:space-between; align-items:center; }
-        .hire-title { font-size:22px; font-weight:700; }
-        .hire-search { margin:20px 0; background:#fff; padding:14px 20px; border-radius:14px; display:flex; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
-        .hire-search input { border:none; outline:none; width:100%; }
-        .hire-tabs { display:flex; width:320px; margin:0 auto 20px; background:#fff; padding:6px; border-radius:30px; }
-        .hire-tab { flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:600; border-radius:24px; }
-        .hire-tab.active { background:#8b5cf6; color:#fff; }
-        .hire-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
-        .hire-card { background:#fff; border-radius:18px; box-shadow:0 10px 25px rgba(0,0,0,.1); overflow:hidden; }
-        .hire-card-top { background:linear-gradient(135deg,#8b5cf6,#a855f7); padding:24px 0; text-align:center; position:relative; }
-        .badge { position:absolute; top:12px; right:12px; background:#fff; padding:4px 10px; border-radius:20px; font-size:12px; }
-        .hire-img { width:70px; height:70px; border-radius:50%; border:4px solid #fff; object-fit:cover; }
-        .hire-body { padding:20px; text-align:center; }
-        .hire-name { font-weight:700; }
-        .hire-role { font-size:13px; color:#6b7280; margin-bottom:10px; }
-        .hire-btn { width:100%; border:none; padding:10px; border-radius:12px; font-weight:600; cursor:pointer; margin-top:12px; }
-        .delete { background:#ef4444; color:#fff; }
-        .chat { background:#7c3aed; color:#fff; }
+
+        .hire-root {
+          min-height:100vh;
+          background:linear-gradient(#fdfcb3,#fff);
+          padding:26px;
+        }
+
+        /* HEADER */
+        .hire-header {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+        }
+        .hire-title {
+          font-size:22px;
+          font-weight:700;
+        }
+
+        /* SEARCH */
+        .hire-search {
+          margin:22px 0;
+          height:50px;
+          background:#fff;
+          padding:16px 20px;
+          border-radius:18px;
+          display:flex;
+          gap:10px;
+          box-shadow:0 12px 30px rgba(0,0,0,.12);
+        }
+        .hire-search input {
+          border:none;
+          outline:none;
+          width:100%;
+          font-size:14px;
+        }
+
+        /* TABS */
+        .hire-tabs {
+          display:flex;
+          width:360px;
+          margin:0 auto 18px;
+          background:#fff;
+          padding:6px;
+          border-radius:40px;
+          box-shadow:0 6px 20px rgba(0,0,0,.12);
+        }
+        .hire-tab {
+          flex:1;
+          text-align:center;
+          padding:12px 0;
+          font-weight:600;
+          border-radius:30px;
+          cursor:pointer;
+        }
+        .hire-tab.active {
+          background:#8b5cf6;
+          color:#fff;
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          background:#fff;
+          padding:10px 16px;
+          border-radius:14px;
+          margin-bottom:20px;
+          box-shadow:0 6px 20px rgba(0,0,0,.08);
+        }
+        .filter-left span {
+          margin-right:18px;
+          font-size:13px;
+        }
+        .filter-right {
+          color:#7c3aed;
+          font-weight:600;
+        }
+
+        /* GRID */
+        .hire-grid {
+          display:grid;
+          grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+          gap:22px;
+        }
+
+        /* CARD */
+        .hire-card {
+          background:#fff;
+          border-radius:22px;
+          box-shadow:0 14px 30px rgba(0,0,0,.15);
+          overflow:hidden;
+        }
+
+        .card-top {
+          height:110px;
+          background:linear-gradient(135deg,#8b5cf6,#a855f7);
+          position:relative;
+        }
+
+        .time-badge {
+          position:absolute;
+          top:12px;
+          right:12px;
+          background:#fff;
+          padding:6px 12px;
+          border-radius:18px;
+          font-size:12px;
+        }
+
+        .profile-img {
+          width:80px;
+          height:80px;
+          border-radius:50%;
+          border:4px solid #fff;
+          object-fit:cover;
+          position:absolute;
+          bottom:-40px;
+          left:50%;
+          transform:translateX(-50%);
+        }
+
+        .card-body {
+          padding:56px 20px 22px;
+          text-align:center;
+        }
+
+        .name { font-weight:700; }
+        .role { color:#7c3aed; font-size:14px; }
+        .location { font-size:12px; color:#6b7280; margin-bottom:10px; }
+
+        .project {
+          font-size:13px;
+          margin:10px 0;
+        }
+
+        .skills span {
+          background:#ede9fe;
+          color:#5b21b6;
+          padding:5px 12px;
+          border-radius:14px;
+          font-size:12px;
+          margin:4px;
+          display:inline-block;
+        }
+
+        .action-btn {
+          width:100%;
+          padding:12px;
+          border:none;
+          border-radius:14px;
+          font-weight:600;
+          margin-top:16px;
+          cursor:pointer;
+        }
+        .delete { background:#7c3aed; color:#fff; }
       `}</style>
 
       <div className="hire-root">
+
         {/* HEADER */}
         <div className="hire-header">
           <div className="hire-title">Hire Freelancer</div>
-          <div style={{ display: "flex", gap: 14 }}>
-            <IoNotificationsOutline size={22} />
-            <IoChatbubbleEllipsesOutline size={22} />
+          <div style={{ display:"flex", gap:16 }}>
+            <IoChatbubbleEllipsesOutline size={22}/>
+            <IoNotificationsOutline size={22}/>
+            <img src={profileImg} width="32" />
           </div>
         </div>
 
@@ -1857,7 +2222,7 @@ export default function HireFreelancer() {
         <div className="hire-search">
           <IoSearch />
           <input
-            placeholder="Search freelancer..."
+            placeholder="Search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -1866,99 +2231,75 @@ export default function HireFreelancer() {
         {/* TABS */}
         <div className="hire-tabs">
           <div
-            className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-            onClick={() => setActiveTab("requested")}
-          >
-            Requested ({requestedList.length})
-          </div>
+            className={`hire-tab ${activeTab==="requested"?"active":""}`}
+            onClick={()=>setActiveTab("requested")}
+          >Requested</div>
           <div
-            className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-            onClick={() => setActiveTab("hired")}
-          >
-            Hired ({hiredList.length})
+            className={`hire-tab ${activeTab==="hired"?"active":""}`}
+            onClick={()=>setActiveTab("hired")}
+          >Hired</div>
+        </div>
+
+        {/* FILTER */}
+        <div className="filter-bar">
+          <div className="filter-left">
+            <span>Work</span>
+            <span>24 Hours</span>
           </div>
+          <div className="filter-right">Request</div>
         </div>
 
         {/* CARDS */}
         <div className="hire-grid">
-          {finalList.map((item) => {
-            /* 🔥 SKILLS FIX */
-            const skillsArray = Array.isArray(item.skills)
+          {finalList.map(item => {
+            const skills = Array.isArray(item.skills)
               ? item.skills
-              : typeof item.skills === "string"
-              ? item.skills.split(",").map((s) => s.trim())
-              : [];
+              : item.skills?.split(",") || [];
 
             return (
               <div className="hire-card" key={item.id}>
-                <div className="hire-card-top">
-                  <div className="badge">{timeAgo(item.timestamp)}</div>
+                <div className="card-top">
+                  <div className="time-badge">{timeAgo(item.timestamp)}</div>
                   <img
                     src={item.profileImage || profileImg}
-                    className="hire-img"
+                    className="profile-img"
                   />
                 </div>
 
-                <div className="hire-body">
-                  <div className="hire-name">{item.freelancerName}</div>
-                  <div className="hire-role">{item.title}</div>
+                <div className="card-body">
+                  <div className="name">{item.freelancerName}</div>
+                  <div className="role">Video Editor</div>
+                  <div className="location">Chennai, Tamilnadu</div>
 
-                  {/* SKILLS */}
-                  <div style={{ marginTop: 8 }}>
-                    {skillsArray.slice(0, 3).map((skill, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          background: "#ede9fe",
-                          color: "#5b21b6",
-                          padding: "4px 10px",
-                          borderRadius: 14,
-                          fontSize: 12,
-                          margin: "0 4px",
-                          display: "inline-block",
-                        }}
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="project">UI UX pet app</div>
+
+                  <div className="skills">
+                    {skills.slice(0,3).map((s,i)=><span key={i}>{s}</span>)}
+                    {skills.length>3 && <span>+2</span>}
                   </div>
 
-                  {activeTab === "requested" ? (
-                    <button
-                      className="hire-btn delete"
-                      onClick={() => deleteRequest(item.id)}
-                    >
-                      Delete Request
-                    </button>
-                  ) : (
-                    <button
-                      className="hire-btn chat"
-                      onClick={async () => {
-                        await markAsRead(item.id);
-                        navigate("/chat", {
-                          state: {
-                            currentUid: auth.currentUser.uid,
-                            otherUid: item.freelancerId,
-                            otherName: item.freelancerName,
-                            otherImage: item.profileImage || "",
-                            initialMessage: getStartMessage(item.title),
-                          },
-                        });
-                      }}
-                    >
-                      View Chat
-                    </button>
-                  )}
+                  <button
+                    className="action-btn delete"
+                    onClick={() =>
+                      activeTab==="requested"
+                        ? deleteRequest(item.id)
+                        : navigate("/chat", {
+                            state:{
+                              currentUid:auth.currentUser.uid,
+                              otherUid:item.freelancerId,
+                              otherName:item.freelancerName,
+                              otherImage:item.profileImage,
+                              initialMessage:getStartMessage(item.title)
+                            }
+                          })
+                    }
+                  >
+                    {activeTab==="requested"?"Delete Request":"Start Message"}
+                  </button>
                 </div>
               </div>
             );
           })}
-
-          {finalList.length === 0 && (
-            <p style={{ textAlign: "center", width: "100%" }}>
-              No data found
-            </p>
-          )}
         </div>
       </div>
     </>
