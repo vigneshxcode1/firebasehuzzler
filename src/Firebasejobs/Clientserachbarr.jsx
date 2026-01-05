@@ -1662,7 +1662,6 @@
 
 
 
-
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Categories from "../assets/categories1.png";
@@ -1724,9 +1723,7 @@ const categories = [
   "Personal Growth & Hobbies",
 ];
 
-// ======================================================
-// HELPERS
-// ======================================================
+
 function parseIntSafe(v) {
   if (v === undefined || v === null) return null;
   if (typeof v === "number") return Math.floor(v);
@@ -1977,7 +1974,7 @@ export default function ClientHomeUI() {
             <h1 id="fh-title" className="fh-title">
               Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
             </h1>
-            <div className="fh-subtitle">
+            <div id="fh-title" className="fh-subtitle">
               Discover projects that match your skills
             </div>
           </div>
@@ -2021,9 +2018,10 @@ export default function ClientHomeUI() {
 
           {/* SEARCH */}
           <div className="fh-search-row" ref={searchRef}>
-            <div className="fh-search fh-search-small">
+            <div id="fh-search" className="fh-search fh-search-small">
               <FiSearch className="search-icon" />
               <input
+              id="search-input"
                 className="search-input"
                 placeholder="Search"
                 value={searchText}
@@ -2044,7 +2042,7 @@ export default function ClientHomeUI() {
                   <div
                     className="autocomplete-item"
                     onMouseDown={(e) => {
-                      e.preventDefault();   // 🔥 prevents input blur
+                      e.preventDefault();  
                       setSearchText(s);
                       setSuggestions([]);
                     }}
@@ -2061,18 +2059,20 @@ export default function ClientHomeUI() {
 
 
 
-        {/* ================= MAIN ================= */}
+     
         <main className="fh-main">
-          {/* HERO */}
+     
           <section className="fh-hero">
+
             <div
+            id="fh-hero-card"
               className="fh-hero-card primary"
               onClick={() => navigate("/client-dashbroad2/clientcategories")}
             >
-              <img src={browseImg1} className="hero-img img-1" />
+              <img src={browseImg1} id="hero-img" className="hero-img img-1" />
               <img src={browseImg2} className="hero-img img-2" />
-              <div>
-                <h3>Browse All Projects</h3>
+              <div id="browertitle">
+                <h3>Browse Freelancer</h3>
                 <p>Explore verified professionals</p>
               </div>
               <div className="hero-right">
@@ -2084,9 +2084,9 @@ export default function ClientHomeUI() {
               className="fh-hero-card secondary"
               onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
             >
-              <img src={worksImg1} className="hero-img img-3" />
+              <img src={worksImg1} id="hero-img" className="hero-img img-3" />
               <img src={worksImg2} className="hero-img img-4" />
-              <div>
+            <div id="browertitle">
                 <h4>Job proposal</h4>
                 <p>Find the right freelancers</p>
               </div>
@@ -2094,9 +2094,11 @@ export default function ClientHomeUI() {
                 <img src={arrow} className="arrow" width={25} />
               </div>
             </div>
+
+
           </section>
 
-          {/* ================= CATEGORY SCROLL ================= */}
+         
           <section className="category-scroll-wrapper">
             {categories.map((cat, i) => (
               <div
@@ -2121,7 +2123,7 @@ export default function ClientHomeUI() {
 
 
 
-          {/* ================= JOB LIST ================= */}
+     
           <section className="fh-section">
             <div className="section-header">
               <h2 style={{ color: "#000" }}>Based On Your Industry, Here are profile to explore </h2>
@@ -2280,7 +2282,7 @@ export default function ClientHomeUI() {
         </div>
       )}
 
-      {/* ================= CATEGORY CSS ================= */}
+   
       <style>{`
 /* ================= CATEGORY SCROLL ================= */
 :root {

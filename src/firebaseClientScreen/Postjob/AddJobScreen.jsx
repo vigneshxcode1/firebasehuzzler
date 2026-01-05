@@ -1950,7 +1950,7 @@ const handleOpenJobDetail = (job) => {
     <div
       className="freelance-wrapper"
       style={{
-        marginLeft: isMobile ? 0 : collapsed ? "-510px" : "-60px",
+        marginLeft: isMobile ? 0 : collapsed ? "-440px" : "-310px",
         transition: "margin-left 0.25s ease",
         width: "100%",
       }}

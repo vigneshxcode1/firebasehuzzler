@@ -1,8 +1,54 @@
 
-
 @media (max-width: 769px) {
 #fh-containers{
 margin-top:-70px ;
 }
 
+
+}
+
+
+#fh-search {
+
+width: 90%;
+margin-right:200px ;
+margin-left: 14px;
+}
+
+#search-input{
+width: 90%;
+
+display: block;
+}
+
+
+#fh-hero-card{
+padding: 20px;
+height: 400%;
+display: flex;
+
+}
+
+#browertitle{
+
+margin-top: 40px;
+font-weight: 300;
+font-size: 18px;
+}
+
+
+#browertitle h3{
+
+margin-top: 40px;
+font-weight: 400;
+margin-top: 40px;
+}
+
+
+#hero-img{
+    
+}
+
+#fh-title{
+    margin-left: 15px;
 }

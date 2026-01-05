@@ -1906,7 +1906,7 @@ export default function ClientProfileMenuScreen() {
           <MenuItem title="Profile Summary" icon={profilePlaceholder} onClick={() => navigate("/client-dashbroad2/companyprofileview")} />
           <MenuItem title="Saved" icon={saved} onClick={() => navigate("/client-dashbroad2/saved")} />
           <MenuItem title="Job Posted" icon={jobposted} onClick={() => navigate("/client-dashbroad2/PostJob")} />
-          <MenuItem title="Hiring" icon={hiring} onClick={() => navigate("/my-hires")} />
+          <MenuItem title="Hiring" icon={hiring} onClick={() => navigate("/client-dashbroad2/my-hires")} />
           <MenuItem title="Paused Service" icon={paused2} onClick={() => navigate("/client-dashbroad2/clientpausedjobs")} />
           <MenuItem title="Invite Friends" icon={invitefriends} />
           <MenuItem title="Blocked" icon={blocked} onClick={() => navigate("/client-dashbroad2/clientBlock")} />
@@ -1915,7 +1915,7 @@ export default function ClientProfileMenuScreen() {
         {/* SUPPORT */}
         <div style={styles.section}>
           <h3 style={styles.sectionTitle}>Support</h3>
-          <MenuItem title="Notifications" icon={notification} onClick={() => navigate("/client-dashbroad2/helpcenter1")} />
+          <MenuItem title="Notifications" icon={notification} onClick={() => navigate("")} />
           <MenuItem title="Account Settings" icon={settings} onClick={() => navigate("/client-dashbroad2/companyprofileview")} />
           <MenuItem title="Help Center" icon={helpcenter} onClick={() => navigate("/client-dashbroad2/helpcenter")} />
           <MenuItem title="Terms of Service" icon={helpcenter} onClick={() => navigate("/termsofservice")} />
