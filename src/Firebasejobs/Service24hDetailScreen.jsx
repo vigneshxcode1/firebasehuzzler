@@ -1140,7 +1140,7 @@
 //   };
 // }, [id]);
 
-  
+
 
 //   console.log("notifiaction :", notification)
 
@@ -1460,14 +1460,24 @@ export default function Service24hPage() {
 
     const merge = () => {
       const map = new Map();
-      [...a, ...b].forEach(n => map.set(n.id, n));
+      [...clientData, ...freelancerData].forEach(n => map.set(n.id, n));
       setNotifications([...map.values()]);
     };
 
-    const u1 = onSnapshot(q1, s => { a = s.docs.map(d => ({ id: d.id, ...d.data() })); merge(); });
-    const u2 = onSnapshot(q2, s => { b = s.docs.map(d => ({ id: d.id, ...d.data() })); merge(); });
+    const u1 = onSnapshot(q1, s => {
+      clientData = s.docs.map(d => ({ id: d.id, ...d.data() }));
+      merge();
+    });
 
-    return () => { u1(); u2(); };
+    const u2 = onSnapshot(q2, s => {
+      freelancerData = s.docs.map(d => ({ id: d.id, ...d.data() }));
+      merge();
+    });
+
+    return () => {
+      u1();
+      u2();
+    };
   }, []);
 
   if (!job) return <div style={{ padding: 40 }}>Loading…</div>;
@@ -1477,7 +1487,7 @@ export default function Service24hPage() {
     n =>
       n.serviceId === id &&
       (n.clientUid === auth.currentUser?.uid ||
-       n.freelancerId === auth.currentUser?.uid)
+        n.freelancerId === auth.currentUser?.uid)
   );
 
   /* ======================= ACTIONS ======================= */
@@ -1536,8 +1546,12 @@ export default function Service24hPage() {
           <div className="range">₹{job.budget_from} - ₹{job.budget_to}</div>
           <div className="sub-text">Timeline: 24 Hours</div>
         </div>
-        <button className="view-btn" onClick={() => navigate(`/connect/${job.userId}`)}>
-          View Profile..
+        <button
+          className="view-btn"
+          onClick={() =>
+            navigate(`/client-dashbroad2/freelancerblockSreen/${job.freelancerId || job.userId}`)
+          }
+        >          View Profile.
         </button>
       </div>
 

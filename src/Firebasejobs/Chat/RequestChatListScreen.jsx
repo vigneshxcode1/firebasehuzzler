@@ -1629,6 +1629,7 @@ export default function FreelancerRequestsAndChats() {
               alt="profile"
               style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }}
             />
+            
             <h4 style={{ margin: 0 }}>{chat.clientName}</h4>
           </div>
           <p style={{ color: "#444", marginTop: 8 }}>

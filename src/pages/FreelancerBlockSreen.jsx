@@ -2557,8 +2557,6 @@
 
 
 
-
-
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -2574,7 +2572,7 @@ import {
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../firbase/Firebase";
 import { FiTrash2 } from "react-icons/fi";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Flag, Share2 } from "lucide-react";
 import ReportBlockPopup from "./BlockPopup.jsx";
 
 export default function FreelancerFullDetailScreen() {
@@ -2673,7 +2671,22 @@ export default function FreelancerFullDetailScreen() {
   );
 
   if (loadingProfile || !profile) return null;
+  /* ================= SHARE PROFILE ================= */
+  const handleShare = () => {
+    const shareText = `Check out ${profile?.first_name} ${profile?.last_name}'s professional profile`;
+    const shareUrl = profile?.linkedin || window.location.href;
 
+    if (navigator.share) {
+      navigator.share({
+        title: 'Professional Profile',
+        text: shareText,
+        url: shareUrl,
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      showToast('Link copied to clipboard!', 'success');
+    }
+  };
   return (
     <div style={{ background: "#F6F6F6", minHeight: "100vh", paddingBottom: 40 }}>
       {/* ================= PROFILE SUMMARY ================= */}
@@ -2691,21 +2704,20 @@ export default function FreelancerFullDetailScreen() {
               <div style={styles.menuDropdown}>
                 <div
                   style={styles.menuItem}
-                  onClick={() => {
-                    setShowMenu(false);
-                    setShowBlockPopup(true);
-                  }}
+
+                  onClick={handleShare}
+
                 >
-                  Report
+                  <Share2 size={16} /> Share profile
                 </div>
                 <div
-                  style={{ ...styles.menuItem, color: "#ef4444" }}
+                  style={{ ...styles.menuItem, }}
                   onClick={() => {
                     setShowMenu(false);
                     setShowBlockPopup(true);
                   }}
                 >
-                  Block
+                  <Flag size={16} />Report/Block
                 </div>
               </div>
             )}
@@ -2800,47 +2812,47 @@ export default function FreelancerFullDetailScreen() {
           </button>
         </div>
 
-       {jobs.map((job) => (
-  <div key={job.id} style={styles.jobCard}>
-    <div>
-      <h4 style={{ marginBottom: 8 }}>{job.title}</h4>
-      <p style={{ marginBottom: 12, color: "#555" }}>{job.description}</p>
-    </div>
-    {currentUser?.uid === userId && (
-      <button
-        onClick={() => togglePause(job)}
-        style={{
-          ...styles.pauseBtn,
-          backgroundColor: job.paused ? "#ef4444" : "#34d399",
-        }}
-      >
-        {job.paused ? "Unpause" : "Pause"}
-      </button>
-    )}
-  </div>
-))}
+        {jobs.map((job) => (
+          <div key={job.id} style={styles.jobCard}>
+            <div>
+              <h4 style={{ marginBottom: 8 }}>{job.title}</h4>
+              <p style={{ marginBottom: 12, color: "#555" }}>{job.description}</p>
+            </div>
+            {currentUser?.uid === userId && (
+              <button
+                onClick={() => togglePause(job)}
+                style={{
+                  ...styles.pauseBtn,
+                  backgroundColor: job.paused ? "#ef4444" : "#34d399",
+                }}
+              >
+                {job.paused ? "Unpause" : "Pause"}
+              </button>
+            )}
+          </div>
+        ))}
 
       </div>
 
-     {showBlockPopup && (
-  <>
-    {/* Overlay behind popup */}
-    <div
-      style={styles.popupOverlay}
-      onClick={() => setShowBlockPopup(false)}
-    />
+      {showBlockPopup && (
+        <>
+          {/* Overlay behind popup */}
+          <div
+            style={styles.popupOverlay}
+            onClick={() => setShowBlockPopup(false)}
+          />
 
-    {/* Centered popup container */}
-    <div style={styles.popupCentered}>
-      <ReportBlockPopup
-        freelancerId={userId}
-        freelancerName={fullName}
-        onClose={() => setShowBlockPopup(false)}
-      />
-    </div>
-  </>
-)}
- {showBlockPopup && (
+          {/* Centered popup container */}
+          <div style={styles.popupCentered}>
+            <ReportBlockPopup
+              freelancerId={userId}
+              freelancerName={fullName}
+              onClose={() => setShowBlockPopup(false)}
+            />
+          </div>
+        </>
+      )}
+      {showBlockPopup && (
         <ReportBlockPopup
           freelancerId={userId}
           freelancerName={fullName}
@@ -2881,6 +2893,7 @@ const styles = {
     position: "absolute",
     top: 16,
     right: 16,
+  
   },
   menuBtn: {
     border: "none",
@@ -2892,17 +2905,26 @@ const styles = {
   },
   menuDropdown: {
     position: "absolute",
-    right: 0,
-    top: 42,
+    right: 10,
+    top: 50,
     background: "#fff",
     borderRadius: 12,
     boxShadow: "0 10px 30px rgba(0,0,0,.15)",
+
+
   },
+
   menuItem: {
-    padding: "12px 18px",
+
+    display: "flex",
+    gap: 12,
+    alignItems: "center",
+    padding: "14px 16px",
     cursor: "pointer",
-    fontWeight: 600,
+    borderBottom: "1px solid #eee",           // ✅ space between icon & text
   },
+
+
   linksRow: {
     display: "flex",
     gap: 12,

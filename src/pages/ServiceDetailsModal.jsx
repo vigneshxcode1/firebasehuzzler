@@ -2239,235 +2239,6 @@
 
 
 
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-
-// import { db, auth } from "../firbase/Firebase";
-// import { FiBookmark, FiX } from "react-icons/fi";
-// import share from "../assets/share.png";
-// import ConnectPopup from "../Firebasejobs/Connectpop/Connectpop";
-
-// import {
-//   collection,
-//   query,
-//   where,
-//   orderBy,
-//   onSnapshot,
-//   getDocs,
-//   doc,
-//   getDoc,
-//   updateDoc,
-//   arrayUnion,
-// } from "firebase/firestore";
-
-// const css = `
-// *{font-family:'Inter', sans-serif;}
-// .page-wrap{max-width:1100px;margin:30px auto;background:#fff;border-radius:18px;box-shadow:0 8px 26px rgba(0,0,0,0.08);}
-// .top-header{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;}
-// .top-left-title{font-size:22px;font-weight:700;}
-// .top-icons{display:flex;gap:16px;font-size:20px;}
-// .profile-box{padding:20px 24px;display:flex;gap:18px;}
-// .profile-circle{width:58px;height:58px;border-radius:16px;background:#7A4DFF;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;}
-// .profile-info .name{font-size:36px;}
-// .profile-info .role{font-size:20px;color:#7C3CFF;}
-// .meta-row{padding:10px 24px;color:#555;}
-// .money-box{padding:20px 24px;display:flex;justify-content:space-between;}
-// .range{font-size:22px;font-weight:700;}
-// .view-btn{background:#7A4DFF;color:#fff;border:none;padding:12px 28px;border-radius:12px;}
-// .skill-title,.desc-title{padding:10px 24px;font-size:20px;font-weight:700;}
-// .skills-box{padding:8px 24px;display:flex;flex-wrap:wrap;gap:10px;}
-// .skill-chip{background:#FFEB99;padding:8px 14px;border-radius:10px;}
-// .desc-text{padding:10px 24px 20px;color:#444;}
-// .footer-actions{padding:18px 24px;border-top:1px solid #eee;display:flex;gap:14px;}
-// .cancel-btn,.connect-btn{flex:1;padding:14px;border-radius:12px;font-size:16px;font-weight:700;}
-// .cancel-btn{border:2px solid #A58BFF;background:#fff;color:#7A4DFF;}
-// .connect-btn{border:none;background:#A258FF;color:#fff;}
-// `;
-
-// export default function ServicePage() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-
-//   const [job, setJob] = useState(null);
-//   const [clientServices, setClientServices] = useState([]);
-//   const [connectOpen, setConnectOpen] = useState(false);
-//   const [notifications, setNotifications] = useState([]);
-
-//   /* ---------- LOAD NOTIFICATIONS (REALTIME) ---------- */
-//   useEffect(() => {
-//     if (!auth.currentUser) return;
-//     const uid = auth.currentUser.uid;
-
-//     const q1 = query(
-//       collection(db, "notifications"),
-//       where("clientUid", "==", uid),
-//       orderBy("timestamp", "desc")
-//     );
-
-//     const q2 = query(
-//       collection(db, "notifications"),
-//       where("freelancerId", "==", uid),
-//       orderBy("timestamp", "desc")
-//     );
-
-//     let clientData = [];
-//     let freelancerData = [];
-
-//     const merge = () => {
-//       const map = new Map();
-//       [...clientData, ...freelancerData].forEach(n => map.set(n.id, n));
-//       setNotifications([...map.values()]);
-//     };
-
-//     const u1 = onSnapshot(q1, s => {
-//       clientData = s.docs.map(d => ({ id: d.id, ...d.data() }));
-//       merge();
-//     });
-
-//     const u2 = onSnapshot(q2, s => {
-//       freelancerData = s.docs.map(d => ({ id: d.id, ...d.data() }));
-//       merge();
-//     });
-
-//     return () => {
-//       u1();
-//       u2();
-//     };
-//   }, []);
-
-//   /* ---------- LOAD CLIENT SERVICES ---------- */
-//   useEffect(() => {
-//     if (!auth.currentUser) return;
-
-//     getDocs(
-//       query(collection(db, "services"), where("userId", "==", auth.currentUser.uid))
-//     ).then(snap =>
-//       setClientServices(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-//     );
-//   }, []);
-
-//   /* ---------- STYLE ---------- */
-//   useEffect(() => {
-//     const s = document.createElement("style");
-//     s.innerHTML = css;
-//     document.head.appendChild(s);
-//     return () => s.remove();
-//   }, []);
-
-//   /* ---------- LOAD JOB ---------- */
-//   useEffect(() => {
-//     if (!id) return;
-//     getDoc(doc(db, "services", id)).then(snap => {
-//       if (snap.exists()) setJob({ ...snap.data(), _id: snap.id });
-//     });
-//   }, [id]);
-
-//   if (!job) return <div style={{ padding: 40 }}>Loading…</div>;
-
-//   /* ---------- CURRENT NOTIFICATION ---------- */
-//   const currentNotification = notifications.find(
-//     n => n.freelancerId === (job.freelancerId || job.userId)
-//   );
-
-//   return (
-//     <div className="page-wrap">
-//       <div className="top-header">
-//         <div className="top-left-title">Project Details</div>
-//         <div className="top-icons">
-//           <FiBookmark />
-//           <img src={share} width={18} alt="share" />
-//           <FiX onClick={() => navigate(-1)} />
-//         </div>
-//       </div>
-
-//       <div className="profile-box">
-//         <div className="profile-circle">{job.title?.slice(0, 2)}</div>
-//         <div className="profile-info">
-//           <div className="name">{job.title}</div>
-//           <div className="role">{job.category}</div>
-//         </div>
-//       </div>
-
-//       <div className="money-box">
-//         <div>
-//           <div className="range">₹{job.budget_from} - ₹{job.budget_to}</div>
-//           <div>Timeline: {job.deliveryDuration}</div>
-//         </div>
-//         <button
-//           className="view-btn"
-//           onClick={() =>
-//             navigate(`/freelancerblockSreen/${job.freelancerId || job.userId}`)
-//           }
-//         >
-//           View Profile
-//         </button>
-
-//       </div>
-
-//       <div className="skill-title">Skills Required</div>
-//       <div className="skills-box">
-//         {(job.skills || []).map((s, i) => (
-//           <div key={i} className="skill-chip">{s}</div>
-//         ))}
-//       </div>
-
-//       <div className="desc-title">Project Description</div>
-//       <div className="desc-text">{job.description}</div>
-
-//       <div className="footer-actions">
-//         <button className="cancel-btn" onClick={() => navigate(-1)}>
-//           Cancel
-//         </button>
-
-
-//         {currentNotification ? (
-//           currentNotification.read ? (
-//             <button
-//               className="connect-btn"
-//               style={{ background: "#7C3CFF" }}
-//               onClick={() =>
-//                 navigate("/chat", {
-//                   state: {
-//                     currentUid: auth.currentUser.uid,
-//                     otherUid: currentNotification.freelancerId,
-//                     otherName: job.title,
-//                     otherImage: job.profileImage || "",
-//                     initialMessage: "Hi, I would like to discuss this project",
-//                   },
-//                 })
-//               }
-//             >
-//               Start Message
-//             </button>
-
-//           ) : (
-//             <button className="connect-btn" disabled style={{ background: "#BDBDBD" }}>
-//               Request Sent
-//             </button>
-//           )
-//         ) : (
-//           <button className="connect-btn" onClick={() => setConnectOpen(true)}>
-//             Hire Now
-//           </button>
-//         )}
-//       </div>
-
-//       <ConnectPopup
-//         open={connectOpen}
-//         onClose={() => setConnectOpen(false)}
-//         freelancerId={job.freelancerId || job.userId}
-//         freelancerName={job.title}
-//         services={clientServices}
-//       />
-//     </div>
-//   );
-// }
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -2488,9 +2259,6 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
-
-
-import "./serviceDetailsModel.css"
 
 const css = `
 *{font-family:'Inter', sans-serif;}
@@ -2525,25 +2293,7 @@ export default function ServicePage() {
   const [connectOpen, setConnectOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-
-
-  const initialMessage = job                  
-    ? `HUZZLER_JOB_DATA:${JSON.stringify({
-      id: job._id,
-      title: job.title,
-      category: job.category,
-      budget_from: job.budget_from,
-      budget_to: job.budget_to,
-      deliveryDuration: job.deliveryDuration,
-      skills: job.skills || [],
-      description: job.description,
-      clientId: auth.currentUser?.uid,
-      freelancerId: job.freelancerId || job.userId,
-    })}`
-    : "";
-
-
-
+  /* ---------- LOAD NOTIFICATIONS (REALTIME) ---------- */
   useEffect(() => {
     if (!auth.currentUser) return;
     const uid = auth.currentUser.uid;
@@ -2585,7 +2335,7 @@ export default function ServicePage() {
     };
   }, []);
 
-
+  /* ---------- LOAD CLIENT SERVICES ---------- */
   useEffect(() => {
     if (!auth.currentUser) return;
 
@@ -2640,12 +2390,18 @@ export default function ServicePage() {
 
       <div className="money-box">
         <div>
-          <div className="range">₹{job.budget_from} - {job.budget_to}</div>
+          <div className="range">₹{job.budget_from} - ₹{job.budget_to}</div>
           <div>Timeline: {job.deliveryDuration}</div>
         </div>
-        <button className="view-btn" onClick={() => navigate(`/connect/${job.userId}`)}>
+        <button
+          className="view-btn"
+          onClick={() =>
+            navigate(`/client-dashbroad2/freelancerblockSreen/${job.freelancerId || job.userId}`)
+          }
+        >
           View Profile
         </button>
+
       </div>
 
       <div className="skill-title">Skills Required</div>
@@ -2668,7 +2424,7 @@ export default function ServicePage() {
           currentNotification.read ? (
             <button
               className="connect-btn"
-              style={{ background: "#4CAF50" }}
+              style={{ background: "#7C3CFF" }}
               onClick={() =>
                 navigate("/chat", {
                   state: {
@@ -2676,14 +2432,13 @@ export default function ServicePage() {
                     otherUid: currentNotification.freelancerId,
                     otherName: job.title,
                     otherImage: job.profileImage || "",
-                    initialMessage, 
+                    initialMessage: "Hi, I would like to discuss this project",
                   },
                 })
               }
             >
               Start Message
             </button>
-
 
           ) : (
             <button className="connect-btn" disabled style={{ background: "#BDBDBD" }}>
@@ -2692,7 +2447,7 @@ export default function ServicePage() {
           )
         ) : (
           <button className="connect-btn" onClick={() => setConnectOpen(true)}>
-            Hire now
+            Hire Now
           </button>
         )}
       </div>
@@ -2707,4 +2462,251 @@ export default function ServicePage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+
+// import { db, auth } from "../firbase/Firebase";
+// import { FiBookmark, FiX } from "react-icons/fi";
+// import share from "../assets/share.png";
+// import ConnectPopup from "../Firebasejobs/Connectpop/Connectpop";
+
+// import {
+//   collection,
+//   query,
+//   where,
+//   orderBy,
+//   onSnapshot,
+//   getDocs,
+//   doc,
+//   getDoc,
+//   updateDoc,
+//   arrayUnion,
+// } from "firebase/firestore";
+
+
+// import "./serviceDetailsModel.css"
+
+// const css = `
+// *{font-family:'Inter', sans-serif;}
+// .page-wrap{max-width:1100px;margin:30px auto;background:#fff;border-radius:18px;box-shadow:0 8px 26px rgba(0,0,0,0.08);}
+// .top-header{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;}
+// .top-left-title{font-size:22px;font-weight:700;}
+// .top-icons{display:flex;gap:16px;font-size:20px;}
+// .profile-box{padding:20px 24px;display:flex;gap:18px;}
+// .profile-circle{width:58px;height:58px;border-radius:16px;background:#7A4DFF;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;}
+// .profile-info .name{font-size:36px;}
+// .profile-info .role{font-size:20px;color:#7C3CFF;}
+// .meta-row{padding:10px 24px;color:#555;}
+// .money-box{padding:20px 24px;display:flex;justify-content:space-between;}
+// .range{font-size:22px;font-weight:700;}
+// .view-btn{background:#7A4DFF;color:#fff;border:none;padding:12px 28px;border-radius:12px;}
+// .skill-title,.desc-title{padding:10px 24px;font-size:20px;font-weight:700;}
+// .skills-box{padding:8px 24px;display:flex;flex-wrap:wrap;gap:10px;}
+// .skill-chip{background:#FFEB99;padding:8px 14px;border-radius:10px;}
+// .desc-text{padding:10px 24px 20px;color:#444;}
+// .footer-actions{padding:18px 24px;border-top:1px solid #eee;display:flex;gap:14px;}
+// .cancel-btn,.connect-btn{flex:1;padding:14px;border-radius:12px;font-size:16px;font-weight:700;}
+// .cancel-btn{border:2px solid #A58BFF;background:#fff;color:#7A4DFF;}
+// .connect-btn{border:none;background:#A258FF;color:#fff;}
+// `;
+
+// export default function ServicePage() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [job, setJob] = useState(null);
+//   const [clientServices, setClientServices] = useState([]);
+//   const [connectOpen, setConnectOpen] = useState(false);
+//   const [notifications, setNotifications] = useState([]);
+
+
+
+//   const initialMessage = job                  
+//     ? `HUZZLER_JOB_DATA:${JSON.stringify({
+//       id: job._id,
+//       title: job.title,
+//       category: job.category,
+//       budget_from: job.budget_from,
+//       budget_to: job.budget_to,
+//       deliveryDuration: job.deliveryDuration,
+//       skills: job.skills || [],
+//       description: job.description,
+//       clientId: auth.currentUser?.uid,
+//       freelancerId: job.freelancerId || job.userId,
+//     })}`
+//     : "";
+
+
+
+//   useEffect(() => {
+//     if (!auth.currentUser) return;
+//     const uid = auth.currentUser.uid;
+
+//     const q1 = query(
+//       collection(db, "notifications"),
+//       where("clientUid", "==", uid),
+//       orderBy("timestamp", "desc")
+//     );
+
+//     const q2 = query(
+//       collection(db, "notifications"),
+//       where("freelancerId", "==", uid),
+//       orderBy("timestamp", "desc")
+//     );
+
+//     let clientData = [];
+//     let freelancerData = [];
+
+//     const merge = () => {
+//       const map = new Map();
+//       [...clientData, ...freelancerData].forEach(n => map.set(n.id, n));
+//       setNotifications([...map.values()]);
+//     };
+
+//     const u1 = onSnapshot(q1, s => {
+//       clientData = s.docs.map(d => ({ id: d.id, ...d.data() }));
+//       merge();
+//     });
+
+//     const u2 = onSnapshot(q2, s => {
+//       freelancerData = s.docs.map(d => ({ id: d.id, ...d.data() }));
+//       merge();
+//     });
+
+//     return () => {
+//       u1();
+//       u2();
+//     };
+//   }, []);
+
+
+//   useEffect(() => {
+//     if (!auth.currentUser) return;
+
+//     getDocs(
+//       query(collection(db, "services"), where("userId", "==", auth.currentUser.uid))
+//     ).then(snap =>
+//       setClientServices(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+//     );
+//   }, []);
+
+//   /* ---------- STYLE ---------- */
+//   useEffect(() => {
+//     const s = document.createElement("style");
+//     s.innerHTML = css;
+//     document.head.appendChild(s);
+//     return () => s.remove();
+//   }, []);
+
+//   /* ---------- LOAD JOB ---------- */
+//   useEffect(() => {
+//     if (!id) return;
+//     getDoc(doc(db, "services", id)).then(snap => {
+//       if (snap.exists()) setJob({ ...snap.data(), _id: snap.id });
+//     });
+//   }, [id]);
+
+//   if (!job) return <div style={{ padding: 40 }}>Loading…</div>;
+
+//   /* ---------- CURRENT NOTIFICATION ---------- */
+//   const currentNotification = notifications.find(
+//     n => n.freelancerId === (job.freelancerId || job.userId)
+//   );
+
+//   return (
+//     <div className="page-wrap">
+//       <div className="top-header">
+//         <div className="top-left-title">Project Details</div>
+//         <div className="top-icons">
+//           <FiBookmark />
+//           <img src={share} width={18} alt="share" />
+//           <FiX onClick={() => navigate(-1)} />
+//         </div>
+//       </div>
+
+//       <div className="profile-box">
+//         <div className="profile-circle">{job.title?.slice(0, 2)}</div>
+//         <div className="profile-info">
+//           <div className="name">{job.title}</div>
+//           <div className="role">{job.category}</div>
+//         </div>
+//       </div>
+
+//       <div className="money-box">
+//         <div>
+//           <div className="range">₹{job.budget_from} - {job.budget_to}</div>
+//           <div>Timeline: {job.deliveryDuration}</div>
+//         </div>
+//         <button className="view-btn" onClick={() => navigate(`/connect/${job.userId}`)}>
+//           View Profile
+//         </button>
+//       </div>
+
+//       <div className="skill-title">Skills Required</div>
+//       <div className="skills-box">
+//         {(job.skills || []).map((s, i) => (
+//           <div key={i} className="skill-chip">{s}</div>
+//         ))}
+//       </div>
+
+//       <div className="desc-title">Project Description</div>
+//       <div className="desc-text">{job.description}</div>
+
+//       <div className="footer-actions">
+//         <button className="cancel-btn" onClick={() => navigate(-1)}>
+//           Cancel
+//         </button>
+
+
+//         {currentNotification ? (
+//           currentNotification.read ? (
+//             <button
+//               className="connect-btn"
+//               style={{ background: "#4CAF50" }}
+//               onClick={() =>
+//                 navigate("/chat", {
+//                   state: {
+//                     currentUid: auth.currentUser.uid,
+//                     otherUid: currentNotification.freelancerId,
+//                     otherName: job.title,
+//                     otherImage: job.profileImage || "",
+//                     initialMessage, 
+//                   },
+//                 })
+//               }
+//             >
+//               Start Message
+//             </button>
+
+
+//           ) : (
+//             <button className="connect-btn" disabled style={{ background: "#BDBDBD" }}>
+//               Request Sent
+//             </button>
+//           )
+//         ) : (
+//           <button className="connect-btn" onClick={() => setConnectOpen(true)}>
+//             Hire now
+//           </button>
+//         )}
+//       </div>
+
+//       <ConnectPopup
+//         open={connectOpen}
+//         onClose={() => setConnectOpen(false)}
+//         freelancerId={job.freelancerId || job.userId}
+//         freelancerName={job.title}
+//         services={clientServices}
+//       />
+//     </div>
+//   );
+// }
 

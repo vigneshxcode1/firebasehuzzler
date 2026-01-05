@@ -3078,12 +3078,14 @@ import {
 
 import { v4 as uuidv4 } from "uuid";
 import search1 from "../../assets/search.png";
+import backarrow from "../../assets/backarrow.png";
 
 // ---------------- CSS INJECTION (NEW UI) ----------------
 const css = `
 .chatlist-page {
   min-height: 100vh;
   width: 100vw;
+  margin-left:10px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -3095,7 +3097,7 @@ const css = `
 
 /* Wrapper that holds header + search + white card */
 .chatlist-shell {
-  width: 420px;
+  width: 920px;
   max-width: 100%;
 }
 
@@ -3456,7 +3458,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
   // ⭐ 1️⃣ SIDEBAR COLLAPSED STATE (NEW)
   const [collapsed, setCollapsed] = useState(
     typeof window !== "undefined" &&
-      localStorage.getItem("sidebar-collapsed") === "true"
+    localStorage.getItem("sidebar-collapsed") === "true"
   );
 
   const [userRole, setUserRole] = useState("");
@@ -3648,9 +3650,8 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
     const q = search.trim().toLowerCase();
 
     return list.filter((i) => {
-      const full = `${i.userData.firstName || ""} ${
-        i.userData.lastName || ""
-      }`
+      const full = `${i.userData.firstName || ""} ${i.userData.lastName || ""
+        }`
         .trim()
         .toLowerCase();
       return full.includes(q);
@@ -3717,7 +3718,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
     return (
       <div
         style={{
-          marginLeft: collapsed ? "-110px" : "50px",
+          marginLeft: collapsed ? "-110px" : "-10px",
           transition: "margin-left 0.25s ease",
         }}
       >
@@ -3762,7 +3763,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
   return (
     <div
       style={{
-        marginLeft: collapsed ? "-110px" : "50px",
+        marginLeft: collapsed ? "-110px" : "-10x",
         transition: "margin-left 0.25s ease",
       }}
     >
@@ -3802,15 +3803,38 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
         <div className="chatlist-shell">
           {/* Header on gradient */}
           <div className="chatlist-header">
-            <button
-              className="chatlist-back-btn"
-              onClick={() => navigate(-1)}
-            >
-              <span className="chatlist-back-icon" />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, }}>
+              <div
+                onClick={() => navigate(-1)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 14,
+                  border: "0.8px solid #E0E0E0",
+                  backgroundColor: "#FFFFFF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+                  flexShrink: 0,
+
+                }}
+              >
+                <img
+                  src={backarrow}
+                  alt="Back"
+                  style={{
+                    width: 16,
+                    height: 18,
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            </div>
 
             <div className="chatlist-title-wrapper">
-              <div className="chatlist-title">Message</div>
+              <div className="chatlist-title">Message...</div>
             </div>
           </div>
 
@@ -3847,7 +3871,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
                     navigate("/request-chats", { state: { currentUid } })
                   }
                 >
-                  Request
+
                   {requestCount > 0 && (
                     <span className="chatlist-request-badge">
                       ({requestCount})
@@ -3868,9 +3892,8 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
                 <div className="chatlist-empty-inner">No messages</div>
               ) : (
                 list.map(({ chat, userData }) => {
-                  const name = `${userData.firstName || ""} ${
-                    userData.lastName || ""
-                  }`.trim();
+                  const name = `${userData.firstName || ""} ${userData.lastName || ""
+                    }`.trim();
                   const imageUrl = userData.profileImage || "";
                   const time = formatTimeLabel(chat.lastMessageTime);
 
@@ -3928,15 +3951,9 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
                           </div>
                           <div className="chatlist-time">{time}</div>
                         </div>
-                        <div className="chatlist-lastmsg">
-                          {chat.lastMessage || "No messages yet"}
-                        </div>
+
                       </div>
 
-                      <div className="chatlist-right-col">
-                        <div className="chatlist-role">Agents</div>
-                        <div className="chatlist-tick-icon">✓✓</div>
-                      </div>
                     </div>
                   );
                 })

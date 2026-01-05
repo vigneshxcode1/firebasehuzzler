@@ -178,7 +178,7 @@ export default function App() {
 
   const { id } = useParams();
 
- // ✅ SCROLL TO TOP ON EVERY ROUTE CHANGE
+  // ✅ SCROLL TO TOP ON EVERY ROUTE CHANGE
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -233,7 +233,7 @@ export default function App() {
         <Route path="add-24hours" element={<Add24HoursScreen />} />
         {/* 
         <Route path="saved" element={<SaveJobButton/>}/> */}
-        
+
 
         <Route path="saved" element={<Clientsavedjob />} />
 
@@ -272,8 +272,13 @@ export default function App() {
         <Route path="messages" element={<Message />} />
         <Route path="helpcenter" element={<HelpCenter />} />
         <Route path="helpcenter1" element={<ClientHelpCenter1 />} />
+        
+        <Route
+          path="freelancerblockSreen/:userId"
+          element={<FreelancerBlockSreen />}
+        />
 
-
+        
       </Route>
 
 
@@ -327,11 +332,13 @@ export default function App() {
 
         <Route path="paused-services" element={<FreelancerPausedpage />} />
         <Route path="blocked" element={<Blocked />} />
+     <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
 
 
 
 
-        <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
+
+        {/* <Route path="freelancermessages" element={<FreelancerAcceptedChats />} /> */}
         <Route path="helpcenter" element={<HelpCenter />} />
 
 
@@ -364,10 +371,7 @@ export default function App() {
       <Route path="/clientservicelistpage" element={<ClientServiceListPage />} />
       <Route path="/serviceDetailsModel/:id" element={<ServiceDetailsModal />} />
 
-      <Route
-        path="/freelancerblockSreen/:userId"
-        element={<FreelancerBlockSreen />}
-      />
+
 
 
       <Route path="/myjobs" element={<MyJobs />} />

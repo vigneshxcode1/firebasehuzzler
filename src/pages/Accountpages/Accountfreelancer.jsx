@@ -946,13 +946,11 @@
 // };
 
 
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc, updateDoc, getFirestore, deleteDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // assets
@@ -970,6 +968,12 @@ import logoutIcon from "../../assets/icons/logout.png";
 import MyJobs from "../../assets/icons/myjobs.png";
 import Logout from "../../assets/icons/logout.png";
 import blocked from "../../assets/blocked.png";
+
+import { deleteUser } from "firebase/auth";
+
+import { deleteObject } from "firebase/storage";
+
+
 
 
 export default function ClientProfileMenuScreen() {
@@ -1047,6 +1051,48 @@ export default function ClientProfileMenuScreen() {
     navigate("/firelogin");
   };
 
+ const handleDeleteAccount = async () => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to permanently delete your account?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const uid = currentUser.uid;
+
+    // 🗑 Delete profile image (optional)
+    try {
+      const imageRef = ref(storage, `users/${uid}/profile.jpg`);
+      await deleteObject(imageRef);
+    } catch (e) {
+      // ignore if image does not exist
+    }
+
+    // 🗑 Delete Firestore user document
+    await deleteDoc(doc(db, "users", uid));
+
+    // 🗑 Delete Firebase Authentication user
+    await deleteUser(currentUser);
+
+    alert("Your account has been deleted successfully.");
+    navigate("/firelogin");
+  } catch (error) {
+    if (error.code === "auth/requires-recent-login") {
+      alert("Please log in again to delete your account.");
+      navigate("/firelogin");
+    } else {
+      console.error(error);
+      alert("Unable to delete account.");
+    }
+  }
+};
+
+
+
   if (!user) return null;
 
   const fullName =
@@ -1060,7 +1106,7 @@ export default function ClientProfileMenuScreen() {
       className="freelance-wrapper"
       style={{
         marginLeft: isMobile ? "0px" : collapsed ? "-200px" : "-120px",
-         marginTop: isMobile ? "50px" : collapsed ? "0px" : "0px",
+        marginTop: isMobile ? "50px" : collapsed ? "0px" : "0px",
         transition: "margin-left 0.25s ease",
       }}
     >
@@ -1071,7 +1117,7 @@ export default function ClientProfileMenuScreen() {
             style={{
               ...pageStyles.backBtn,
               // marginLeft: isMobile ? "0px" : "10px",
-                      marginLeft: isMobile ? "0px" : collapsed ? "-100px" : "10px",
+              marginLeft: isMobile ? "0px" : collapsed ? "-100px" : "10px",
 
             }}
             onClick={() => navigate(-1)}
@@ -1133,9 +1179,12 @@ export default function ClientProfileMenuScreen() {
             title: "Support",
             items: [
               ["Help Center", helpcenter, "/freelance-dashboard/helpcenter"],
-              ["Terms of Service", helpcenter,"/termsofservice"],
+              ["Terms of Service", helpcenter, "/termsofservice"],
               ["Privacy Policy", helpcenter, "/privacypolicy"],
-              ["Sign out", Logout, "/firelogin"],
+              ["Sign out", Logout, handleLogout],
+              ["delete account", Logout, handleDeleteAccount]
+
+
             ],
           },
         ].map((sec, i) => (
@@ -1153,7 +1202,14 @@ export default function ClientProfileMenuScreen() {
                 key={idx}
                 title={t}
                 icon={ic}
-                onClick={() => path && navigate(path)}
+                onClick={() => {
+                  if (typeof path === "function") {
+                    path();
+                  } else if (path) {
+                    navigate(path);
+                  }
+                }}
+
               />
             ))}
           </div>

@@ -629,7 +629,7 @@ export default function ClientSidebar() {
           {!collapsed && (
             <div>
               <p className="hz-user-name">
-                {userInfo.firstName} {userInfo.lastName}
+                {userInfo.firstName || userInfo.name } {userInfo.lastName}
               </p>
               <p className="hz-user-role">Client</p>
             </div>

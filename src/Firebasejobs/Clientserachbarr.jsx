@@ -1662,6 +1662,7 @@
 
 
 
+
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Categories from "../assets/categories1.png";
@@ -1689,7 +1690,6 @@ import worksImg1 from "../assets/file.png";
 import worksImg2 from "../assets/yellowwave.png";
 import arrow from "../assets/arrow.png";
 import profile from "../assets/profile.png";
-// import  "./ClientHome.css"
 
 // ====== ICONS ======
 import {
@@ -1702,6 +1702,8 @@ import {
 } from "react-icons/fi";
 import { onAuthStateChanged } from "firebase/auth";
 import { Clock, TimerIcon } from "lucide-react";
+
+import "./clienthomecss.css"
 // import FreelanceHome from "../Firebasejobs/ClientHome.css";
 
 // ====== CATEGORY DATA ======
@@ -1967,18 +1969,22 @@ export default function ClientHomeUI() {
   // ======================================================
   return (
     <div className="fh-page rubik-font">
-      <div className="fh-container" >
+      <div id="fh-containers" className="fh-container" >
         {/* HEADER */}
         <header className="fh-header">
-          <div className="fh-header-left">
-            <h1 className="fh-title">
-              Welcome,
-              <div>{userInfo.firstName || "Huzzlers"}</div>
+            <div id="fh-header-left" className="fh-header-left">
+             <div id="fh-welcome" className="fh-welcome">
+            <h1 id="fh-title" className="fh-title">
+              Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
             </h1>
+            <div className="fh-subtitle">
+              Discover projects that match your skills
+            </div>
+          </div>
             <div></div>
           </div>
 
-          <div className="fh-header-right">
+          <div id="fh-header-right" className="fh-header-right">
             <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
               <FiMessageCircle />
             </button>
@@ -2056,7 +2062,7 @@ export default function ClientHomeUI() {
 
 
         {/* ================= MAIN ================= */}
-        <main className="fh-main1">
+        <main className="fh-main">
           {/* HERO */}
           <section className="fh-hero">
             <div
@@ -2280,7 +2286,7 @@ export default function ClientHomeUI() {
 :root {
   --search-height: 42px;
 }
-  
+ 
 .category-scroll-wrapper {
   display: flex;
   gap: 14px;
@@ -2564,7 +2570,7 @@ width:100%;
 
 .save-btn.saved {
   color: #000;
-  
+ 
 }
 
 .job-card {
@@ -2576,7 +2582,7 @@ width:100%;
   cursor: pointer;
   max-width: 100%;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08),
               0 2px 6px rgba(0,0,0,0.04);
 }
 .job-card:hover {
@@ -2622,7 +2628,7 @@ width:100%;
   margin-top: 6px;
 }
   .job-title{
-  
+ 
   margin-bottom:10px;
   }
   .fh-search-row {

@@ -4,6 +4,8 @@
 */
 
 
+
+
 /* center container */
 .fh-page > .fh-header,
 .fh-page > .fh-main {
@@ -18,6 +20,7 @@
 
 .fh-title{
 font-weight: 400;
+margin-top: 40px;
 
 }
 .fh-subtitle{
@@ -34,7 +37,7 @@ font-weight: 400;
 /* Welcome text alignment */
 .fh-header-left {
   width: 100%;
-  margin-top: -35px;
+  margin-top: 35px;
 }
 
 .fh-welcome {
@@ -46,8 +49,8 @@ font-weight: 400;
 .fh-header-right {
   position: absolute;
   margin-left: 30px;
-  right: 20px;
-  top: 20px;
+
+
   display: flex;
   align-items: center;
   gap: 15px;
@@ -484,6 +487,9 @@ padding: 22px;
   .fh-hero{ flex-direction:column; }
   .fh-header-right{ margin-left:0; }
   .fh-category{ width:160px; }
+  
+
+
 }
 
 @media (max-width: 640px){
@@ -680,7 +686,7 @@ padding: 22px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 0;
+    margin-top: 35;
     padding: 0 10px;
   }
 
@@ -690,6 +696,15 @@ padding: 22px;
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-top: 35;
+  }
+
+
+
+  #notif-count{
+   
+    margin-top: 10px;
+    
   }
 
   /* Shrink icons for mobile */
@@ -716,6 +731,12 @@ padding: 22px;
   .fh-header > div[style*="1216px"] {
     width: 100% !important;
   }
+
+    #fh-header-right{
+  padding: 10px;
+    margin-top: 45px;
+  }
+
 }
 /* ================= SIDEBAR SPACE FIX ================= */
 
@@ -867,4 +888,84 @@ padding: 22px;
 }
 .job-card {
   -webkit-tap-highlight-color: transparent;
+}
+
+
+@media (min-width: 769px) {
+#fh-welcome h1{
+  color: #6d28d9;
+  font-size: 35px;
+  display: flex;
+}
+
+#fh-header-left{
+font-size: 20px;
+display: flex;
+margin-top: -30px;
+}
+
+#fh-header-right {
+  position: absolute;
+  top: 50px;
+  right: 24px;
+margin-right: 200px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  z-index: 1200;
+}
+
+/* Icon images */
+#fh-header-right img {
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+#fh-header-right img:hover {
+  transform: scale(1.08);
+}
+
+/* Notification icon wrapper */
+#fh-header-right > div {
+  position: relative;
+}
+
+/* Notification badge */
+.notif-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+margin-right: 55px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+
+  background: #ef4444;
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+}
+
+/* Avatar */
+.fh-avatar img {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid #e5e7eb;
+  background: #fff;
+}
+
 }
