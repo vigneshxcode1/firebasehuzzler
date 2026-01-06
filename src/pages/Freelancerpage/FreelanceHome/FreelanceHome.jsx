@@ -3494,7 +3494,7 @@
 
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   collection,
   doc,
@@ -3536,6 +3536,8 @@ import search from "../../../assets/search.png";
 
 import "./FreelanceHome.css";
 
+import { Clock, TimerIcon } from "lucide-react";
+
 export default function FreelanceHome() {
   const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState("");
@@ -3544,6 +3546,7 @@ export default function FreelanceHome() {
   const [savedJobs, setSavedJobs] = useState([]);
   const [userMap, setUserMap] = useState({});
 
+  const searchRef = useRef(null);
 
 
   const [userInfo, setUserInfo] = useState({
@@ -3580,26 +3583,26 @@ export default function FreelanceHome() {
     });
   }, []);
 
-  
-const handleNotificationClick = async (notif) => {
-  try {
-    if (!notif.read) {
-      await updateDoc(doc(db, "notifications", notif.id), { read: true });
-    }
 
-    setNotifOpen(false);
+  const handleNotificationClick = async (notif) => {
+    try {
+      if (!notif.read) {
+        await updateDoc(doc(db, "notifications", notif.id), { read: true });
+      }
 
-    if (notif.type === "application_accepted") {
-      navigate(`/freelance-dashboard/job-full/${notif.jobId}`);
-    }
+      setNotifOpen(false);
 
-    if (notif.type === "message") {
-      navigate("/freelance-dashboard/freelancermessages", { state: { otherUid: notif.clientUid } });
+      if (notif.type === "application_accepted") {
+        navigate(`/freelance-dashboard/job-full/${notif.jobId}`);
+      }
+
+      if (notif.type === "message") {
+        navigate("/freelance-dashboard/freelancermessages", { state: { otherUid: notif.clientUid } });
+      }
+    } catch (err) {
+      console.error("Notification error", err);
     }
-  } catch (err) {
-    console.error("Notification error", err);
-  }
-};
+  };
 
 
 
@@ -3619,7 +3622,7 @@ const handleNotificationClick = async (notif) => {
 
 
   useEffect(() => {
-    if (!user) return; 
+    if (!user) return;
 
     const q = query(
       collection(db, "notifications"),
@@ -3789,283 +3792,214 @@ const handleNotificationClick = async (notif) => {
   }
 
   return (
-    <div
-      className={`freelance-wrapper ${collapsed ? "sidebar-open" : ""}`}
-      style={{
-        marginLeft: collapsed ? "-110px" : "50px",
-        transition: "margin-left 0.25s ease",
-      }}
-    >
+    <div id="fh-page1" className="fh-page rubik-font">
+      <div id="fh-containers1" className="fh-container">
 
-      {/* HEADER */}
-      <header className="fh-header">
-        <div id="fh-header-left" className="fh-header-left">
-          <div id="fh-welcome" className="fh-welcome">
-            <h1 id="fh-title" className="fh-title">
-              Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
-            </h1>
-            <div className="fh-subtitle">
-              Discover projects that match your skills
+        {/* ================= HEADER ================= */}
+        <header className="fh-header">
+
+          {/* LEFT */}
+          <div id="fh-header-left" className="fh-header-left">
+            <div id="fh-welcome" className="fh-welcome">
+              <h1 className="fh-title">
+                Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
+              </h1>
+              <div className="fh-subtitle">
+                Find projects that match your skills
+              </div>
             </div>
           </div>
-        </div>
 
-        <div id="fh-header-right" className="fh-header-right">
+          {/* RIGHT */}
+          <div id="fh-header-right" className="fh-header-right">
 
-          <Link to={"/freelance-dashboard/freelancermessages"}>
-            <img src={message} style={{ width: 31, height: 29, cursor: "pointer" }} />
-          </Link>
-          
-          <div style={{ position: "relative", }}>
-            <img
-              src={notification}
-              style={{ width: 41, cursor: "pointer" }}
-              onClick={() => setNotifOpen(prev => !prev)}
-            />
-          </div>
-
-          {notifCount > 0 && (
-            <span id="notif-count" className="notif-count">{notifCount > 9 ? "9+" : notifCount}</span>
-          )}
-
-          <div className="fh-avatar">
-            <Link to={"/freelance-dashboard/Profilebuilder"}>
-              <img src={profile} alt="avatar" />
+            <Link to="/freelance-dashboard/freelancermessages">
+              <FiMessageCircle />
             </Link>
-          </div>
-        </div>
 
-        {/* SEARCH BAR */}
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "1740px",
-
-            // background: "linear-gradient(90deg,#fffce3,#ffffff)",
-            borderRadius: "16px",
-            border: "0.8px solid #e6e6e6",
-            display: "flex",
-            alignItems: "center",
-            padding: "0px 14px",   // 🔥 reduced height
-
-
-            boxShadow: "0px 4px 18px rgba(0,0,0,0.10)",
-          }}
-        >
-          <img src={search} style={{ width: 18, opacity: 0.6, }} />
-
-          <input
-            placeholder="Search"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{
-              marginLeft: "-10px",
-              paddingTop: "25px",
-              height: 15,
-
-              flex: 1,
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: "15px",
-            }}
-          />
-
-          {searchText && (
-            <button
-              onClick={() => setSearchText("")}
-              style={{
-                background: "none",
-                border: "none",
-                fontSize: "18px",
-                cursor: "pointer",
-                color: "#777",
-              }}
-            >
-              ✕
+            <button className="icon-btn" onClick={() => setNotifOpen(prev => !prev)}>
+              <FiBell />
+              {notifCount > 0 && <span className="notif-dot" />}
             </button>
-          )}
-        </div>
-      </header>
 
-
-
-      {notifOpen && (
-        <div className="notif-dropdown">
-          <div className="notif-header">
-            <h4>Notifications</h4>
-            {notifCount > 0 && <span className="notif-count">{notifCount > 9 ? "9+" : notifCount}</span>}
-          </div>
-
-          {notifications.length === 0 && (
-            <div className="notif-empty">
-              <p>No notifications yet</p>
-            </div>
-          )}
-
-          <div className="notif-items">
-            {notifications.map((n) => (
-              <div
-                key={n.id}
-                className={`notif-item ${!n.read ? "unread" : ""}`}
-                onClick={() => handleNotificationClick(n)}
-              >
-                <div className="notif-left">
-                  <img src={n.profileImage || profile} alt="avatar" className="notif-avatar" />
-                </div>
-
-                <div className="notif-right">
-                  <div className="notif-title">{n.title}</div>
-                  <div className="notif-body">{n.body}</div>
-                  <div className="notif-time">{timeAgo(n.timestamp)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-
-
-
-
-      <main className="fh-main">
-        {/* HERO */}
-        <section className="fh-hero">
-          <div
-            className="fh-hero-card primary"
-            style={{ cursor: "pointer" }}
-            onClick={() =>
-              navigate("/freelance-dashboard/freelancebrowesproject")
-            }
-          >
-            <img src={browseImg1} className="hero-img img-1" />
-            <img src={browseImg2} className="hero-img img-2" />
-            <div className="hero-left">
-              <h3>Browse All Projects</h3>
-              <p>Explore all available opportunities</p>
-            </div>
-            <div className="hero-right">
-              <img className="arrow" src={arrow} width={25} />
+            <div className="fh-avatar">
+              <Link to="/freelance-dashboard/Profilebuilder">
+                <img src={profile} alt="avatar" />
+              </Link>
             </div>
           </div>
 
-          <div
-            className="fh-hero-card secondary"
-            style={{ cursor: "pointer" }}
-            onClick={() =>
-              navigate("/freelance-dashboard/freelancebrowesproject")
-            }
-          >
-            <img src={worksImg1} className="hero-img img-3" />
-            <img src={worksImg2} className="hero-img img-4" />
-            <div>
-              <h4>My Works</h4>
-              <p>Track your Work</p>
-            </div>
-            <div className="hero-right">
-              <img className="arrow" src={arrow} width={25} />
-            </div>
-          </div>
-        </section>
-
-        {/* JOB LIST */}
-        <section className="fh-section">
-          <div className="section-header">
-            <h2>Top Recommendations for You</h2>
-            <Link className="view-all" to="/freelance-dashboard/freelancebrowesproject">
-              View All →
-            </Link>
-          </div>
-
-          <div className="jobs-list">
-            {!isOnline && (
-              <div className="empty-state">
-                <img src={noInternetImg} className="empty-img" />
-                <div className="empty-title">You're Offline!</div>
-                <button className="empty-btn" onClick={() => window.location.reload()}>
-                  Retry
+          {/* SEARCH */}
+          <div className="fh-search-row" ref={searchRef}>
+            <div id="fh-search" className="fh-search fh-search-small">
+              <FiSearch className="search-icon" />
+              <input
+                className="search-input"
+                placeholder="Search"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <button className="clear-btn" onClick={() => setSearchText("")}>
+                  ✕
                 </button>
-              </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ================= NOTIFICATIONS ================= */}
+        {notifOpen && (
+          <div className="notif-dropdown">
+            <div className="notif-header">
+              <h4>Notifications</h4>
+              {notifCount > 0 && (
+                <span className="notif-count">
+                  {notifCount > 9 ? "9+" : notifCount}
+                </span>
+              )}
+            </div>
+
+            {notifications.length === 0 && (
+              <div className="notif-empty">No notifications yet</div>
             )}
 
-            {isOnline && filteredJobs.length === 0 && (
-              <div className="empty-state">
-                <img src={noCardsImg} className="empty-img" />
-                <div className="empty-title">No Projects Found</div>
-                <button className="empty-btn" onClick={() => navigate("/")}>
-                  Return Home
-                </button>
-              </div>
-            )}
+            <div className="notif-items">
+              {notifications.map(n => (
+                <div
+                  key={n.id}
+                  className={`notif-item ${!n.read ? "unread" : ""}`}
+                  onClick={() => handleNotificationClick(n)}
+                >
+                  <img
+                    src={n.profileImage || profile}
+                    className="notif-avatar"
+                    alt=""
+                  />
+                  <div>
+                    <div className="notif-title">{n.title}</div>
+                    <div className="notif-body">{n.body}</div>
+                    <div className="notif-time">{timeAgo(n.timestamp)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-            {isOnline &&
-              filteredJobs.length > 0 &&
-              filteredJobs.map((job) => (
-                <article key={job.id} className="job-card" onClick={() => onViewJob(job)}>
-                  <div className="job-card-top">
-                    <div>
-                      <h3 className="job-title">{job.title}</h3>
-                      <div className="job-sub">
-                        {job.company} {job.role}
+        {/* ================= MAIN ================= */}
+        <main className="fh-main">
+
+         <section className="fh-hero">
+      
+                    <div
+                      id="fh-hero-card"
+                      className="fh-hero-card primary"
+                      onClick={() => navigate("/client-dashbroad2/clientcategories")}
+                    >
+                      <img src={browseImg1} id="hero-img-brower" className="hero-img img-1" style={{
+                      
+                      }} />
+                      <img src={browseImg2} className="hero-img img-" />
+                      <div id="browertitle">
+                        <h3><span id="freelancer-browerproject-title">Browse Freelancer</span></h3>
+                        <p><span>Explore verified professionals</span></p>
+                      </div>
+                      <div className="hero-right">
+                        <img src={arrow} className="arrow" width={25} />
                       </div>
                     </div>
-
-                    <div className="job-budget-wrapper">
-                      <div className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget} </div>
-
-                      <button
-                        className={`save-btn ${savedJobs.includes(job.id) ? "saved" : ""
-                          }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSave(job.id);
-                        }}
-                      >
-                        {savedJobs.includes(job.id) ? (
-                          <BsBookmarkFill size={18} />
-                        ) : (
-                          <FiBookmark />
-                        )}
-                      </button>
+      
+                    <div
+                      id="fh-hero-card"
+                      className="fh-hero-card secondary"
+                      onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+                    >
+                      <img src={worksImg1} id="hero-img" className="hero-img img-3" />
+                      <img src={worksImg2} className="hero-img img-4" />
+                      <div id="browertitle" className="jobtitle">
+                        <h3>Job proposal</h3>
+                        <p>Find the right freelancers</p>
+                      </div>
+                      <div className="hero-right">
+                        <img src={arrow} className="arrow" width={25} />
+                      </div>
                     </div>
+      
+      
+                  </section>
+
+          {/* JOB LIST */}
+          <section className="fh-section">
+            <div className="section-header">
+              <h2 style={{ color: "#000000c7", marginLeft: "10px",fontSize:20,fontWeight:400  }}>Top Recommendations for You</h2>
+              <Link className="view-all" to="/freelance-dashboard/freelancebrowesproject">
+                View All →
+              </Link>
+            </div>
+
+            <div id="jobs-list" className="jobs-list">
+              {filteredJobs.map(job => (
+                <article
+                  key={job.id}
+                  className="job-card"
+                  onClick={() => onViewJob(job)}
+                >
+                  <div className="job-card-top">
+                    <div>
+                       <h3 className="job-title">{job.title}</h3>
+                        <div className="job-sub">{job.category || "Service"}</div>
+                    </div>
+
+                    <button
+                      className={`save-btn ${savedJobs.includes(job.id) ? "saved" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSave(job.id);
+                      }}
+                    >
+                      {savedJobs.includes(job.id)
+                        ? <BsBookmarkFill />
+                        : <FiBookmark />}
+                    </button>
                   </div>
 
-                  <div className="job-skills">
-                    {job.skills?.map((skill, i) => (
-                      <span key={i} className="skill-chip">
-                        {skill}
-                      </span>
+                  <p className="skill-required">Skills</p>
+                  <div  className="job-skills">
+                    {job.skills?.map((s, i) => (
+                      <span key={i} className="skill-chip">{s}</span>
                     ))}
                   </div>
 
-                  <p className="job-desc">
-                    {job.description?.slice(0, 180)}
-                    {job.description?.length > 180 ? "..." : ""}
-                  </p>
+                 <div id="job-meta" className="job-meta">
+                      <div className="job-stats">
+                        <div className="views">
+                          <FiEye /> <span>{job.views || 0} views</span>
+                        </div>
+                        <div className="created"><Clock size={16} />{timeAgo(job.createdAt)}</div>
 
-                  <div className="job-meta">
-                    <div className="job-stats">
-                      <div className="views">
-                        <FiEye /> <span>{job.views || 0} view</span>
                       </div>
-                      <div className="created">
-                        <FiClock /> {timeAgo(job.created_at)}
-                      </div>
+
+                      <div id="job-budget" className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
+
                     </div>
-                  </div>
                 </article>
               ))}
-          </div>
-        </section>
-      </main>
+            </div>
+          </section>
+        </main>
 
-      <button
-        className="fh-fab"
-        onClick={() => navigate("/freelance-dashboard/add-service-form")}
-      >
-        <FiPlus />
-      </button>
+        {/* FAB */}
+        <button
+          className="fh-fab"
+          onClick={() =>
+            navigate("/freelance-dashboard/add-service-form")
+          }
+        >
+          <FiPlus />
+        </button>
+      </div>
     </div>
+
   );
 }

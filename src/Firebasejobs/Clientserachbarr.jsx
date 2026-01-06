@@ -1661,7 +1661,6 @@
 
 
 
-
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Categories from "../assets/categories1.png";
@@ -1965,325 +1964,339 @@ export default function ClientHomeUI() {
   // UI
   // ======================================================
   return (
-    <div className="fh-page rubik-font">
-      <div id="fh-containers" className="fh-container" >
-        {/* HEADER */}
-        <header className="fh-header">
+    <>
+
+      <div id="fh-page" className="fh-page rubik-font">
+        <div id="fh-containers" className="fh-container" >
+          {/* HEADER */}
+          <header className="fh-header">
             <div id="fh-header-left" className="fh-header-left">
-             <div id="fh-welcome" className="fh-welcome">
-            <h1 id="fh-title" className="fh-title">
-              Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
-            </h1>
-            <div id="fh-title" className="fh-subtitle">
-              Discover projects that match your skills
-            </div>
-          </div>
-            <div></div>
-          </div>
-
-          <div id="fh-header-right" className="fh-header-right">
-            <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
-              <FiMessageCircle />
-            </button>
-
-            <button className="icon-btn" onClick={() => setNotifOpen(true)}>
-              <FiBell />
-              {pending > 0 && (
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: "red",
-                    position: "absolute",
-                    top: 6,
-                    right: 5,
-                  }}
-                ></span>
-              )}
-            </button>
-
-            <div className="fh-avatar">
-              <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
-                <img
-                  src={
-                    userProfile?.profileImage || profile
-                  }
-                  alt="Profile"
-                />
-              </Link>
+              <div id="fh-welcome" className="fh-welcome">
+                <h1 id="fh-title" className="fh-title">
+                  Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
+                </h1>
+                <div id="fh-title" className="fh-subtitle">
+                 Find the right talent for your Project
+                </div>
+              </div>
+              <div></div>
             </div>
 
-          </div>
+             <div id="fh-header-right" className="fh-header-right">
+              
+              <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
+                <FiMessageCircle />
+              </button>
 
-          {/* SEARCH */}
-          <div className="fh-search-row" ref={searchRef}>
-            <div id="fh-search" className="fh-search fh-search-small">
-              <FiSearch className="search-icon" />
-              <input
-              id="search-input"
-                className="search-input"
-                placeholder="Search"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-
-              />
-              {searchText && (
-                <button className="clear-btn" onClick={() => setSearchText("")}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {suggestions.length > 0 && (
-              <div className="autocomplete-list">
-                {suggestions.map((s, i) => (
-                  <div
-                    className="autocomplete-item"
-                    onMouseDown={(e) => {
-                      e.preventDefault();  
-                      setSearchText(s);
-                      setSuggestions([]);
+              <button className="icon-btn" onClick={() => setNotifOpen(true)}>
+                <FiBell />
+                {pending > 0 && (
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: "red",
+                      position: "absolute",
+                      top: 6,
+                      right: 5,
                     }}
-                  >
-                    {s}
-                  </div>
+                  ></span>
+                )}
+              </button>
 
+              <div className="fh-avatar">
+                <Link to={"/client-dashbroad2/CompanyProfileScreen"}>
+                  <img
+                    src={
+                      userProfile?.profileImage || profile
+                    }
+                    alt="Profile"
+                  />
+                </Link>
+              </div>
+
+            </div>
+
+            {/* SEARCH */}
+            <div className="fh-search-row" ref={searchRef}>
+              <div id="fh-search" className="fh-search fh-search-small">
+                <FiSearch className="search-icon" />
+                <input
+                  id="search-input"
+                  className="search-input"
+                  placeholder="Search"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+
+                />
+                {searchText && (
+                  <button className="clear-btn" onClick={() => setSearchText("")}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {suggestions.length > 0 && (
+                <div className="autocomplete-list">
+                  {suggestions.map((s, i) => (
+                    <div
+                      className="autocomplete-item"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setSearchText(s);
+                        setSuggestions([]);
+                      }}
+                    >
+                      {s}
+                    </div>
+
+
+                  ))}
+                </div>
+              )}
+            </div>
+
+            
+          </header>
+
+
+
+
+         <main className="fh-main">
+
+         <section className="fh-hero">
+
+              <div
+                id="fh-hero-card"
+                className="fh-hero-card primary"
+                onClick={() => navigate("/client-dashbroad2/clientcategories")}
+              >
+                <img src={browseImg1} id="hero-img-brower" className="hero-img img-1" style={{
+                
+                }} />
+                <img src={browseImg2} className="hero-img img-" />
+                <div id="browertitle">
+                  <h3><span>Browse Freelancer</span></h3>
+                  <p><span>Explore verified professionals</span></p>
+                </div>
+                <div className="hero-right">
+                  <img src={arrow} className="arrow" width={25} />
+                </div>
+              </div>
+
+              <div
+                id="fh-hero-card"
+                className="fh-hero-card secondary"
+                onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+              >
+                <img src={worksImg1} id="hero-img" className="hero-img img-3" />
+                <img src={worksImg2} className="hero-img img-4" />
+                <div id="browertitle" className="jobtitle">
+                  <h3>Job proposal</h3>
+                  <p>Find the right freelancers</p>
+                </div>
+                <div className="hero-right">
+                  <img src={arrow} className="arrow" width={25} />
+                </div>
+              </div>
+
+
+            </section>
+
+
+            <section id="category-scroll-wrapper" className="category-scroll-wrapper">
+              {categories.map((cat, i) => (
+                <div
+                  key={i}
+
+                  className="category-card-img"
+                  onClick={() =>
+                    navigate("/client-dashbroad2/clientcategories", {
+                      state: { category: cat },
+                    })
+                  }
+                >
+                  {/* background image */}
+                  <img src={Categories} alt={cat} className="category-bg-img" />
+
+                  {/* overlay */}
+                  <div className="category-overlay">
+                    <span id="category-title" className="category-title">{cat}</span>
+                  </div>
+                </div>
+              ))}
+            </section>
+
+
+
+
+            <section className="fh-section">
+              <div className="section-header">
+                <h2 style={{ color: "#000000c7", marginLeft: "10px",fontSize:20,fontWeight:400  }}>Based On Your Industry, Here are profile to explore </h2>
+              </div>
+
+              <div id="jobs-list" className="jobs-list">
+                {filteredJobs.map((job) => (
+                  <article key={job._id} className="job-card" onClick={() => openJob(job)}>
+
+                    {job._source === "service_24h" && (
+                      <div className="badge-24">24 Hours</div>
+                    )}
+
+                    <div className="job-card-top">
+                      <div>
+                        <h3 className="job-title">{job.title}</h3>
+                        <div className="job-sub">{job.category || "Service"}</div>
+                      </div>
+                      <div className="job-budget-wrapper">
+
+                        <button
+                          className={`save-btn ${savedJobs.has(job._id) ? "saved" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSaveJob(job._id);
+                          }}
+                        >
+                          {savedJobs.has(job._id) ? <BsBookmarkFill size={18} /> : <FiBookmark />}
+                        </button>
+                      </div>
+                    </div>
+
+                <p className="skill-required">Skills</p>
+                    <div className="job-skills">
+                    
+                      {(job.skills || []).slice(0, 3).map((skill, i) => (
+                        <span key={i} className="skill-chip">{skill}</span>
+                      ))}
+                    </div>
+
+                    {/* <p className="job-desc">
+                    {job.description?.slice(0, 180)}
+                    {job.description?.length > 180 ? "..." : ""}
+                  </p> */}
+
+                    <div id="job-meta" className="job-meta">
+                      <div className="job-stats">
+                        <div className="views">
+                          <FiEye /> <span>{job.views || 0} views</span>
+                        </div>
+                        <div className="created"><Clock size={16} />{timeAgo(job.createdAt)}</div>
+
+                      </div>
+
+                      <div id="job-budget" className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
+
+                    </div>
+                  </article>
 
                 ))}
               </div>
-            )}
-          </div>
-        </header>
+            </section>
+          </main>
 
+          {/* FAB */}
+          <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
+            <FiPlus />
+          </button>
+        </div>
 
-
-     
-        <main className="fh-main">
-     
-          <section className="fh-hero">
-
-            <div
-            id="fh-hero-card"
-              className="fh-hero-card primary"
-              onClick={() => navigate("/client-dashbroad2/clientcategories")}
-            >
-              <img src={browseImg1} id="hero-img" className="hero-img img-1" />
-              <img src={browseImg2} className="hero-img img-2" />
-              <div id="browertitle">
-                <h3>Browse Freelancer</h3>
-                <p>Explore verified professionals</p>
-              </div>
-              <div className="hero-right">
-                <img src={arrow} className="arrow" width={25} />
-              </div>
-            </div>
-
-            <div
-              className="fh-hero-card secondary"
-              onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
-            >
-              <img src={worksImg1} id="hero-img" className="hero-img img-3" />
-              <img src={worksImg2} className="hero-img img-4" />
-            <div id="browertitle">
-                <h4>Job proposal</h4>
-                <p>Find the right freelancers</p>
-              </div>
-              <div className="hero-right">
-                <img src={arrow} className="arrow" width={25} />
-              </div>
-            </div>
-
-
-          </section>
-
-         
-          <section className="category-scroll-wrapper">
-            {categories.map((cat, i) => (
-              <div
-                key={i}
-                className="category-card-img"
-                onClick={() =>
-                  navigate("/client-dashbroad2/clientcategories", {
-                    state: { category: cat },
-                  })
-                }
-              >
-                {/* background image */}
-                <img src={Categories} alt={cat} className="category-bg-img" />
-
-                {/* overlay */}
-                <div className="category-overlay">
-                  <span className="category-title">{cat}</span>
-                </div>
-              </div>
-            ))}
-          </section>
-
-
-
-     
-          <section className="fh-section">
-            <div className="section-header">
-              <h2 style={{ color: "#000" }}>Based On Your Industry, Here are profile to explore </h2>
-            </div>
-
-            <div className="jobs-list">
-              {filteredJobs.map((job) => (
-                <article key={job._id} className="job-card" onClick={() => openJob(job)}>
-
-                  {job._source === "service_24h" && (
-                    <div className="badge-24">24 Hours</div>
-                  )}
-
-                  <div className="job-card-top">
-                    <div>
-                      <h3 className="job-title">{job.title}</h3>
-                      <div className="job-sub">{job.category || "Service"}</div>
-                    </div>
-                    <div className="job-budget-wrapper">
-                      <div className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
-                      <button
-                        className={`save-btn ${savedJobs.has(job._id) ? "saved" : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSaveJob(job._id);
-                        }}
-                      >
-                        {savedJobs.has(job._id) ? <BsBookmarkFill size={18} /> : <FiBookmark />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="job-skills">
-                    {(job.skills || []).slice(0, 3).map((skill, i) => (
-                      <span key={i} className="skill-chip">{skill}</span>
-                    ))}
-                  </div>
-
-                  <p className="job-desc">
-                    {job.description?.slice(0, 180)}
-                    {job.description?.length > 180 ? "..." : ""}
-                  </p>
-
-                  <div className="job-meta">
-                    <div className="job-stats">
-                      <div className="views">
-                        <FiEye /> <span>{job.views || 0} views</span>
-                      </div>
-                      <div className="created"><Clock size={16} />{timeAgo(job.createdAt)}</div>
-
-                    </div>
-                  </div>
-                </article>
-
-              ))}
-            </div>
-          </section>
-        </main>
-
-        {/* FAB */}
-        <button className="fh-fab" onClick={() => navigate("/client-dashbroad2/PostJob")}>
-          <FiPlus />
-        </button>
-      </div>
-
-      {/* ================= NOTIFICATION POPUP ================= */}
-      {notifOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.3)",
-            backdropFilter: "blur(3px)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setNotifOpen(false);
-          }}
-        >
+        {/* ================= NOTIFICATION POPUP ================= */}
+        {notifOpen && (
           <div
             style={{
-              width: "90%",
-              maxWidth: 420,
-              background: "#fff",
-              padding: 20,
-              borderRadius: 16,
-              maxHeight: "80vh",
-              overflowY: "auto",
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.3)",
+              backdropFilter: "blur(3px)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 9999,
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setNotifOpen(false);
             }}
           >
-            <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+            <div
+              style={{
+                width: "90%",
+                maxWidth: 420,
+                background: "#fff",
+                padding: 20,
+                borderRadius: 16,
+                maxHeight: "80vh",
+                overflowY: "auto",
+              }}
+            >
+              <h3 style={{ marginBottom: 15 }}>Notifications</h3>
 
-            {notifications.length === 0 && (
-              <div style={{ padding: 20, textAlign: "center" }}>
-                No notifications
-              </div>
-            )}
+              {notifications.length === 0 && (
+                <div style={{ padding: 20, textAlign: "center" }}>
+                  No notifications
+                </div>
+              )}
 
-            {notifications.map((item, i) => (
-              <div
-                key={i}
+              {notifications.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: 15,
+                    background: "#f7f7f7",
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                >
+                  <img
+                    src={item.freelancerImage || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+                    width={48}
+                    height={48}
+                    style={{ borderRadius: "50%", marginRight: 10 }}
+                  />
+
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
+                    <div>applied for {item.jobTitle}</div>
+                  </div>
+
+                  {!item.read ? (
+                    <>
+                      <button
+                        onClick={() => acceptNotif(item)}
+                        style={{ marginRight: 8 }}
+                      >
+                        Accept
+                      </button>
+                      <button onClick={() => declineNotif(item)}>Decline</button>
+                    </>
+                  ) : (
+                    <button onClick={() => acceptNotif(item)}>Chat</button>
+                  )}
+                </div>
+              ))}
+
+              <button
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: 15,
-                  background: "#f7f7f7",
+                  marginTop: 10,
+                  width: "100%",
                   padding: 10,
                   borderRadius: 10,
+                  background: "#000",
+                  color: "#fff",
                 }}
+                onClick={() => setNotifOpen(false)}
               >
-                <img
-                  src={item.freelancerImage || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
-                  width={48}
-                  height={48}
-                  style={{ borderRadius: "50%", marginRight: 10 }}
-                />
-
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600 }}>{item.freelancerName}</div>
-                  <div>applied for {item.jobTitle}</div>
-                </div>
-
-                {!item.read ? (
-                  <>
-                    <button
-                      onClick={() => acceptNotif(item)}
-                      style={{ marginRight: 8 }}
-                    >
-                      Accept
-                    </button>
-                    <button onClick={() => declineNotif(item)}>Decline</button>
-                  </>
-                ) : (
-                  <button onClick={() => acceptNotif(item)}>Chat</button>
-                )}
-              </div>
-            ))}
-
-            <button
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: 10,
-                borderRadius: 10,
-                background: "#000",
-                color: "#fff",
-              }}
-              onClick={() => setNotifOpen(false)}
-            >
-              Close
-            </button>
+                Close
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-   
-      <style>{`
+
+        <style>{`
 /* ================= CATEGORY SCROLL ================= */
 :root {
   --search-height: 42px;
@@ -2448,6 +2461,7 @@ letter-spacing: 0%;
   cursor: pointer;
   position: relative;
   font-size: 20px;
+
 }
 
 .icon-btn:hover {
@@ -2682,7 +2696,10 @@ width:100%;
 
         `}</style>
 
-    </div>
+      </div>
+
+
+    </>
   );
 
 }

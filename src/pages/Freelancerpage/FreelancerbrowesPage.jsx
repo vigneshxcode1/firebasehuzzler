@@ -1037,7 +1037,7 @@ export default function Categories() {
           {/* 🔥 CATEGORY CARDS GRID */}
           <div className="category-grid" style={styles.cardGrid}>
 
-            {filteredCategories.map((category) => (
+            {filteredCategories.map(( category) => (
               <div
                 key={category}
                 style={styles.categoryCard}

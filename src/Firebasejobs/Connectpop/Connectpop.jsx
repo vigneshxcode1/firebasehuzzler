@@ -1096,37 +1096,409 @@
 
 
 
+// import React, { useEffect, useState, useCallback } from "react";
+// import { auth, db } from "../../firbase/Firebase";
+// import { useNavigate } from "react-router-dom";
+// import { collection, getDocs, query, where } from "firebase/firestore";
+// import { addDoc, serverTimestamp } from "firebase/firestore";
+// import { ref, set } from "firebase/database";
+// import { rtdb } from "../../firbase/Firebase";
+// import "./Connect.css"
+// import requestsentimg from "../../assets/requestsentimg.jpeg"
+
+
+
+// export default function ConnectPopup({
+//   open,
+//   onClose,
+//   freelancerId,
+//   freelancerName,
+//   services = [],
+// }) {
+//   const [selectedService, setSelectedService] = useState(null);
+//   const [projectTitle, setProjectTitle] = useState("");
+//   const [projectLink, setProjectLink] = useState("");
+//   const [projectDesc, setProjectDesc] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [clientJobs, setClientJobs] = useState([]);
+//   const [showSuccessCard, setShowSuccessCard] = useState(false);
+
+
+
+
+//   const navigate = useNavigate();
+
+//   // Fetch client's jobs
+//   const fetchClientJobs = useCallback(async () => {
+//     const uid = auth.currentUser?.uid;
+//     if (!uid) return;
+
+//     const jobsList = [];
+
+//     const jobsSnap = await getDocs(query(collection(db, "jobs"), where("userId", "==", uid)));
+//     jobsSnap.forEach((doc) => jobsList.push({ id: doc.id, ...doc.data() }));
+
+//     const jobs24Snap = await getDocs(query(collection(db, "jobs_24h"), where("userId", "==", uid)));
+//     jobs24Snap.forEach((doc) => jobsList.push({ id: doc.id, ...doc.data() }));
+
+//     setClientJobs(jobsList);
+//   }, []);
+
+
+
+
+//   // Inject CSS for popup
+//   useEffect(() => {
+//     const style = document.createElement("style");
+//     style.innerHTML = `
+//       .ffds-modal-backdrop {
+//         position: fixed;
+//         top: 0;
+//         left: 0;
+//         width: 100%;
+//         height: 100%;
+//         background: rgba(0,0,0,0.5);
+//         display: flex;
+//         justify-content: center;
+//         align-items: center;
+//         z-index: 9999;
+//       }
+
+//       .ffds-modal {
+//         background: #fff;
+//         border-radius: 16px;
+//         max-width: 500px;
+//         width: 90%;
+//         padding: 24px;
+//         box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+//         position: relative;
+//         animation: slideIn 0.3s ease-out;
+//       }
+
+//       @keyframes slideIn {
+//         from { transform: translateY(-50px); opacity: 0; }
+//         to { transform: translateY(0); opacity: 1; }
+//       }
+
+//       .ffds-card-title {
+//         font-size: 20px;
+//         font-weight: 700;
+//         margin-bottom: 16px;
+//       }
+
+//       .ffds-select, .ffds-input, .ffds-textarea {
+//         width: 100%;
+//         padding: 10px 12px;
+//         margin-bottom: 12px;
+//         border: 1px solid #ccc;
+//         border-radius: 10px;
+//         font-size: 14px;
+//         outline: none;
+//         box-sizing: border-box;
+//       }
+
+//       .ffds-textarea {
+//         resize: vertical;
+//         min-height: 80px;
+//       }
+
+//       .ffds-modal-footer {
+//         display: flex;
+//         justify-content: flex-end;
+//         gap: 12px;
+//         margin-top: 16px;
+//       }
+
+//       .ffds-btn {
+//         padding: 10px 20px;
+//         font-size: 14px;
+//         font-weight: 600;
+//         border-radius: 12px;
+//         cursor: pointer;
+//         border: none;
+//       }
+
+//       .ffds-btn-outline {
+//         background: white;
+//         border: 2px solid #7A4DFF;
+//         color: #7A4DFF;
+//       }
+
+//       .ffds-btn-primary {
+//         background: #7A4DFF;
+//         color: white;
+//       }
+//     `;
+//     document.head.appendChild(style);
+//     return () => {
+//       document.head.removeChild(style);
+//     };
+//   }, []);
+
+
+//   useEffect(() => {
+//     if (open) fetchClientJobs();
+//     else {
+//       setSelectedService(null);
+//       setProjectTitle("");
+//       setProjectLink("");
+//       setProjectDesc("");
+//     }
+//   }, [open, fetchClientJobs]);
+
+//   if (!open) return null;
+
+
+
+//   // const sendRequest = async () => {
+//   //   const currentUid = auth.currentUser?.uid;
+//   //   if (!currentUid) {
+//   //     alert("Please login");
+//   //     return;
+//   //   }
+
+//   //   if (!projectTitle.trim()) {
+//   //     alert("Project title is required");
+//   //     return;
+//   //   }
+
+//   //   setLoading(true);
+
+//   //   try {
+
+//   //     const selectedJobId = selectedService?.id || crypto.randomUUID();
+
+
+//   //     const chatId = `${freelancerId}_${currentUid}`;
+//   //     await set(ref(rtdb, `requestChats/${freelancerId}/${chatId}`), {
+//   //       jobTitle: projectTitle.trim(),
+//   //       requestStatus: "pending",
+//   //       requestedAt: Date.now(),
+//   //       requestedBy: currentUid,
+//   //       jobId: selectedJobId,
+//   //     });
+
+//   //     // 2️⃣ Add a notification for the freelancer
+//   //     await addDoc(collection(db, "notifications"), {
+//   //       title: projectTitle.trim(),
+//   //       body: `${auth.currentUser.displayName || "Someone"} applied for ${projectTitle.trim()}`,
+//   //       clientUid: currentUid,
+//   //       freelancerId,
+//   //       freelancerName,
+//   //       jobId: selectedJobId, // match the job ID used above
+//   //       read: false,          // freelancer hasn't accepted yet
+//   //       timestamp: serverTimestamp(),
+//   //       type: "application",
+//   //     });
+
+//   //     alert("✅ Request sent and notification created");
+//   //     onClose();
+//   //   } catch (err) {
+//   //     console.error(err);
+//   //     alert("❌ Failed to send request");
+//   //   } finally {
+//   //     setLoading(false);
+//   //   }
+//   // };
+
+
+//   const sendRequest = async () => {
+//     const currentUser = auth.currentUser;
+//     if (!currentUser) {
+//       alert("Please login");
+//       return;
+//     }
+
+//     if (!projectTitle.trim()) {
+//       alert("Project title is required");
+//       return;
+//     }
+
+//     setLoading(true);
+
+//     try {
+//       const clientUid = currentUser.uid;
+//       const clientName = currentUser.displayName || "Client";
+//       const selectedJobId = selectedService?.id || crypto.randomUUID();
+//       const chatId = `${freelancerId}_${clientUid}`;
+
+//       const requestData = {
+//         jobTitle: projectTitle.trim(),
+//         requestStatus: "pending",
+//         requestedAt: Date.now(),
+//         requestedBy: clientUid,
+//         clientName,
+//         freelancerId,
+//         freelancerName,
+//         jobId: selectedJobId,
+//       };
+
+//       await set(ref(rtdb, `requestChats/${freelancerId}/${chatId}`), requestData);
+//       await set(ref(rtdb, `clientSentRequests/${clientUid}/${chatId}`), requestData);
+
+//       await addDoc(collection(db, "notifications"), {
+//         title: projectTitle.trim(),
+//         body: `${clientName} applied for ${projectTitle.trim()}`,
+//         clientUid,
+//         freelancerId,
+//         freelancerName,
+//         jobId: selectedJobId,
+//         read: false,
+//         timestamp: serverTimestamp(),
+//         type: "application",
+//       });
+
+//       setShowSuccessCard(true);
+     
+
+//       setTimeout(() => {
+//         setShowSuccessCard(false);
+//         onClose();
+//          navigate("/client-dashbroad2")
+//       }, 2500);
+
+//     } catch (err) {
+//       console.error(err);
+//       alert("❌ Failed to send request");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+
+//   return (
+//     <div className="ffds-modal-backdrop" onClick={onClose}>
+//       <div className="ffds-modal" onClick={(e) => e.stopPropagation()}>
+//         <div className="ffds-card-title">Connect with {freelancerName}</div>
+//         <p>Bring ideas to Life!</p>
+
+//         {/* Client jobs dropdown */}
+//         {clientJobs.length > 0 && (
+//           <select
+//             className="ffds-select"
+//             value={projectTitle}
+//             onChange={(e) => setProjectTitle(e.target.value)}
+//           >
+//             <option value="">Select your existing Job / Project</option>
+//             {clientJobs.map((job) => (
+//               <option key={job.id} value={job.title}>
+//                 {job.title || "Untitled"}
+//               </option>
+//             ))}
+//           </select>
+//         )}
+
+//         {/* Optional manual override */}
+//         <input
+//           className="ffds-input"
+//           placeholder="Project link (or type new)"
+//           value={projectTitle}
+//           onChange={(e) => setProjectTitle(e.target.value)}
+//         />
+
+
+
+//         <textarea
+//           className="ffds-textarea"
+//           placeholder="Project description (optional)"
+//           value={projectDesc}
+//           onChange={(e) => setProjectDesc(e.target.value)}
+//         />
+
+//         <div className="ffds-modal-footer">
+//           <button className="ffds-btn ffds-btn-outline" onClick={onClose}>
+//             Cancel
+//           </button>
+//           <button
+//             className="ffds-btn ffds-btn-primary"
+//             onClick={sendRequest}
+//             disabled={loading}
+//           >
+//             {loading ? "Sending Request..." : "Send Request"}
+//           </button>
+
+//         </div>
+//       </div>
+
+//       {showSuccessCard && (
+//         <div className="ffds-pop-overlay">
+//           <div className="ffds-pop-card-large">
+//             <div className="ffds-pop-icon-large">
+//               <img src={requestsentimg} alt="" srcset="" />
+//             </div>
+
+//             <div className="ffds-pop-title-large">
+//               Request Sent Successfully
+//             </div>
+
+//             <div className="ffds-pop-text-large">
+//               Your request has been sent to <strong>{freelancerName}</strong>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+
+//     </div>
+//   );
+// }
+
+
+
 import React, { useEffect, useState, useCallback } from "react";
 import { auth, db } from "../../firbase/Firebase";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
 import { addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, set } from "firebase/database";
 import { rtdb } from "../../firbase/Firebase";
-import "./Connect.css"
-import requestsentimg from "../../assets/requestsentimg.jpeg"
-
-
+import "./Connect.css";
+import requestsentimg from "../../assets/requestsentimg.jpeg";
 
 export default function ConnectPopup({
   open,
   onClose,
   freelancerId,
   freelancerName,
-  services = [],
 }) {
   const [selectedService, setSelectedService] = useState(null);
   const [projectTitle, setProjectTitle] = useState("");
-  const [projectLink, setProjectLink] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [loading, setLoading] = useState(false);
   const [clientJobs, setClientJobs] = useState([]);
+  const [freelancerServices, setFreelancerServices] = useState([]); // ✅ NEW
   const [showSuccessCard, setShowSuccessCard] = useState(false);
 
-
-
-
   const navigate = useNavigate();
+
+  // ✅ Fetch freelancer's services by freelancerId
+  const fetchFreelancerServices = useCallback(async () => {
+    if (!freelancerId) return;
+
+    const servicesList = [];
+
+    try {
+      // 🔍 Fetch from "services" collection
+      const servicesSnap = await getDocs(
+        query(collection(db, "services"), where("userId", "==", freelancerId))
+      );
+      servicesSnap.forEach((doc) =>
+        servicesList.push({ id: doc.id, ...doc.data(), source: "services" })
+      );
+
+      // 🔍 Fetch from "services_24" collection
+      const services24Snap = await getDocs(
+        query(collection(db, "services_24"), where("userId", "==", freelancerId))
+      );
+      services24Snap.forEach((doc) =>
+        servicesList.push({ id: doc.id, ...doc.data(), source: "services_24" })
+      );
+
+      setFreelancerServices(servicesList);
+    } catch (err) {
+      console.error("Error fetching freelancer services:", err);
+    }
+  }, [freelancerId]);
 
   // Fetch client's jobs
   const fetchClientJobs = useCallback(async () => {
@@ -1135,172 +1507,47 @@ export default function ConnectPopup({
 
     const jobsList = [];
 
-    const jobsSnap = await getDocs(query(collection(db, "jobs"), where("userId", "==", uid)));
+    const jobsSnap = await getDocs(
+      query(collection(db, "jobs"), where("userId", "==", uid))
+    );
     jobsSnap.forEach((doc) => jobsList.push({ id: doc.id, ...doc.data() }));
 
-    const jobs24Snap = await getDocs(query(collection(db, "jobs_24h"), where("userId", "==", uid)));
+    const jobs24Snap = await getDocs(
+      query(collection(db, "jobs_24h"), where("userId", "==", uid))
+    );
     jobs24Snap.forEach((doc) => jobsList.push({ id: doc.id, ...doc.data() }));
 
     setClientJobs(jobsList);
   }, []);
 
-
-
-
-  // Inject CSS for popup
   useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      .ffds-modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-      }
-
-      .ffds-modal {
-        background: #fff;
-        border-radius: 16px;
-        max-width: 500px;
-        width: 90%;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        position: relative;
-        animation: slideIn 0.3s ease-out;
-      }
-
-      @keyframes slideIn {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-
-      .ffds-card-title {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 16px;
-      }
-
-      .ffds-select, .ffds-input, .ffds-textarea {
-        width: 100%;
-        padding: 10px 12px;
-        margin-bottom: 12px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        font-size: 14px;
-        outline: none;
-        box-sizing: border-box;
-      }
-
-      .ffds-textarea {
-        resize: vertical;
-        min-height: 80px;
-      }
-
-      .ffds-modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 16px;
-      }
-
-      .ffds-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        border-radius: 12px;
-        cursor: pointer;
-        border: none;
-      }
-
-      .ffds-btn-outline {
-        background: white;
-        border: 2px solid #7A4DFF;
-        color: #7A4DFF;
-      }
-
-      .ffds-btn-primary {
-        background: #7A4DFF;
-        color: white;
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-
-  useEffect(() => {
-    if (open) fetchClientJobs();
-    else {
+    if (open) {
+      fetchClientJobs();
+      fetchFreelancerServices(); // ✅ Fetch services when popup opens
+    } else {
       setSelectedService(null);
       setProjectTitle("");
-      setProjectLink("");
       setProjectDesc("");
     }
-  }, [open, fetchClientJobs]);
+  }, [open, fetchClientJobs, fetchFreelancerServices]);
 
   if (!open) return null;
 
+  // ✅ Handle service selection
+  const handleServiceSelect = (serviceId) => {
+    if (!serviceId) {
+      setSelectedService(null);
+      return;
+    }
 
+    const service = freelancerServices.find((s) => s.id === serviceId);
+    setSelectedService(service);
 
-  // const sendRequest = async () => {
-  //   const currentUid = auth.currentUser?.uid;
-  //   if (!currentUid) {
-  //     alert("Please login");
-  //     return;
-  //   }
-
-  //   if (!projectTitle.trim()) {
-  //     alert("Project title is required");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-
-  //     const selectedJobId = selectedService?.id || crypto.randomUUID();
-
-
-  //     const chatId = `${freelancerId}_${currentUid}`;
-  //     await set(ref(rtdb, `requestChats/${freelancerId}/${chatId}`), {
-  //       jobTitle: projectTitle.trim(),
-  //       requestStatus: "pending",
-  //       requestedAt: Date.now(),
-  //       requestedBy: currentUid,
-  //       jobId: selectedJobId,
-  //     });
-
-  //     // 2️⃣ Add a notification for the freelancer
-  //     await addDoc(collection(db, "notifications"), {
-  //       title: projectTitle.trim(),
-  //       body: `${auth.currentUser.displayName || "Someone"} applied for ${projectTitle.trim()}`,
-  //       clientUid: currentUid,
-  //       freelancerId,
-  //       freelancerName,
-  //       jobId: selectedJobId, // match the job ID used above
-  //       read: false,          // freelancer hasn't accepted yet
-  //       timestamp: serverTimestamp(),
-  //       type: "application",
-  //     });
-
-  //     alert("✅ Request sent and notification created");
-  //     onClose();
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("❌ Failed to send request");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
+    // Auto-fill project title with service title
+    if (service) {
+      setProjectTitle(service.title || "");
+    }
+  };
 
   const sendRequest = async () => {
     const currentUser = auth.currentUser;
@@ -1322,41 +1569,101 @@ export default function ConnectPopup({
       const selectedJobId = selectedService?.id || crypto.randomUUID();
       const chatId = `${freelancerId}_${clientUid}`;
 
+      // ✅ Build service snapshot from selected service or manual input
+      const serviceSnapshot = selectedService
+        ? {
+            serviceId: selectedService.id,
+            title: selectedService.title || "",
+            description: selectedService.description || "",
+
+            budget_from: selectedService.budget_from ?? 0,
+            budget_to: selectedService.budget_to ?? 0,
+
+            category: selectedService.category ?? "",
+            skills: selectedService.skills ?? [],
+            tools: selectedService.tools ?? [],
+
+            deliveryDuration: selectedService.deliveryDuration ?? "",
+            clientRequirements: selectedService.clientRequirements ?? "",
+
+            paused: selectedService.paused ?? false,
+
+            createdAt: selectedService.createdAt ?? null,
+            updatedAt: selectedService.updatedAt ?? null,
+
+            source: selectedService.source, // services / services_24
+          }
+        : {
+            serviceId: null,
+            title: projectTitle.trim(),
+            description: projectDesc || "",
+
+            budget_from: 0,
+            budget_to: 0,
+
+            category: "",
+            skills: [],
+            tools: [],
+
+            deliveryDuration: "",
+            clientRequirements: "",
+            paused: false,
+
+            createdAt: null,
+            updatedAt: null,
+
+            source: "manual",
+          };
+
       const requestData = {
         jobTitle: projectTitle.trim(),
         requestStatus: "pending",
         requestedAt: Date.now(),
         requestedBy: clientUid,
+
         clientName,
         freelancerId,
         freelancerName,
+
         jobId: selectedJobId,
+        service: serviceSnapshot,
       };
 
+      // 🔹 RTDB
       await set(ref(rtdb, `requestChats/${freelancerId}/${chatId}`), requestData);
       await set(ref(rtdb, `clientSentRequests/${clientUid}/${chatId}`), requestData);
 
+      // 🔹 FIRESTORE NOTIFICATION
       await addDoc(collection(db, "notifications"), {
-        title: projectTitle.trim(),
-        body: `${clientName} applied for ${projectTitle.trim()}`,
-        clientUid,
-        freelancerId,
-        freelancerName,
-        jobId: selectedJobId,
+        type: "application",
         read: false,
         timestamp: serverTimestamp(),
-        type: "application",
+
+        title: serviceSnapshot.title,
+        body: `${clientName} applied for ${serviceSnapshot.title}`,
+
+        clientUid,
+        clientName,
+        freelancerId,
+        freelancerName,
+
+        jobId: selectedJobId,
+
+        service: serviceSnapshot,
+
+        serviceId: serviceSnapshot.serviceId,
+        category: serviceSnapshot.category,
+        paused: serviceSnapshot.paused,
+        source: serviceSnapshot.source,
       });
 
       setShowSuccessCard(true);
-     
 
       setTimeout(() => {
         setShowSuccessCard(false);
         onClose();
-         navigate("/client-dashbroad2")
+        navigate("/client-dashbroad2");
       }, 2500);
-
     } catch (err) {
       console.error(err);
       alert("❌ Failed to send request");
@@ -1365,38 +1672,91 @@ export default function ConnectPopup({
     }
   };
 
-
   return (
     <div className="ffds-modal-backdrop" onClick={onClose}>
       <div className="ffds-modal" onClick={(e) => e.stopPropagation()}>
         <div className="ffds-card-title">Connect with {freelancerName}</div>
         <p>Bring ideas to Life!</p>
 
-        {/* Client jobs dropdown */}
-        {clientJobs.length > 0 && (
-          <select
-            className="ffds-select"
-            value={projectTitle}
-            onChange={(e) => setProjectTitle(e.target.value)}
-          >
-            <option value="">Select your existing Job / Project</option>
-            {clientJobs.map((job) => (
-              <option key={job.id} value={job.title}>
-                {job.title || "Untitled"}
-              </option>
-            ))}
-          </select>
+        {/* ✅ Freelancer Services Dropdown */}
+        {freelancerServices.length > 0 && (
+          <>
+            <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>
+              Select a Service from {freelancerName}
+            </label>
+            <select
+              className="ffds-select"
+              value={selectedService?.id || ""}
+              onChange={(e) => handleServiceSelect(e.target.value)}
+            >
+              <option value="">-- Select a Service --</option>
+              {freelancerServices.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.title || "Untitled Service"} 
+                  {service.budget_from || service.budget_to
+                    ? ` ($${service.budget_from} - $${service.budget_to})`
+                    : ""}
+                </option>
+              ))}
+            </select>
+          </>
         )}
 
-        {/* Optional manual override */}
+        {/* ✅ Show selected service details */}
+        {selectedService && (
+          <div className="ffds-service-preview" style={{
+            background: "#f5f3ff",
+            padding: 12,
+            borderRadius: 10,
+            marginBottom: 12,
+            fontSize: 13
+          }}>
+            <strong>{selectedService.title}</strong>
+            <p style={{ margin: "4px 0", color: "#666" }}>
+              {selectedService.description || "No description"}
+            </p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
+              {selectedService.category && (
+                <span>📁 {selectedService.category}</span>
+              )}
+              {(selectedService.budget_from || selectedService.budget_to) && (
+                <span>💰 ${selectedService.budget_from} - ${selectedService.budget_to}</span>
+              )}
+              {selectedService.deliveryDuration && (
+                <span>⏱️ {selectedService.deliveryDuration}</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Client jobs dropdown (optional) */}
+        {clientJobs.length > 0 && (
+          <>
+            <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>
+              Or select your existing Job
+            </label>
+            <select
+              className="ffds-select"
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+            >
+              <option value="">Select your existing Job / Project</option>
+              {clientJobs.map((job) => (
+                <option key={job.id} value={job.title}>
+                  {job.title || "Untitled"}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
+        {/* Manual input */}
         <input
           className="ffds-input"
-          placeholder="Project link (or type new)"
+          placeholder="Project title (or type new)"
           value={projectTitle}
           onChange={(e) => setProjectTitle(e.target.value)}
         />
-
-
 
         <textarea
           className="ffds-textarea"
@@ -1416,7 +1776,6 @@ export default function ConnectPopup({
           >
             {loading ? "Sending Request..." : "Send Request"}
           </button>
-
         </div>
       </div>
 
@@ -1424,21 +1783,15 @@ export default function ConnectPopup({
         <div className="ffds-pop-overlay">
           <div className="ffds-pop-card-large">
             <div className="ffds-pop-icon-large">
-              <img src={requestsentimg} alt="" srcset="" />
+              <img src={requestsentimg} alt="" />
             </div>
-
-            <div className="ffds-pop-title-large">
-              Request Sent Successfully
-            </div>
-
+            <div className="ffds-pop-title-large">Request Sent Successfully</div>
             <div className="ffds-pop-text-large">
               Your request has been sent to <strong>{freelancerName}</strong>
             </div>
           </div>
         </div>
       )}
-
-
     </div>
   );
 }

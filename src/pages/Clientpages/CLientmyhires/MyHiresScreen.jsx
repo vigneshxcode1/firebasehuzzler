@@ -1,1990 +1,29 @@
-
-
-// // src/screens/MyHiresScreen.jsx
-
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import {
-//     collection,
-//     query,
-//     where,
-//     onSnapshot,
-//     doc,
-//     getDoc,
-// } from "firebase/firestore";
-// import { onAuthStateChanged } from "firebase/auth";
-// import { auth, db } from "../../../firbase/Firebase"; // ✅ UNMA existing config file (config object illa)
-// import { deleteDoc } from "firebase/firestore";
-
-// // --------------------------
-// // Rubik font inject (single time)
-// // --------------------------
-// if (typeof document !== "undefined" && !document.getElementById("myhires-style")) {
-//     const style = document.createElement("style");
-//     style.id = "myhires-style";
-//     style.innerHTML = `
-//  @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
-
-//  :root {
-//  --mh-yellow: #FDFD96;
-//  --mh-purple: #7C3CFF;
-//  --mh-text: #111827;
-//  }
-
-//  body {
-//  font-family: 'Rubik', system-ui, -apple-system, BlinkMacSystemFont,
-//  'Segoe UI', sans-serif !important;
-//  background-color: #ffffff;
-//  }
-//  `;
-//     document.head.appendChild(style);
-// }
-
-
-// const styles = {
-
-//     deleteBtn: {
-//         padding: "10px 14px",
-//         borderRadius: 10,
-//         backgroundColor: "#EF4444",
-//         cursor: "pointer",
-//     },
-//     deleteBtnText: {
-//         fontSize: 12,
-//         fontWeight: 400,
-//         color: "#FFFFFF",
-//         whiteSpace: "nowrap",
-//     },
-
-//     page: {
-//         minHeight: "100vh",
-//         backgroundColor: "#FFFFFF",
-//         fontFamily:
-//             "'Rubik', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-//     },
-//     container: {
-//         maxWidth: 600,
-//         margin: "0 auto",
-//         padding: "12px 16px 24px 16px",
-//         display: "flex",
-//         flexDirection: "column",
-//     },
-//     headerRow: {
-//         display: "flex",
-//         alignItems: "center",
-//         marginBottom: 14,
-//     },
-//     backBtn: {
-//         width: 32,
-//         height: 32,
-//         borderRadius: 999,
-//         border: "1px solid rgba(0,0,0,0.08)",
-//         display: "flex",
-//         alignItems: "center",
-//         justifyContent: "center",
-//         fontSize: 16,
-//         cursor: "pointer",
-//     },
-//     headerTitle: {
-//         flex: 1,
-//         textAlign: "center",
-//         fontSize: 22,
-//         fontWeight: 500,
-//         color: "#111827",
-//     },
-//     topTabsRow: {
-//         display: "flex",
-//         justifyContent: "center",
-//         gap: 10,
-//         marginTop: 4,
-//     },
-//     topTab: (active) => ({
-//         padding: "8px 64px",
-//         borderRadius: "40px 40px 0 0",
-//         backgroundColor: active ? "#7C3CFF" : "transparent",
-//         transition: "background-color 0.2s ease",
-//         cursor: "pointer",
-//     }),
-//     topTabText: (active) => ({
-//         fontSize: 16,
-//         fontWeight: 500,
-//         color: active ? "#FFFFFF" : "#111827",
-//         whiteSpace: "nowrap",
-//     }),
-//     innerTabsRow: {
-//         display: "flex",
-//         justifyContent: "space-evenly",
-//         alignItems: "flex-start",
-//         marginTop: 16,
-//         marginBottom: 12,
-//     },
-//     innerTabWrapper: {
-//         display: "flex",
-//         flexDirection: "column",
-//         alignItems: "center",
-//         cursor: "pointer",
-//     },
-//     innerTabLabel: {
-//         fontSize: 16,
-//         fontWeight: 500,
-//         color: "#111827",
-//     },
-//     innerTabBar: (active) => ({
-//         marginTop: 4,
-//         height: 5,
-//         width: 120,
-//         borderRadius: 999,
-//         backgroundColor: active ? "#FDFD96" : "transparent",
-//         transition: "background-color 0.2s ease",
-//     }),
-//     listWrapper: {
-//         marginTop: 4,
-//         flex: 1,
-//         overflowY: "auto",
-//         paddingBottom: 16,
-//     },
-//     emptyText: {
-//         marginTop: 40,
-//         textAlign: "center",
-//         fontSize: 16,
-//         color: "#6B7280",
-//     },
-//     card: {
-//         marginBottom: 14,
-//         padding: 16,
-//         borderRadius: 10,
-//         backgroundColor: "#FDFD96",
-//         display: "flex",
-//         alignItems: "center",
-//     },
-//     avatar: {
-//         width: 64,
-//         height: 64,
-//         borderRadius: "50%",
-//         objectFit: "cover",
-//         flexShrink: 0,
-//     },
-//     cardTextCol: {
-//         marginLeft: 14,
-//         display: "flex",
-//         flexDirection: "column",
-//         gap: 4,
-//     },
-//     cardName: {
-//         fontSize: 20,
-//         fontWeight: 500,
-//         color: "#111827",
-//     },
-//     cardRole: {
-//         fontSize: 14,
-//         fontWeight: 400,
-//         color: "#6B7280",
-//     },
-//     cardSpacer: {
-//         flex: 1,
-//     },
-//     chatBtn: {
-//         padding: "10px 14px",
-//         borderRadius: 10,
-//         backgroundColor: "#7C3CFF",
-//         cursor: "pointer",
-//     },
-//     chatBtnText: {
-//         fontSize: 12,
-//         fontWeight: 400,
-//         color: "#FFFFFF",
-//         whiteSpace: "nowrap",
-//     },
-// };
-
-
-// const handleDeleteRequest = async (id) => {
-//     try {
-//         await deleteDoc(doc(db, "myWorks", id));
-//         alert("Request deleted successfully!");
-//     } catch (err) {
-//         console.error("Delete error:", err);
-//         alert("Failed to delete request");
-//     }
-// };
-
-
-// export default function MyHiresScreen() {
-//     const navigate = useNavigate();
-
-//     const [selectedTab, setSelectedTab] = useState("Hired"); // default as Flutter
-//     const [selectedInnerTabIndex, setSelectedInnerTabIndex] = useState(0); // 0=Work, 1=24 Hours
-
-//     const [currentUser, setCurrentUser] = useState(null);
-//     const [userLoading, setUserLoading] = useState(true);
-
-//     const [items, setItems] = useState([]);
-//     const [listLoading, setListLoading] = useState(true);
-
-//     // ------------------ AUTH ------------------
-//     useEffect(() => {
-//         const unsub = onAuthStateChanged(auth, (u) => {
-//             setCurrentUser(u || null);
-//             setUserLoading(false);
-//         });
-//         return () => unsub();
-//     }, []);
-
-//     // ------------------ FIRESTORE LIST ------------------
-//     useEffect(() => {
-//         if (!currentUser) return;
-
-//         setListLoading(true);
-
-//         const q = query(
-//             collection(db, "myWorks"),
-//             where("senderId", "==", currentUser.uid),
-//             where("status", "==", selectedTab === "Requested" ? "sent" : "accepted"),
-//             where("jobData.is24h", "==", selectedInnerTabIndex === 1)
-//         );
-
-//         const unsub = onSnapshot(
-//             q,
-//             async (snap) => {
-//                 const promises = snap.docs.map(async (docSnap) => {
-//                     const data = docSnap.data();
-//                     const receiverId = data.receiverId;
-//                     let userProfile = null;
-
-//                     try {
-//                         const uRef = doc(db, "users", receiverId);
-//                         const uSnap = await getDoc(uRef);
-//                         if (uSnap.exists()) {
-//                             userProfile = uSnap.data();
-//                         }
-//                     } catch (err) {
-//                         console.error("Error fetching user profile", err);
-//                     }
-
-//                     return {
-//                         id: docSnap.id,
-//                         ...data,
-//                         receiverId,
-//                         userProfile,
-//                     };
-//                 });
-
-//                 const list = await Promise.all(promises);
-//                 setItems(list);
-//                 setListLoading(false);
-//             },
-//             (err) => {
-//                 console.error("myWorks snapshot error:", err);
-//                 setListLoading(false);
-//             }
-//         );
-
-//         return () => unsub();
-//     }, [currentUser, selectedTab, selectedInnerTabIndex]);
-
-//     // ------------------ RENDER ------------------
-//     if (userLoading) {
-//         return (
-//             <div style={styles.page}>
-//                 <div style={styles.container}>
-//                     <p>Loading...</p>
-//                 </div>
-//             </div>
-//         );
-//     }
-
-//     if (!currentUser) {
-//         return (
-//             <div style={styles.page}>
-//                 <div style={styles.container}>
-//                     <p style={styles.emptyText}>Please login</p>
-//                 </div>
-//             </div>
-//         );
-//     }
-
-//     const handleBack = () => {
-//         navigate(-1);
-//     };
-
-//     const handleOpenChat = (receiverId, name, image) => {
-//         navigate("/chat", {
-//             state: {
-//                 currentUid: currentUser.uid,
-//                 otherUid: receiverId,
-//                 otherName: name,
-//                 otherImage: image,
-//             },
-//         });
-//     };
-
-//     return (
-//         <div style={styles.page}>
-//             <div style={styles.container}>
-//                 {/* HEADER */}
-//                 <div style={styles.headerRow}>
-//                     <div style={styles.backBtn} onClick={handleBack}>
-//                         {/* simple back icon */}
-//                         <span>&lt;</span>
-//                     </div>
-//                     <div style={styles.headerTitle}>Hire Freelancer</div>
-//                     <div style={{ width: 32 }} /> {/* right spacer */}
-//                 </div>
-
-//                 {/* TOP TABS (Requested / Hired) */}
-//                 <div style={styles.topTabsRow}>
-//                     {["Requested", "Hired"].map((label) => {
-//                         const active = selectedTab === label;
-//                         return (
-//                             <div
-//                                 key={label}
-//                                 style={styles.topTab(active)}
-//                                 onClick={() => setSelectedTab(label)}
-//                             >
-//                                 <span style={styles.topTabText(active)}>{label}</span>
-//                             </div>
-//                         );
-//                     })}
-//                 </div>
-
-//                 {/* INNER TABS (Work / 24 Hours) */}
-//                 <div style={styles.innerTabsRow}>
-//                     {["Work", "24 Hours"].map((label, index) => {
-//                         const active = selectedInnerTabIndex === index;
-//                         return (
-//                             <div
-//                                 key={label}
-//                                 style={styles.innerTabWrapper}
-//                                 onClick={() => setSelectedInnerTabIndex(index)}
-//                             >
-//                                 <span style={styles.innerTabLabel}>{label}</span>
-//                                 <div style={styles.innerTabBar(active)} />
-//                             </div>
-//                         );
-//                     })}
-//                 </div>
-
-//                 {/* LIST */}
-//                 <div style={styles.listWrapper}>
-//                     {listLoading ? (
-//                         <p style={styles.emptyText}>Loading...</p>
-//                     ) : items.length === 0 ? (
-//                         <p style={styles.emptyText}>
-//                             No {selectedTab.toLowerCase()} freelancers found
-//                         </p>
-//                     ) : (
-//                         items.map((item) => {
-//                             const u = item.userProfile || {};
-//                             const name = `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Freelancer";
-//                             const role =
-//                                 (item.jobData && item.jobData.title) || "Freelancer";
-//                             const image =
-//                                 u.profileImage ||
-//                                 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-
-//                             return (
-//                                 <div key={item.id} style={styles.card}>
-//                                     <img src={image} alt={name} style={styles.avatar} />
-
-//                                     <div style={styles.cardTextCol}>
-//                                         <div style={styles.cardName}>{name}</div>
-//                                         <div style={styles.cardRole}>{role}</div>
-//                                     </div>
-
-//                                     <div style={styles.cardSpacer} />
-//                                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-
-//                                         {selectedTab === "Requested" && (
-//                                             <div
-//                                                 style={styles.deleteBtn}
-//                                                 onClick={() => handleDeleteRequest(item.id)}
-//                                             >
-//                                                 <span style={styles.deleteBtnText}>Delete</span>
-//                                             </div>
-//                                         )}
-
-//                                         <div
-//                                             style={styles.chatBtn}
-//                                             onClick={() =>
-//                                                 handleOpenChat(item.receiverId, name, image)
-//                                             }
-//                                         >
-//                                             <span style={styles.chatBtnText}>View chat</span>
-//                                         </div>
-
-//                                     </div>
-
-
-
-
-//                                 </div>
-//                             );
-//                         })
-//                     )}
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from "react";
-
-// import profile from "../../../assets/profile.png";
-
-// // React Icons
-// import {
-//   IoArrowBack,
-//   IoSearch,
-//   IoNotificationsOutline,
-//   IoChatbubbleEllipsesOutline,
-//   IoPersonCircleOutline
-// } from "react-icons/io5";
-
-// export default function HireFreelancer() {
-//   const [activeTab, setActiveTab] = useState("requested");
-//   const [activeSub, setActiveSub] = useState("work");
-
-//   const requestedList = [
-//     {
-//       name: "Helen Angel",
-//       role: "Video Editor",
-//       location: "Chennai, Tamilnadu",
-//       skills: ["UI Design", "Web Design", "UX", "+2"],
-//       date: "10 days ago",
-//       image: profile,
-//     },
-//     {
-//       name: "Helen Angel",
-//       role: "Video Editor",
-//       location: "Chennai, Tamilnadu",
-//       skills: ["UI Design", "Web Design", "UX", "+2"],
-//       date: "10 days ago",
-//       image: profile,
-//     },
-//   ];
-
-//   const hiredList = requestedList;
-//   const listToShow = activeTab === "requested" ? requestedList : hiredList;
-
-//   return (
-//     <>
-//       {/* Rubik Font */}
-//       <link
-//         href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap"
-//         rel="stylesheet"
-//       />
-
-//       <style>{`
-//         :root {
-//           --purple: #7b2ff7;
-//           --purple-light: rgba(123,47,247,0.15);
-//           --white: #fff;
-//           --card-shadow: 0 8px 28px rgba(0,0,0,0.08);
-//         }
-
-//         * {
-//           font-family: "Rubik", sans-serif !important;
-//         }
-
-//         .hire-root {
-//           display: flex;
-//           min-height: 100vh;
-//           // background: linear-gradient(180deg, #faf7cd, #f0eaff);
-//           margin-left:-200px;
-
-//                   }
-
-//         .hire-content {
-//           flex: 1;
-//           padding: 30px 40px;
-//           margin-left: 200px;
-//         }
-
-//         /* HEADER */
-//         .hire-header {
-//           display: flex;
-//           align-items: center;
-//           justify-content: space-between;
-//         }
-
-//         .hire-left {
-//           display: flex;
-//           align-items: center;
-//           gap: 20px;
-//         }
-
-//         .hire-back {
-//           width: 42px;
-//           height: 42px;
-//           border-radius: 12px;
-//           background: rgba(255,255,255,0.7);
-//           display: flex;
-//           justify-content: center;
-//           align-items: center;
-//           font-size: 22px;
-//           cursor: pointer;
-//           box-shadow: var(--card-shadow);
-//         }
-
-//         .hire-title {
-//           font-size: 22px;
-//           font-weight: 700;
-//         }
-
-//         .hire-icons {
-//           display: flex;
-//           align-items: center;
-//           gap: 15px;
-//         }
-
-//         .hire-icon-btn {
-//           width: 42px;
-//           height: 42px;
-//           border-radius: 12px;
-//           background: rgba(255,255,255,0.9);
-//           display: flex;
-//           justify-content: center;
-//           align-items: center;
-//           font-size: 22px;
-//           cursor: pointer;
-//           color: #333;
-//           box-shadow: var(--card-shadow);
-//         }
-
-//         .hire-profile {
-//           width: 42px;
-//           height: 42px;
-//           border-radius: 50%;
-//           object-fit: cover;
-//           border: 2px solid var(--purple);
-//         }
-
-//         /* SEARCH BAR */
-//         .hire-search {
-//           margin-top: 18px;
-//           width: 100%;
-//           background: white;
-//           padding: 14px 22px;
-//           border-radius: 16px;
-//           display: flex;
-//           align-items: center;
-//           gap: 12px;
-//           box-shadow: var(--card-shadow);
-//         }
-
-//         .hire-search input {
-//           border: none;
-//           outline: none;
-//           width: 100%;
-//           font-size: 15px;
-//         }
-
-//         /* TABS */
-//         .hire-tabs {
-//           width: 350px;
-//           margin: 25px auto;
-
-//           padding: 8px;
-//           border-radius: 40px;
-//           display: flex;
-//         }
-
-//         .hire-tab {
-//           flex: 1;
-//           text-align: center;
-//           padding: 10px 0;
-//           font-weight: 600;
-//           border-radius: 30px;
-//           cursor: pointer;
-//           font-size: 14px;
-
-//         }
-
-//         .hire-tab.active {
-//           background: var(--purple);
-//           color: white;
-//         }
-
-//         /* SUBTOGGLE BAR */
-//         .hire-sub-wrapper {
-//           width: 100%;
-//           background: rgba(255,255,255,0.7);
-//           padding: 10px;
-//           border-radius: 20px;
-//           display: flex;
-//           align-items: center;
-//           margin-bottom: 25px;
-//           box-shadow: var(--card-shadow);
-//         }
-
-//         .hire-sub-container {
-//           display: flex;
-//           gap: 20px;
-//         }
-
-//         .hire-sub {
-//           padding: 6px 14px;
-//           border-radius: 12px;
-//           cursor: pointer;
-//           font-weight: 500;
-//         }
-
-//         .hire-sub.active {
-//           background: var(--purple);
-//           color: white;
-//         }
-
-//         .hire-request-btn {
-//           margin-left: auto;
-//           background: var(--purple);
-//           color: white;
-//           padding: 7px 18px;
-//           border-radius: 20px;
-//           cursor: pointer;
-//           font-size: 14px;
-//           font-weight: 600;
-//         }
-
-//         /* CARD GRID */
-//         .hire-grid {
-//           display: grid;
-//           grid-template-columns: repeat(2, 1fr);
-//           gap: 22px;
-//         }
-
-//         .hire-card {
-//           background: white;
-//           border-radius: 16px;
-//           overflow: hidden;
-//           box-shadow: var(--card-shadow);
-//         }
-
-//         .hire-card-top {
-//           height: 110px;
-//           background: linear-gradient(90deg, #7b2ff7, #a066ff);
-//           position: relative;
-//         }
-
-//         .hire-card-img {
-//           width: 75px;
-//           height: 75px;
-//           border-radius: 50%;
-//           object-fit: cover;
-//           position: absolute;
-//           bottom: -38px;
-//           left: 50%;
-//           transform: translateX(-50%);
-//           border: 4px solid white;
-//         }
-
-//         .hire-date {
-//           position: absolute;
-//           top: 10px;
-//           right: 10px;
-//           padding: 6px 12px;
-//           background: white;
-//           border-radius: 10px;
-//           font-size: 12px;
-//           font-weight: 600;
-//         }
-
-//         .hire-card-body {
-//           padding: 50px 20px 20px;
-//           text-align: center;
-//         }
-
-//         .hire-name {
-//           font-size: 17px;
-//           font-weight: 700;
-//         }
-
-//         .hire-role,
-//         .hire-location {
-//           font-size: 13px;
-//           color: #777;
-//         }
-
-//         .hire-skills {
-//           margin: 14px 0;
-//           display: flex;
-//           justify-content: center;
-//           gap: 6px;
-//           flex-wrap: wrap;
-//         }
-
-//         .hire-skill {
-//           background: var(--purple-light);
-//           color: #4a2bb3;
-//           padding: 4px 10px;
-//           border-radius: 8px;
-//           font-size: 12px;
-//         }
-
-//         .hire-btn {
-//           width: 100%;
-//           background: var(--purple);
-//           padding: 10px 0;
-//           border: none;
-//           border-radius: 12px;
-//           color: white;
-//           font-weight: 600;
-//           margin-top: 10px;
-//           cursor: pointer;
-//         }
-//       `}</style>
-
-//       <div className="hire-root">
-
-
-//         <div className="hire-content">
-
-//           {/* HEADER ROW */}
-//           <div className="hire-header">
-
-//             <div className="hire-left">
-//               <div className="hire-back">
-//                 <IoArrowBack />
-//               </div>
-
-//               <div className="hire-title">Hire Freelancer</div>
-//             </div>
-
-//             <div className="hire-icons">
-//               <div className="hire-icon-btn">
-//                 <IoNotificationsOutline />
-//               </div>
-
-//               <div className="hire-icon-btn">
-//                 <IoChatbubbleEllipsesOutline />
-//               </div>
-
-//               <img src={profile} className="hire-profile" />
-//             </div>
-//           </div>
-
-//           {/* SEARCH BAR */}
-//           <div className="hire-search">
-//             <IoSearch size={20} />
-//             <input placeholder="Search freelancer..." />
-//           </div>
-
-//           {/* MAIN TABS */}
-//           <div className="hire-tabs">
-//             <div
-//               className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-//               onClick={() => setActiveTab("requested")}
-//             >
-//               Requested
-//             </div>
-
-//             <div
-//               className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-//               onClick={() => setActiveTab("hired")}
-//             >
-//               Hired
-//             </div>
-//           </div>
-
-//           {/* SUBTOGGLE BAR */}
-//           <div className="hire-sub-wrapper">
-//             <div className="hire-sub-container">
-//               <div
-//                 className={`hire-sub ${activeSub === "work" ? "active" : ""}`}
-//                 onClick={() => setActiveSub("work")}
-//               >
-//                 Work
-//               </div>
-
-//               <div
-//                 className={`hire-sub ${activeSub === "hours" ? "active" : ""}`}
-//                 onClick={() => setActiveSub("hours")}
-//               >
-//                 24 Hours
-//               </div>
-//             </div>
-
-//             <div className="hire-request-btn">Request</div>
-//           </div>
-
-//           {/* CARD GRID */}
-//           <div className="hire-grid">
-//             {listToShow.map((item, i) => (
-//               <div className="hire-card" key={i}>
-//                 <div className="hire-card-top">
-//                   {activeTab === "requested" && (
-//                     <div className="hire-date">{item.date}</div>
-//                   )}
-//                   <img src={item.image} className="hire-card-img" />
-//                 </div>
-
-//                 <div className="hire-card-body">
-//                   <div className="hire-name">{item.name}</div>
-//                   <div className="hire-role">{item.role}</div>
-//                   <div className="hire-location">{item.location}</div>
-
-//                   <div className="hire-skills">
-//                     {item.skills.map((s, idx) => (
-//                       <div className="hire-skill" key={idx}>{s}</div>
-//                     ))}
-//                   </div>
-
-//                   <button className="hire-btn">
-//                     {activeTab === "requested" ? "Delete Request" : "View Chat"}
-//                   </button>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import profile from "../../../assets/profile.png";
-// import {
-//   IoArrowBack,
-//   IoSearch,
-//   IoNotificationsOutline,
-//   IoChatbubbleEllipsesOutline,
-// } from "react-icons/io5";
-
-// import { useNavigate } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-
-
-// import {
-//   collection,
-//   onSnapshot,
-//   query,
-//   where,
-//   orderBy,
-//   doc,
-//   deleteDoc,
-// } from "firebase/firestore";
-
-// import { updateDoc } from "firebase/firestore";
-
-// import { db } from "../../../firbase/Firebase";
-
-
-
-// export default function HireFreelancer() {
-//   const [activeTab, setActiveTab] = useState("requested");
-//   const [activeSub, setActiveSub] = useState("work");
-//   const [requests, setRequests] = useState([]);
-//   const auth = getAuth();
-
-//   const navigate = useNavigate();
-
-//   const getStartMessage = (title) =>
-//     `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
-
-
-//   const markAsRead = async (id) => {
-//     await updateDoc(doc(db, "notifications", id), {
-//       read: true,
-//     });
-//   };
-//   useEffect(() => {
-//     if (!auth.currentUser?.uid) return;
-
-//     const q = query(
-//       collection(db, "notifications"),
-//       where("clientUid", "==", auth.currentUser.uid),
-//       where("type", "==", "application"),
-//       orderBy("timestamp", "desc")
-//     );
-
-//     const unsub = onSnapshot(q, (snap) => {
-//       const list = snap.docs.map((d) => ({
-//         id: d.id,
-//         ...d.data(),
-//       }));
-//       setRequests(list);
-//     });
-
-//     return () => unsub();
-//   }, [auth.currentUser?.uid]);
-
-
-//   const requestedList = requests.filter((r) => r.read === false);
-//   const hiredList = requests.filter((r) => r.read === true);
-
-//   const listToShow =
-//     activeTab === "requested" ? requestedList : hiredList;
-
-
-//   const deleteRequest = async (id) => {
-//     if (!window.confirm("Delete this request?")) return;
-//     await deleteDoc(doc(db, "notifications", id));
-//   };
-
-// console.log(listToShow)
-//   return (
-//     <>
-//       <style>{`
-//         * { font-family: "Rubik", sans-serif; }
-//         .hire-root { min-height: 100vh; background: #f7f8fc; padding: 30px; }
-//         .hire-header { display: flex; justify-content: space-between; align-items: center; }
-//         .hire-title { font-size: 22px; font-weight: 700; }
-//         .hire-search { margin: 20px 0; background: #fff; padding: 14px 20px; border-radius: 14px; display: flex; gap: 10px; }
-//         .hire-search input { border: none; outline: none; width: 100%; }
-
-//         .hire-tabs { display: flex; width: 320px; margin: 0 auto 20px; background: #eee; padding: 6px; border-radius: 30px; }
-//         .hire-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: 600; border-radius: 20px; }
-//         .hire-tab.active { background: #7b2ff7; color: #fff; }
-
-//         .hire-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 20px; }
-//         .hire-card { background: #fff; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.07); overflow: hidden; }
-//         .hire-card-top { background: linear-gradient(90deg,#7b2ff7,#a066ff); padding: 30px 0; text-align: center; }
-//         .hire-img { width: 70px; height: 70px; border-radius: 50%; border: 4px solid #fff; }
-//         .hire-body { padding: 20px; text-align: center; }
-//         .hire-name { font-weight: 700; }
-//         .hire-role { font-size: 13px; color: #777; margin-bottom: 10px; }
-//         .hire-btn { width: 100%; background: #7b2ff7; border: none; color: #fff; padding: 10px; border-radius: 12px; cursor: pointer; margin-top: 10px; }
-//       `}</style>
-
-//       <div className="hire-root">
-//         <div className="hire-header">
-//           <div className="hire-title">Hire Freelancer</div>
-//           <div style={{ display: "flex", gap: 14 }}>
-//             <IoNotificationsOutline size={22} />
-//             <IoChatbubbleEllipsesOutline size={22} />
-//           </div>
-//         </div>
-
-//         <div className="hire-search">
-//           <IoSearch />
-//           <input placeholder="Search freelancer..." />
-//         </div>
-
-//         {/* TABS */}
-//         <div className="hire-tabs">
-//           <div
-//             className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-//             onClick={() => setActiveTab("requested")}
-//           >
-//             Requested ({requestedList.length})
-//           </div>
-//           <div
-//             className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-//             onClick={() => setActiveTab("hired")}
-//           >
-//             Hired ({hiredList.length})
-//           </div>
-//         </div>
-
-//         {/* CARDS */}
-//         <div className="hire-grid">
-//           {listToShow.map((item) => (
-//             <div className="hire-card" key={item.id}>
-//               <div className="hire-card-top">
-//                 <img src={profile} className="hire-img" />
-//               </div>
-
-//               <div className="hire-body">
-//                 <div className="hire-name">{item.freelancerName}</div>
-
-//                 <div className="hire-role">{item.title}</div>
-//                 <div className="hiretime">{item.timestamp}</div>
-//                 <button
-//                   className="hire-btn"
-//                   onClick={async () => {
-//                     if (activeTab === "requested") {
-//                       deleteRequest(item.id);
-//                     } else {
-//                       await markAsRead(item.id);
-
-//                       navigate("/chat", {
-//                         state: {
-//                           currentUid: auth.currentUser.uid,
-//                           otherUid: item.freelancerId,
-//                           otherName: item.freelancerName,
-//                           otherImage: item.profileImage || "",
-//                           initialMessage: getStartMessage(item.title),
-//                         },
-//                       });
-//                     }
-//                   }}
-//                   style={{
-//                     background: activeTab === "requested" ? "#f44336" : "#7b2ff7",
-//                   }}
-//                 >
-//                   {activeTab === "requested" ? "Delete Request" : "View Chat"}
-//                 </button>
-
-
-//               </div>
-//             </div>
-//           ))}
-
-//           {listToShow.length === 0 && (
-//             <p style={{ textAlign: "center", width: "100%" }}>
-//               No data found
-//             </p>
-//           )}
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import profile from "../../../assets/profile.png";
-// import {
-//     IoArrowBack,
-//     IoSearch,
-//     IoNotificationsOutline,
-//     IoChatbubbleEllipsesOutline,
-// } from "react-icons/io5";
-
-// import { useNavigate } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-
-
-// import {
-//     collection,
-//     onSnapshot,
-//     query,
-//     where,
-//     orderBy,
-//     doc,
-//     deleteDoc,
-// } from "firebase/firestore";
-
-// import { updateDoc } from "firebase/firestore";
-
-// import { db } from "../../../firbase/Firebase";
-
-
-
-// export default function HireFreelancer() {
-//     const [activeTab, setActiveTab] = useState("requested");
-//     const [activeSub, setActiveSub] = useState("work");
-//     const [requests, setRequests] = useState([]);
-//     const auth = getAuth();
-
-//     const navigate = useNavigate();
-
-//     const getStartMessage = (title) =>
-//         `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
-
-
-//     const markAsRead = async (id) => {
-//         await updateDoc(doc(db, "notifications", id), {
-//             read: true,
-//         });
-//     };
-
-//     function timeAgo(input) {
-//         if (!input) return "N/A";
-//         let d = input instanceof Timestamp ? input.toDate() : new Date(input);
-//         const diff = (Date.now() - d.getTime()) / 1000;
-//         if (diff < 60) return `${Math.floor(diff)} sec ago`;
-//         if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-//         if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
-//         return `${Math.floor(diff / 86400)} days ago`;
-//     }
-
-//     useEffect(() => {
-//         if (!auth.currentUser?.uid) return;
-
-//         const q = query(
-//             collection(db, "notifications"),
-//             where("clientUid", "==", auth.currentUser.uid),
-//             where("type", "==", "application"),
-//             orderBy("timestamp", "desc")
-//         );
-
-//         const unsub = onSnapshot(q, (snap) => {
-//             const list = snap.docs.map((d) => ({
-//                 id: d.id,
-//                 ...d.data(),
-//             }));
-//             setRequests(list);
-//         });
-
-//         return () => unsub();
-//     }, [auth.currentUser?.uid]);
-
-
-//     const requestedList = requests.filter((r) => r.read === false);
-//     const hiredList = requests.filter((r) => r.read === true);
-
-//     const listToShow =
-//         activeTab === "requested" ? requestedList : hiredList;
-
-
-//     const deleteRequest = async (id) => {
-//         if (!window.confirm("Delete this request?")) return;
-//         await deleteDoc(doc(db, "notifications", id));
-//     };
-
-
-
-//     return (
-//         <>
-//             <style>{`
-//         * { font-family: "Rubik", sans-serif; }
-//         .hire-root { min-height: 100vh; background: #f7f8fc; padding: 30px; }
-//         .hire-header { display: flex; justify-content: space-between; align-items: center; }
-//         .hire-title { font-size: 22px; font-weight: 700; }
-//         .hire-search { margin: 20px 0; background: #fff; padding: 14px 20px; border-radius: 14px; display: flex; gap: 10px; }
-//         .hire-search input { border: none; outline: none; width: 100%; }
-
-//         .hire-tabs { display: flex; width: 320px; margin: 0 auto 20px; background: #eee; padding: 6px; border-radius: 30px; }
-//         .hire-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: 600; border-radius: 20px; }
-//         .hire-tab.active { background: #7b2ff7; color: #fff; }
-
-//         .hire-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 20px; }
-//         .hire-card { background: #fff; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.07); overflow: hidden; }
-//         .hire-card-top { background: linear-gradient(90deg,#7b2ff7,#a066ff); padding: 30px 0; text-align: center; }
-//         .hire-img { width: 70px; height: 70px; border-radius: 50%; border: 4px solid #fff; }
-//         .hire-body { padding: 20px; text-align: center; }
-//         .hire-name { font-weight: 700; }
-//         .hire-role { font-size: 13px; color: #777; margin-bottom: 10px; }
-//         .hire-btn { width: 100%; background: #7b2ff7; border: none; color: #fff; padding: 10px; border-radius: 12px; cursor: pointer; margin-top: 10px; }
-//       `}</style>
-
-//             <div className="hire-root">
-//                 <div className="hire-header">
-//                     <div className="hire-title">Hire Freelancer</div>
-//                     <div style={{ display: "flex", gap: 14 }}>
-//                         <IoNotificationsOutline size={22} />
-//                         <IoChatbubbleEllipsesOutline size={22} />
-//                     </div>
-//                 </div>
-
-//                 <div className="hire-search">
-//                     <IoSearch />
-//                     <input placeholder="Search freelancer..." />
-//                 </div>
-
-//                 {/* TABS */}
-//                 <div className="hire-tabs">
-//                     <div
-//                         className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-//                         onClick={() => setActiveTab("requested")}
-//                     >
-//                         Requested ({requestedList.length})
-//                     </div>
-//                     <div
-//                         className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-//                         onClick={() => setActiveTab("hired")}
-//                     >
-//                         Hired ({hiredList.length})
-//                     </div>
-//                 </div>
-
-//                 {/* CARDS */}
-//                 <div className="hire-grid">
-//                     {listToShow.map((item) => (
-//                         <div className="hire-card" key={item.id}>
-//                             <div className="hire-card-top">
-//                                 <img src={profile} className="hire-img" />
-//                             </div>
-
-//                             <div className="hire-body">
-//                                 <div className="hire-name">{item.freelancerName}</div>
-//                                 <div className="hire-role">{item.title}</div>
-
-//                                 <button
-//                                     className="hire-btn"
-//                                     onClick={async () => {
-//                                         if (activeTab === "requested") {
-//                                             deleteRequest(item.id);
-//                                         } else {
-//                                             await markAsRead(item.id);
-
-//                                             navigate("/chat", {
-//                                                 state: {
-//                                                     currentUid: auth.currentUser.uid,
-//                                                     otherUid: item.freelancerId,
-//                                                     otherName: item.freelancerName,
-//                                                     otherImage: item.profileImage || "",
-//                                                     initialMessage: getStartMessage(item.title),
-//                                                 },
-//                                             });
-//                                         }
-//                                     }}
-//                                     style={{
-//                                         background: activeTab === "requested" ? "#f44336" : "#7b2ff7",
-//                                     }}
-//                                 >
-//                                     {activeTab === "requested" ? "Delete Request" : "View Chat"}
-//                                 </button>
-
-
-//                                 <div className="created"><Clock size={16} />{timeAgo(job.createdAt)}</div>
-//                             </div>
-//                         </div>
-//                     ))}
-
-//                     {listToShow.length === 0 && (
-//                         <p style={{ textAlign: "center", width: "100%" }}>
-//                             No data found
-//                         </p>
-//                     )}
-//                 </div>
-//             </div>
-//         </>
-//     );
-// }
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import profile from "../../../assets/profile.png";
-// import {
-//     IoSearch,
-//     IoNotificationsOutline,
-//     IoChatbubbleEllipsesOutline,
-// } from "react-icons/io5";
-// import { FiClock } from "react-icons/fi";
-
-// import { useNavigate } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-
-// import {
-//     collection,
-//     onSnapshot,
-//     query,
-//     where,
-//     orderBy,
-//     doc,
-//     deleteDoc,
-//     updateDoc,
-//     Timestamp
-// } from "firebase/firestore";
-
-// import { db } from "../../../firbase/Firebase";
-
-// export default function HireFreelancer() {
-
-//     const [activeTab, setActiveTab] = useState("requested");
-//     const [requests, setRequests] = useState([]);
-
-//     const auth = getAuth();
-//     const navigate = useNavigate();
-
-//     const getStartMessage = (title) =>
-//         `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
-
-//     /* ================= HELPERS ================= */
-
-//     const markAsRead = async (id) => {
-//         await updateDoc(doc(db, "notifications", id), { read: true });
-//     };
-
-//     const deleteRequest = async (id) => {
-//         if (!window.confirm("Delete this request?")) return;
-//         await deleteDoc(doc(db, "notifications", id));
-//     };
-
-//     function timeAgo(input) {
-//         if (!input) return "N/A";
-//         let d = input instanceof Timestamp ? input.toDate() : new Date(input);
-//         const diff = (Date.now() - d.getTime()) / 1000;
-//         if (diff < 60) return `${Math.floor(diff)} sec ago`;
-//         if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-//         if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
-//         return `${Math.floor(diff / 86400)} days ago`;
-//     }
-
-//     /* ================= FIRESTORE ================= */
-
-//     useEffect(() => {
-//         if (!auth.currentUser?.uid) return;
-
-//         const q = query(
-//             collection(db, "notifications"),
-//             where("clientUid", "==", auth.currentUser.uid),
-//             where("type", "==", "application"),
-//             orderBy("timestamp", "desc")
-//         );
-
-//         const unsub = onSnapshot(q, (snap) => {
-//             const list = snap.docs.map((d) => ({
-//                 id: d.id,
-//                 ...d.data(),
-//             }));
-//             setRequests(list);
-//         });
-
-//         return () => unsub();
-//     }, [auth.currentUser?.uid]);
-
-//     /* ================= FILTER ================= */
-
-//     const requestedList = requests.filter((r) => r.read === false);
-//     const hiredList = requests.filter((r) => r.read === true);
-
-//     const listToShow = activeTab === "requested" ? requestedList : hiredList;
-
-//     /* ================= UI ================= */
-
-//     return (
-//         <>
-//             <style>{`
-//         * { font-family: "Rubik", sans-serif; }
-//         .hire-root { min-height: 100vh; background: #f7f8fc; padding: 30px; }
-//         .hire-header { display: flex; justify-content: space-between; align-items: center; }
-//         .hire-title { font-size: 22px; font-weight: 700; }
-//         .hire-search { margin: 20px 0; background: #fff; padding: 14px 20px; border-radius: 14px; display: flex; gap: 10px; }
-//         .hire-search input { border: none; outline: none; width: 100%; }
-//         .hire-tabs { display: flex; width: 320px; margin: 0 auto 20px; background: #eee; padding: 6px; border-radius: 30px; }
-//         .hire-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: 600; border-radius: 20px; }
-//         .hire-tab.active { background: #7b2ff7; color: #fff; }
-//         .hire-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 20px; }
-//         .hire-card { background: #fff; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.07); overflow: hidden; }
-//         .hire-card-top { background: linear-gradient(90deg,#7b2ff7,#a066ff); padding: 30px 0; text-align: center; }
-//         .hire-img { width: 70px; height: 70px; border-radius: 50%; border: 4px solid #fff; }
-//         .hire-body { padding: 20px; text-align: center; }
-//         .hire-name { font-weight: 700; }
-//         .hire-role { font-size: 13px; color: #777; margin-bottom: 10px; }
-//         .hire-btn { width: 100%; border: none; color: #fff; padding: 10px; border-radius: 12px; cursor: pointer; margin-top: 10px; }
-//         .created { font-size: 12px; opacity: 0.6; margin-top: 6px; display:flex; gap:6px; align-items:center; justify-content:center; }
-//       `}</style>
-
-//             <div className="hire-root">
-
-//                 <div className="hire-header">
-//                     <div className="hire-title">Hire Freelancer</div>
-//                     <div style={{ display: "flex", gap: 14 }}>
-//                         <IoNotificationsOutline size={22} />
-//                         <IoChatbubbleEllipsesOutline size={22} />
-//                     </div>
-//                 </div>
-
-//                 <div className="hire-search">
-//                     <IoSearch />
-//                     <input placeholder="Search freelancer..." />
-//                 </div>
-
-//                 {/* TABS */}
-//                 <div className="hire-tabs">
-//                     <div
-//                         className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-//                         onClick={() => setActiveTab("requested")}
-//                     >
-//                         Requested ({requestedList.length})
-//                     </div>
-//                     <div
-//                         className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-//                         onClick={() => setActiveTab("hired")}
-//                     >
-//                         Hired ({hiredList.length})
-//                     </div>
-//                 </div>
-
-//                 {/* CARDS */}
-//                 <div className="hire-grid">
-//                     {listToShow.map((item) => (
-//                         <div className="hire-card" key={item.id}>
-
-//                             <div className="hire-card-top">
-//                                 <img src={profile} className="hire-img" />
-//                             </div>
-
-//                             <div className="hire-body">
-//                                 <div className="hire-name">{item.freelancerName}</div>
-//                                 <div className="hire-role">{item.title}</div>
-
-//                                 <button
-//                                     className="hire-btn"
-//                                     style={{ background: activeTab === "requested" ? "#f44336" : "#7b2ff7" }}
-//                                     onClick={async () => {
-//                                         if (activeTab === "requested") {
-//                                             deleteRequest(item.id);
-//                                         } else {
-//                                             await markAsRead(item.id);
-//                                             navigate("/chat", {
-//                                                 state: {
-//                                                     currentUid: auth.currentUser.uid,
-//                                                     otherUid: item.freelancerId,
-//                                                     otherName: item.freelancerName,
-//                                                     otherImage: item.profileImage || "",
-//                                                     initialMessage: getStartMessage(item.title),
-//                                                 },
-//                                             });
-//                                         }
-//                                     }}
-//                                 >
-//                                     {activeTab === "requested" ? "Delete Request" : "View Chat"}
-//                                 </button>
-
-//                                 <div className="created">
-//                                     <FiClock size={14} />
-//                                     {timeAgo(item.timestamp)}
-//                                 </div>
-//                                 <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>
-//                                     {profile.first_name} {profile.last_name}
-//                                 </h2>
-//                             </div>
-//                         </div>
-//                     ))}
-
-//                     {listToShow.length === 0 && (
-//                         <p style={{ textAlign: "center", width: "100%" }}>No data found</p>
-//                     )}
-//                 </div>
-//                 <div style={{ color: "#6b7280", marginTop: 4 }}>{profile.email}</div>
-//                 <p style={{ margin: "8px 0 0", color: "#374151" }}>
-//                     {profile.sector || "Freelancer"} · {profile.location || "India"}
-//                 </p>
-//                 <p style={{ opacity: 0.7, margin: "4px 0 0" }}>
-//                     {profile.professional_title || "Professional"}
-//                 </p>
-//             </div>
-//         </>
-//     );
-// }
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import profileImg from "../../../assets/profile.png";
-// import {
-//     IoSearch,
-//     IoNotificationsOutline,
-//     IoChatbubbleEllipsesOutline,
-// } from "react-icons/io5";
-// import { FiClock } from "react-icons/fi";
-// import { useNavigate } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-// import {
-//     collection,
-//     onSnapshot,
-//     query,
-//     where,
-//     orderBy,
-//     doc,
-//     deleteDoc,
-//     updateDoc,
-//     Timestamp,
-// } from "firebase/firestore";
-// import { db } from "../../../firbase/Firebase";
-
-// /* ======================================================
-//    HIRE FREELANCER – FIXED VERSION
-// ====================================================== */
-
-// export default function HireFreelancer() {
-//     const auth = getAuth();
-//     const navigate = useNavigate();
-
-//     const [activeTab, setActiveTab] = useState("requested");
-//     const [requests, setRequests] = useState([]);
-//     const [search, setSearch] = useState("");
-
-//     /* ================= HELPERS ================= */
-
-//     const getStartMessage = (title) =>
-//         `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
-
-//     const markAsRead = async (id) => {
-//         try {
-//             await updateDoc(doc(db, "notifications", id), { read: true });
-//         } catch (e) {
-//             console.error("Mark as read failed", e);
-//         }
-//     };
-
-//     const deleteRequest = async (id) => {
-//         if (!window.confirm("Delete this request?")) return;
-//         try {
-//             await deleteDoc(doc(db, "notifications", id));
-//         } catch (e) {
-//             console.error("Delete failed", e);
-//         }
-//     };
-
-//     const timeAgo = (input) => {
-//         if (!input) return "N/A";
-//         const d = input instanceof Timestamp ? input.toDate() : new Date(input);
-//         const diff = (Date.now() - d.getTime()) / 1000;
-//         if (diff < 60) return `${Math.floor(diff)} sec ago`;
-//         if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-//         if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
-//         return `${Math.floor(diff / 86400)} days ago`;
-//     };
-
-//     /* ================= FIRESTORE ================= */
-
-//     useEffect(() => {
-//         if (!auth.currentUser?.uid) return;
-
-//         const q = query(
-//             collection(db, "notifications"),
-//             where("clientUid", "==", auth.currentUser.uid),
-//             where("type", "==", "application"),
-//             orderBy("timestamp", "desc")
-//         );
-
-//         const unsub = onSnapshot(q, (snap) => {
-//             setRequests(
-//                 snap.docs.map((d) => ({
-//                     id: d.id,
-//                     ...d.data(),
-//                 }))
-//             );
-//         });
-
-//         return () => unsub();
-//     }, [auth.currentUser?.uid]);
-
-//     /* ================= FILTER ================= */
-
-//     const requestedList = requests.filter((r) => r.read === false);
-//     const hiredList = requests.filter((r) => r.read === true);
-
-//     const listToShow =
-//         activeTab === "requested" ? requestedList : hiredList;
-
-//     const finalList = listToShow.filter((i) =>
-//         i.freelancerName?.toLowerCase().includes(search.toLowerCase())
-//     );
-
-//     /* ================= UI ================= */
-
-//     return (
-//         <>
-//             <style>{`
-//         * { font-family: "Rubik", sans-serif; }
-//         .hire-root { min-height:100vh; background:#fbf9e9; padding:30px; }
-//         .hire-header { display:flex; justify-content:space-between; align-items:center; }
-//         .hire-title { font-size:22px; font-weight:700; }
-//         .hire-search { margin:20px 0; background:#fff; padding:14px 20px; border-radius:14px; display:flex; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
-//         .hire-search input { border:none; outline:none; width:100%; }
-//         .hire-tabs { display:flex; width:320px; margin:0 auto 20px; background:#fff; padding:6px; border-radius:30px; }
-//         .hire-tab { flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:600; border-radius:24px; }
-//         .hire-tab.active { background:#8b5cf6; color:#fff; }
-//         .hire-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
-//         .hire-card { background:#fff; border-radius:18px; box-shadow:0 10px 25px rgba(0,0,0,.1); overflow:hidden; }
-//         .hire-card-top { background:linear-gradient(135deg,#8b5cf6,#a855f7); padding:24px 0; text-align:center; position:relative; }
-//         .badge { position:absolute; top:12px; right:12px; background:#fff; padding:4px 10px; border-radius:20px; font-size:12px; }
-//         .hire-img { width:70px; height:70px; border-radius:50%; border:4px solid #fff; object-fit:cover; }
-//         .hire-body { padding:20px; text-align:center; }
-//         .hire-name { font-weight:700; }
-//         .hire-role { font-size:13px; color:#6b7280; margin-bottom:10px; }
-//         .hire-btn { width:100%; border:none; padding:10px; border-radius:12px; font-weight:600; cursor:pointer; margin-top:12px; }
-//         .delete { background:#ef4444; color:#fff; }
-//         .chat { background:#7c3aed; color:#fff; }
-//         .created { display:flex; justify-content:center; gap:6px; font-size:12px; opacity:.6; margin-top:8px; }
-//       `}</style>
-
-//             <div className="hire-root">
-//                 {/* HEADER */}
-//                 <div className="hire-header">
-//                     <div className="hire-title">Hire Freelancer</div>
-//                     <div style={{ display: "flex", gap: 14 }}>
-//                         <IoNotificationsOutline size={22} />
-//                         <IoChatbubbleEllipsesOutline size={22} />
-//                     </div>
-//                 </div>
-
-//                 {/* SEARCH */}
-//                 <div className="hire-search">
-//                     <IoSearch />
-//                     <input
-//                         placeholder="Search freelancer..."
-//                         value={search}
-//                         onChange={(e) => setSearch(e.target.value)}
-//                     />
-//                 </div>
-
-//                 {/* TABS */}
-//                 <div className="hire-tabs">
-//                     <div
-//                         className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-//                         onClick={() => setActiveTab("requested")}
-//                     >
-//                         Requested ({requestedList.length})
-//                     </div>
-//                     <div
-//                         className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-//                         onClick={() => setActiveTab("hired")}
-//                     >
-//                         Hired ({hiredList.length})
-//                     </div>
-//                 </div>
-
-//                 {/* CARDS */}
-//                 <div className="hire-grid">
-//                     {finalList.map((item) => (
-//                         <div className="hire-card" key={item.id}>
-//                             <div className="hire-card-top">
-//                                 <div className="badge">{timeAgo(item.timestamp)}</div>
-//                                 <img
-//                                     src={item.profileImage || profileImg}
-//                                     className="hire-img"
-//                                 />
-//                             </div>
-
-//                             <div className="hire-body">
-//                                 <div className="hire-name">{item.freelancerName}</div>
-//                                 <div className="hire-role">{item.title}</div>
-//                                 <div className="job-skills">
-//                                     {(item.skills || []).slice(0, 3).map((skill, i) => (
-//                                         <span
-//                                             key={i}
-//                                             style={{
-//                                                 background: "#ede9fe",
-//                                                 color: "#5b21b6",
-//                                                 padding: "4px 10px",
-//                                                 borderRadius: "14px",
-//                                                 fontSize: 12,
-//                                                 margin: "0 4px",
-//                                                 display: "inline-block"
-//                                             }}
-//                                         >
-//                                             {skill}
-//                                         </span>
-//                                     ))}
-//                                 </div>
-
-
-//                                 {activeTab === "requested" ? (
-//                                     <button
-//                                         className="hire-btn delete"
-//                                         onClick={() => deleteRequest(item.id)}
-//                                     >
-//                                         Delete Request
-//                                     </button>
-//                                 ) : (
-//                                     <button
-//                                         className="hire-btn chat"
-//                                         onClick={async () => {
-//                                             await markAsRead(item.id);
-//                                             navigate("/chat", {
-//                                                 state: {
-//                                                     currentUid: auth.currentUser.uid,
-//                                                     otherUid: item.freelancerId,
-//                                                     otherName: item.freelancerName,
-//                                                     otherImage: item.profileImage || "",
-//                                                     initialMessage: getStartMessage(item.title),
-//                                                 },
-//                                             });
-//                                         }}
-//                                     >
-//                                         View Chat
-//                                     </button>
-//                                 )}
-
-//                             </div>
-//                         </div>
-//                     ))}
-
-//                     {finalList.length === 0 && (
-//                         <p style={{ textAlign: "center", width: "100%" }}>
-//                             No data found
-//                         </p>
-//                     )}
-//                 </div>
-//             </div>
-//         </>
-//     );
-// }
-
-
-// import React, { useEffect, useState } from "react";
-// import profileImg from "../../../assets/profile.png";
-// import {
-//   IoSearch,
-//   IoNotificationsOutline,
-//   IoChatbubbleEllipsesOutline,
-// } from "react-icons/io5";
-// import { useNavigate } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-// import {
-//   collection,
-//   onSnapshot,
-//   query,
-//   where,
-//   orderBy,
-//   doc,
-//   deleteDoc,
-//   updateDoc,
-//   Timestamp,
-// } from "firebase/firestore";
-// import { db } from "../../../firbase/Firebase";
-
-// export default function HireFreelancer() {
-//   const auth = getAuth();
-//   const navigate = useNavigate();
-
-//   const [activeTab, setActiveTab] = useState("requested");
-//   const [requests, setRequests] = useState([]);
-//   const [search, setSearch] = useState("");
-
-//   /* ================= HELPERS ================= */
-
-//   const getStartMessage = (title) =>
-//     `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
-
-//   const markAsRead = async (id) => {
-//     try {
-//       await updateDoc(doc(db, "notifications", id), { read: true });
-//     } catch (e) {
-//       console.error(e);
-//     }
-//   };
-
-//   const deleteRequest = async (id) => {
-//     if (!window.confirm("Delete this request?")) return;
-//     try {
-//       await deleteDoc(doc(db, "notifications", id));
-//     } catch (e) {
-//       console.error(e);
-//     }
-//   };
-
-//   const timeAgo = (input) => {
-//     if (!input) return "N/A";
-//     const d = input instanceof Timestamp ? input.toDate() : new Date(input);
-//     const diff = (Date.now() - d.getTime()) / 1000;
-//     if (diff < 60) return `${Math.floor(diff)} sec ago`;
-//     if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-//     if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
-//     return `${Math.floor(diff / 86400)} days ago`;
-//   };
-
-//   /* ================= FIRESTORE ================= */
-
-//   useEffect(() => {
-//     if (!auth.currentUser?.uid) return;
-
-//     const q = query(
-//       collection(db, "notifications"),
-//       where("clientUid", "==", auth.currentUser.uid),
-//       where("type", "==", "application"),
-//       orderBy("timestamp", "desc")
-//     );
-
-//     const unsub = onSnapshot(q, (snap) => {
-//       setRequests(
-//         snap.docs.map((d) => ({
-//           id: d.id,
-//           ...d.data(),
-//         }))
-//       );
-//     });
-
-//     return () => unsub();
-//   }, [auth.currentUser?.uid]);
-
-//   /* ================= FILTER ================= */
-
-//   const requestedList = requests.filter((r) => r.read === false);
-//   const hiredList = requests.filter((r) => r.read === true);
-
-//   const listToShow =
-//     activeTab === "requested" ? requestedList : hiredList;
-
-//   const finalList = listToShow.filter((i) =>
-//     i.freelancerName?.toLowerCase().includes(search.toLowerCase())
-//   );
-
-//   /* ================= UI ================= */
-
-//   return (
-//     <>
-//       <style>{`
-//         * { font-family: "Rubik", sans-serif; }
-//         .hire-root { min-height:100vh; background:#fbf9e9; padding:30px; }
-//         .hire-header { display:flex; justify-content:space-between; align-items:center; }
-//         .hire-title { font-size:22px; font-weight:700; }
-//         .hire-search { margin:20px 0; background:#fff; padding:14px 20px; border-radius:14px; display:flex; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
-//         .hire-search input { border:none; outline:none; width:100%; }
-//         .hire-tabs { display:flex; width:320px; margin:0 auto 20px; background:#fff; padding:6px; border-radius:30px; }
-//         .hire-tab { flex:1; text-align:center; padding:10px; cursor:pointer; font-weight:600; border-radius:24px; }
-//         .hire-tab.active { background:#8b5cf6; color:#fff; }
-//         .hire-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
-//         .hire-card { background:#fff; border-radius:18px; box-shadow:0 10px 25px rgba(0,0,0,.1); overflow:hidden; }
-//         .hire-card-top { background:linear-gradient(135deg,#8b5cf6,#a855f7); padding:24px 0; text-align:center; position:relative; }
-//         .badge { position:absolute; top:12px; right:12px; background:#fff; padding:4px 10px; border-radius:20px; font-size:12px; }
-//         .hire-img { width:70px; height:70px; border-radius:50%; border:4px solid #fff; object-fit:cover; }
-//         .hire-body { padding:20px; text-align:center; }
-//         .hire-name { font-weight:700; }
-//         .hire-role { font-size:13px; color:#6b7280; margin-bottom:10px; }
-//         .hire-btn { width:100%; border:none; padding:10px; border-radius:12px; font-weight:600; cursor:pointer; margin-top:12px; }
-//         .delete { background:#ef4444; color:#fff; }
-//         .chat { background:#7c3aed; color:#fff; }
-//       `}</style>
-
-//       <div className="hire-root">
-//         {/* HEADER */}
-//         <div className="hire-header">
-//           <div className="hire-title">Hire Freelancer</div>
-//           <div style={{ display: "flex", gap: 14 }}>
-//             <IoNotificationsOutline size={22} />
-//             <IoChatbubbleEllipsesOutline size={22} />
-//           </div>
-//         </div>
-
-//         {/* SEARCH */}
-//         <div className="hire-search">
-//           <IoSearch />
-//           <input
-//             placeholder="Search freelancer..."
-//             value={search}
-//             onChange={(e) => setSearch(e.target.value)}
-//           />
-//         </div>
-
-//         {/* TABS */}
-//         <div className="hire-tabs">
-//           <div
-//             className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
-//             onClick={() => setActiveTab("requested")}
-//           >
-//             Requested ({requestedList.length})
-//           </div>
-//           <div
-//             className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
-//             onClick={() => setActiveTab("hired")}
-//           >
-//             Hired ({hiredList.length})
-//           </div>
-//         </div>
-
-//         {/* CARDS */}
-//         <div className="hire-grid">
-//           {finalList.map((item) => {
-//             /* 🔥 SKILLS FIX */
-//             const skillsArray = Array.isArray(item.skills)
-//               ? item.skills
-//               : typeof item.skills === "string"
-//               ? item.skills.split(",").map((s) => s.trim())
-//               : [];
-
-//             return (
-//               <div className="hire-card" key={item.id}>
-//                 <div className="hire-card-top">
-//                   <div className="badge">{timeAgo(item.timestamp)}</div>
-//                   <img
-//                     src={item.profileImage || profileImg}
-//                     className="hire-img"
-//                   />
-//                 </div>
-
-//                 <div className="hire-body">
-//                   <div className="hire-name">{item.freelancerName}</div>
-//                   <div className="hire-role">{item.title}</div>
-
-//                   {/* SKILLS */}
-//                   <div style={{ marginTop: 8 }}>
-//                     {skillsArray.slice(0, 3).map((skill, i) => (
-//                       <span
-//                         key={i}
-//                         style={{
-//                           background: "#ede9fe",
-//                           color: "#5b21b6",
-//                           padding: "4px 10px",
-//                           borderRadius: 14,
-//                           fontSize: 12,
-//                           margin: "0 4px",
-//                           display: "inline-block",
-//                         }}
-//                       >
-//                         {skill}
-//                       </span>
-//                     ))}
-//                   </div>
-
-//                   {activeTab === "requested" ? (
-//                     <button
-//                       className="hire-btn delete"
-//                       onClick={() => deleteRequest(item.id)}
-//                     >
-//                       Delete Request
-//                     </button>
-//                   ) : (
-//                     <button
-//                       className="hire-btn chat"
-//                       onClick={async () => {
-//                         await markAsRead(item.id);
-//                         navigate("/chat", {
-//                           state: {
-//                             currentUid: auth.currentUser.uid,
-//                             otherUid: item.freelancerId,
-//                             otherName: item.freelancerName,
-//                             otherImage: item.profileImage || "",
-//                             initialMessage: getStartMessage(item.title),
-//                           },
-//                         });
-//                       }}
-//                     >
-//                       View Chat
-//                     </button>
-//                   )}
-//                 </div>
-//               </div>
-//             );
-//           })}
-
-//           {finalList.length === 0 && (
-//             <p style={{ textAlign: "center", width: "100%" }}>
-//               No data found
-//             </p>
-//           )}
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { IoChatbubbleEllipsesOutline, IoNotificationsOutline, IoSearch } from "react-icons/io5";
+import { 
+  IoChatbubbleEllipsesOutline, 
+  IoNotificationsOutline, 
+  IoSearch,
+  IoLocationOutline,
+  IoTimeOutline,
+  IoCashOutline,
+  IoConstructOutline,
+  IoBriefcaseOutline
+} from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import profileImg from "../../../assets/profile.png"
-import { collection, onSnapshot, orderBy, query, Timestamp, where } from "firebase/firestore";
+import profileImg from "../../../assets/profile.png";
+import { 
+  collection, 
+  onSnapshot, 
+  orderBy, 
+  query, 
+  Timestamp, 
+  where,
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDoc
+} from "firebase/firestore";
 import { db } from "../../../firbase/Firebase";
 
 export default function HireFreelancer() {
@@ -1994,11 +33,13 @@ export default function HireFreelancer() {
   const [activeTab, setActiveTab] = useState("requested");
   const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedRequest, setSelectedRequest] = useState(null); // For detail modal
+  const [freelancerProfiles, setFreelancerProfiles] = useState({}); // Cache profiles
 
   /* ================= HELPERS ================= */
 
   const getStartMessage = (title) =>
-    `Hi 👋 I’ve reviewed your application for "${title}". Let’s discuss the next steps.`;
+    `Hi 👋 I've reviewed your application for "${title}". Let's discuss the next steps.`;
 
   const markAsRead = async (id) => {
     await updateDoc(doc(db, "notifications", id), { read: true });
@@ -2009,12 +50,52 @@ export default function HireFreelancer() {
     await deleteDoc(doc(db, "notifications", id));
   };
 
+  const hireFreelancer = async (item) => {
+    if (!window.confirm(`Hire ${item.freelancerName}?`)) return;
+    await updateDoc(doc(db, "notifications", item.id), { read: true });
+  };
+
   const timeAgo = (input) => {
     if (!input) return "N/A";
     const d = input instanceof Timestamp ? input.toDate() : new Date(input);
     const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff < 86400) return "10 days ago"; // 👈 matches UI
-    return `${Math.floor(diff / 86400)} days ago`;
+    
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)} mins ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
+    return `${Math.floor(diff / 604800)} weeks ago`;
+  };
+
+  const formatBudget = (from, to) => {
+    if (!from && !to) return "Not specified";
+    if (from && to) return `₹${from.toLocaleString()} - ₹${to.toLocaleString()}`;
+    return `₹${(from || to).toLocaleString()}`;
+  };
+
+  /* ================= FETCH FREELANCER PROFILE ================= */
+  
+  const fetchFreelancerProfile = async (freelancerId) => {
+    if (!freelancerId || freelancerProfiles[freelancerId]) return;
+    
+    try {
+      // Try 'users' collection first
+      let profileDoc = await getDoc(doc(db, "users", freelancerId));
+      
+      if (!profileDoc.exists()) {
+        // Try 'freelancers' collection
+        profileDoc = await getDoc(doc(db, "freelancers", freelancerId));
+      }
+      
+      if (profileDoc.exists()) {
+        setFreelancerProfiles(prev => ({
+          ...prev,
+          [freelancerId]: profileDoc.data()
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching freelancer profile:", err);
+    }
   };
 
   /* ================= FIRESTORE ================= */
@@ -2030,191 +111,572 @@ export default function HireFreelancer() {
     );
 
     return onSnapshot(q, (snap) => {
-      setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setRequests(data);
+      
+      // Fetch profiles for all freelancers
+      data.forEach(item => {
+        if (item.freelancerId) {
+          fetchFreelancerProfile(item.freelancerId);
+        }
+      });
     });
   }, [auth.currentUser?.uid]);
 
   const requestedList = requests.filter((r) => r.read === false);
   const hiredList = requests.filter((r) => r.read === true);
 
-  const listToShow =
-    activeTab === "requested" ? requestedList : hiredList;
+  const listToShow = activeTab === "requested" ? requestedList : hiredList;
 
   const finalList = listToShow.filter((i) =>
-    i.freelancerName?.toLowerCase().includes(search.toLowerCase())
+    i.freelancerName?.toLowerCase().includes(search.toLowerCase()) ||
+    i.service?.title?.toLowerCase().includes(search.toLowerCase()) ||
+    i.service?.category?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <>
       <style>{`
-        * { font-family: "Rubik", sans-serif; }
+        * { font-family: "Rubik", sans-serif; box-sizing: border-box; }
 
         .hire-root {
-          min-height:100vh;
-          background:linear-gradient(#fdfcb3,#fff);
-          padding:26px;
+          min-height: 100vh;
+          background: linear-gradient(180deg, #ffffffff 0%, #fff 100%);
+          padding: 26px;
         }
 
         /* HEADER */
         .hire-header {
-          display:flex;
-          align-items:center;
-          justify-content:space-between;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
         .hire-title {
-          font-size:22px;
-          font-weight:700;
+          font-size: 22px;
+          font-weight: 700;
+          color: #1f2937;
+        }
+        .header-icons {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .header-icons svg {
+          cursor: pointer;
+          color: #6b7280;
+          transition: color 0.2s;
+        }
+        .header-icons svg:hover {
+          color: #7c3aed;
+        }
+        .header-profile {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #e5e7eb;
         }
 
         /* SEARCH */
         .hire-search {
-          margin:22px 0;
-          height:50px;
-          background:#fff;
-          padding:16px 20px;
-          border-radius:18px;
-          display:flex;
-          gap:10px;
-          box-shadow:0 12px 30px rgba(0,0,0,.12);
+          margin: 22px 0;
+          height: 50px;
+          background: #fff;
+          padding: 0 20px;
+          border-radius: 18px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+        .hire-search svg {
+          color: #9ca3af;
+          font-size: 20px;
         }
         .hire-search input {
-          border:none;
-          outline:none;
-          width:100%;
-          font-size:14px;
+          border: none;
+          outline: none;
+          width: 100%;
+          font-size: 14px;
+          background: transparent;
         }
 
         /* TABS */
         .hire-tabs {
-          display:flex;
-          width:360px;
-          margin:0 auto 18px;
-          background:#fff;
-          padding:6px;
-          border-radius:40px;
-          box-shadow:0 6px 20px rgba(0,0,0,.12);
+          display: flex;
+          width: 100%;
+          max-width: 400px;
+          margin: 0 auto 18px;
+          background: #fff;
+          padding: 6px;
+          border-radius: 40px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
         }
         .hire-tab {
-          flex:1;
-          text-align:center;
-          padding:12px 0;
-          font-weight:600;
-          border-radius:30px;
-          cursor:pointer;
+          flex: 1;
+          text-align: center;
+          padding: 12px 0;
+          font-weight: 600;
+          border-radius: 30px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          color: #6b7280;
+        }
+        .hire-tab:hover {
+          background: #f3f4f6;
         }
         .hire-tab.active {
-          background:#8b5cf6;
-          color:#fff;
+          background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+          color: #fff;
+        }
+        .hire-tab .count {
+          background: #ef4444;
+          color: #fff;
+          font-size: 11px;
+          padding: 2px 6px;
+          border-radius: 10px;
+          margin-left: 6px;
+        }
+        .hire-tab.active .count {
+          background: #fff;
+          color: #7c3aed;
         }
 
         /* FILTER BAR */
         .filter-bar {
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          background:#fff;
-          padding:10px 16px;
-          border-radius:14px;
-          margin-bottom:20px;
-          box-shadow:0 6px 20px rgba(0,0,0,.08);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: #fff;
+          padding: 12px 16px;
+          border-radius: 14px;
+          margin-bottom: 20px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
-        .filter-left span {
-          margin-right:18px;
-          font-size:13px;
+        .filter-left {
+          display: flex;
+          gap: 8px;
+        }
+        .filter-chip {
+          background: #f3f4f6;
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .filter-chip:hover, .filter-chip.active {
+          background: #ede9fe;
+          color: #7c3aed;
         }
         .filter-right {
-          color:#7c3aed;
-          font-weight:600;
+          color: #7c3aed;
+          font-weight: 600;
+          font-size: 14px;
         }
 
         /* GRID */
         .hire-grid {
-          display:grid;
-          grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-          gap:22px;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+          gap: 24px;
         }
 
         /* CARD */
         .hire-card {
-          background:#fff;
-          border-radius:22px;
-          box-shadow:0 14px 30px rgba(0,0,0,.15);
-          overflow:hidden;
+          background: #fff;
+          border-radius: 22px;
+          box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .hire-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .card-top {
-          height:110px;
-          background:linear-gradient(135deg,#8b5cf6,#a855f7);
-          position:relative;
+          height: 100px;
+          background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
+          position: relative;
         }
 
         .time-badge {
-          position:absolute;
-          top:12px;
-          right:12px;
-          background:#fff;
-          padding:6px 12px;
-          border-radius:18px;
-          font-size:12px;
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: rgba(255,255,255,0.95);
+          padding: 6px 12px;
+          border-radius: 18px;
+          font-size: 11px;
+          font-weight: 500;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .source-badge {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          background: rgba(255,255,255,0.2);
+          backdrop-filter: blur(10px);
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 10px;
+          font-weight: 600;
+          color: #fff;
+          text-transform: uppercase;
         }
 
         .profile-img {
-          width:80px;
-          height:80px;
-          border-radius:50%;
-          border:4px solid #fff;
-          object-fit:cover;
-          position:absolute;
-          bottom:-40px;
-          left:50%;
-          transform:translateX(-50%);
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          border: 4px solid #fff;
+          object-fit: cover;
+          position: absolute;
+          bottom: -40px;
+          left: 50%;
+          transform: translateX(-50%);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
         .card-body {
-          padding:56px 20px 22px;
-          text-align:center;
+          padding: 50px 20px 20px;
         }
 
-        .name { font-weight:700; }
-        .role { color:#7c3aed; font-size:14px; }
-        .location { font-size:12px; color:#6b7280; margin-bottom:10px; }
+        .card-header {
+          text-align: center;
+          margin-bottom: 16px;
+        }
 
-        .project {
-          font-size:13px;
-          margin:10px 0;
+        .name {
+          font-weight: 700;
+          font-size: 18px;
+          color: #1f2937;
+        }
+
+        .role {
+          color: #7c3aed;
+          font-size: 14px;
+          font-weight: 500;
+          margin-top: 2px;
+        }
+
+        .location {
+          font-size: 12px;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          margin-top: 4px;
+        }
+
+        /* SERVICE INFO */
+        .service-section {
+          background: #f9fafb;
+          border-radius: 14px;
+          padding: 14px;
+          margin: 12px 0;
+        }
+
+        .service-title {
+          font-weight: 600;
+          font-size: 15px;
+          color: #374151;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .service-desc {
+          font-size: 12px;
+          color: #6b7280;
+          line-height: 1.5;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .service-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 10px;
+        }
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11px;
+          color: #6b7280;
+          background: #fff;
+          padding: 4px 10px;
+          border-radius: 8px;
+        }
+
+        .meta-item svg {
+          color: #7c3aed;
+          font-size: 14px;
+        }
+
+        .budget-highlight {
+          background: #dcfce7;
+          color: #166534;
+          font-weight: 600;
+        }
+
+        .category-badge {
+          background: #ede9fe;
+          color: #7c3aed;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 600;
+          display: inline-block;
+          margin-bottom: 10px;
+        }
+
+        /* SKILLS */
+        .skills-section {
+          margin: 12px 0;
+        }
+
+        .skills-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 8px;
+        }
+
+        .skills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
         }
 
         .skills span {
-          background:#ede9fe;
-          color:#5b21b6;
-          padding:5px 12px;
-          border-radius:14px;
-          font-size:12px;
-          margin:4px;
-          display:inline-block;
+          background: #ede9fe;
+          color: #5b21b6;
+          padding: 5px 12px;
+          border-radius: 14px;
+          font-size: 11px;
+          font-weight: 500;
+        }
+
+        .skills .more {
+          background: #7c3aed;
+          color: #fff;
+        }
+
+        /* TOOLS */
+        .tools-section {
+          margin: 12px 0;
+        }
+
+        .tools {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .tools span {
+          background: #fef3c7;
+          color: #92400e;
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 10px;
+          font-weight: 500;
+        }
+
+        /* ACTION BUTTONS */
+        .card-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 16px;
         }
 
         .action-btn {
-          width:100%;
-          padding:12px;
-          border:none;
-          border-radius:14px;
-          font-weight:600;
-          margin-top:16px;
-          cursor:pointer;
+          flex: 1;
+          padding: 12px;
+          border: none;
+          border-radius: 14px;
+          font-weight: 600;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
         }
-        .delete { background:#7c3aed; color:#fff; }
+
+        .btn-primary {
+          background: linear-gradient(135deg, #7c3aed, #6d28d9);
+          color: #fff;
+        }
+
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #6d28d9, #5b21b6);
+          transform: scale(1.02);
+        }
+
+        .btn-secondary {
+          background: #f3f4f6;
+          color: #374151;
+        }
+
+        .btn-secondary:hover {
+          background: #e5e7eb;
+        }
+
+        .btn-danger {
+          background: #fef2f2;
+          color: #dc2626;
+        }
+
+        .btn-danger:hover {
+          background: #fee2e2;
+        }
+
+        .btn-success {
+          background: linear-gradient(135deg, #059669, #10b981);
+          color: #fff;
+        }
+
+        /* VIEW MORE BUTTON */
+        .view-more-btn {
+          background: none;
+          border: none;
+          color: #7c3aed;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 6px 0;
+          text-decoration: underline;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: #9ca3af;
+        }
+
+        .empty-state svg {
+          font-size: 60px;
+          margin-bottom: 16px;
+          opacity: 0.5;
+        }
+
+        /* MODAL */
+        .detail-modal-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.6);
+          backdrop-filter: blur(4px);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          padding: 20px;
+        }
+
+        .detail-modal {
+          background: #fff;
+          border-radius: 24px;
+          max-width: 600px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+          from { transform: translateY(30px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+          background: linear-gradient(135deg, #8b5cf6, #a855f7);
+          padding: 24px;
+          color: #fff;
+          position: relative;
+        }
+
+        .modal-close {
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          background: rgba(255,255,255,0.2);
+          border: none;
+          color: #fff;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 18px;
+        }
+
+        .modal-body {
+          padding: 24px;
+        }
+
+        .modal-section {
+          margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+          font-size: 14px;
+          font-weight: 700;
+          color: #374151;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .modal-desc {
+          font-size: 14px;
+          color: #6b7280;
+          line-height: 1.7;
+          white-space: pre-wrap;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+          .hire-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .hire-tabs {
+            max-width: 100%;
+          }
+          
+          .filter-bar {
+            flex-direction: column;
+            gap: 12px;
+          }
+        }
       `}</style>
 
       <div className="hire-root">
-
         {/* HEADER */}
         <div className="hire-header">
           <div className="hire-title">Hire Freelancer</div>
-          <div style={{ display:"flex", gap:16 }}>
-            <IoChatbubbleEllipsesOutline size={22}/>
-            <IoNotificationsOutline size={22}/>
-            <img src={profileImg} width="32" />
+          <div className="header-icons">
+            <IoChatbubbleEllipsesOutline size={22} />
+            <IoNotificationsOutline size={22} />
+            <img src={profileImg} className="header-profile" alt="Profile" />
           </div>
         </div>
 
@@ -2222,7 +684,7 @@ export default function HireFreelancer() {
         <div className="hire-search">
           <IoSearch />
           <input
-            placeholder="Search"
+            placeholder="Search by name, service, or category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -2231,76 +693,398 @@ export default function HireFreelancer() {
         {/* TABS */}
         <div className="hire-tabs">
           <div
-            className={`hire-tab ${activeTab==="requested"?"active":""}`}
-            onClick={()=>setActiveTab("requested")}
-          >Requested</div>
+            className={`hire-tab ${activeTab === "requested" ? "active" : ""}`}
+            onClick={() => setActiveTab("requested")}
+          >
+            Requested
+            {requestedList.length > 0 && (
+              <span className="count">{requestedList.length}</span>
+            )}
+          </div>
           <div
-            className={`hire-tab ${activeTab==="hired"?"active":""}`}
-            onClick={()=>setActiveTab("hired")}
-          >Hired</div>
+            className={`hire-tab ${activeTab === "hired" ? "active" : ""}`}
+            onClick={() => setActiveTab("hired")}
+          >
+            Hired
+            {hiredList.length > 0 && (
+              <span className="count">{hiredList.length}</span>
+            )}
+          </div>
         </div>
 
         {/* FILTER */}
         <div className="filter-bar">
           <div className="filter-left">
-            <span>Work</span>
-            <span>24 Hours</span>
+            <span className="filter-chip active">All</span>
+            <span className="filter-chip">Work</span>
+            <span className="filter-chip">24 Hours</span>
           </div>
-          <div className="filter-right">Request</div>
+          <div className="filter-right">
+            {finalList.length} {activeTab === "requested" ? "Requests" : "Hired"}
+          </div>
         </div>
 
         {/* CARDS */}
-        <div className="hire-grid">
-          {finalList.map(item => {
-            const skills = Array.isArray(item.skills)
-              ? item.skills
-              : item.skills?.split(",") || [];
+        {finalList.length === 0 ? (
+          <div className="empty-state">
+            <IoBriefcaseOutline />
+            <p>No {activeTab === "requested" ? "requests" : "hired freelancers"} found</p>
+          </div>
+        ) : (
+          <div className="hire-grid">
+            {finalList.map((item) => {
+              const service = item.service || {};
+              const profile = freelancerProfiles[item.freelancerId] || {};
+              
+              const skills = Array.isArray(service.skills) 
+                ? service.skills 
+                : [];
+              
+              const tools = Array.isArray(service.tools) 
+                ? service.tools 
+                : [];
 
-            return (
-              <div className="hire-card" key={item.id}>
-                <div className="card-top">
-                  <div className="time-badge">{timeAgo(item.timestamp)}</div>
-                  <img
-                    src={item.profileImage || profileImg}
-                    className="profile-img"
-                  />
-                </div>
-
-                <div className="card-body">
-                  <div className="name">{item.freelancerName}</div>
-                  <div className="role">Video Editor</div>
-                  <div className="location">Chennai, Tamilnadu</div>
-
-                  <div className="project">UI UX pet app</div>
-
-                  <div className="skills">
-                    {skills.slice(0,3).map((s,i)=><span key={i}>{s}</span>)}
-                    {skills.length>3 && <span>+2</span>}
+              return (
+                <div className="hire-card" key={item.id}>
+                  {/* Card Top */}
+                  <div className="card-top">
+                    {service.source && (
+                      <div className="source-badge">{service.source}</div>
+                    )}
+                    <div className="time-badge">
+                      <IoTimeOutline />
+                      {timeAgo(item.timestamp)}
+                    </div>
+                    <img
+                      src={profile.profileImage || profile.photoURL || item.profileImage || profileImg}
+                      className="profile-img"
+                      alt={item.freelancerName}
+                    />
                   </div>
 
-                  <button
-                    className="action-btn delete"
-                    onClick={() =>
-                      activeTab==="requested"
-                        ? deleteRequest(item.id)
-                        : navigate("/chat", {
-                            state:{
-                              currentUid:auth.currentUser.uid,
-                              otherUid:item.freelancerId,
-                              otherName:item.freelancerName,
-                              otherImage:item.profileImage,
-                              initialMessage:getStartMessage(item.title)
-                            }
-                          })
-                    }
-                  >
-                    {activeTab==="requested"?"Delete Request":"Start Message"}
-                  </button>
+                  {/* Card Body */}
+                  <div className="card-body">
+                    {/* Header Info */}
+                    <div className="card-header">
+                      <div className="name">{item.freelancerName}</div>
+                      <div className="role">
+                        {profile.role || profile.title || service.category || "Freelancer"}
+                      </div>
+                      <div className="location">
+                        <IoLocationOutline />
+                        {profile.location || profile.city || "Location not specified"}
+                      </div>
+                    </div>
+
+                    {/* Category Badge */}
+                    {service.category && (
+                      <div style={{ textAlign: "center" }}>
+                        <span className="category-badge">{service.category}</span>
+                      </div>
+                    )}
+
+                    {/* Service Info */}
+                    <div className="service-section">
+                      <div className="service-title">
+                        <IoBriefcaseOutline />
+                        {service.title || item.title || "Service Request"}
+                      </div>
+                      
+                      {service.description && (
+                        <p className="service-desc">{service.description}</p>
+                      )}
+
+                      <div className="service-meta">
+                        {(service.budget_from || service.budget_to) && (
+                          <span className="meta-item budget-highlight">
+                            <IoCashOutline />
+                            {formatBudget(service.budget_from, service.budget_to)}
+                          </span>
+                        )}
+                        
+                        {service.deliveryDuration && (
+                          <span className="meta-item">
+                            <IoTimeOutline />
+                            {service.deliveryDuration}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Skills */}
+                    {skills.length > 0 && (
+                      <div className="skills-section">
+                        <div className="skills-label">Skills</div>
+                        <div className="skills">
+                          {skills.slice(0, 3).map((s, i) => (
+                            <span key={i}>{s}</span>
+                          ))}
+                          {skills.length > 3 && (
+                            <span className="more">+{skills.length - 3}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tools */}
+                    {tools.length > 0 && (
+                      <div className="tools-section">
+                        <div className="skills-label">Tools</div>
+                        <div className="tools">
+                          {tools.slice(0, 4).map((t, i) => (
+                            <span key={i}>{t}</span>
+                          ))}
+                          {tools.length > 4 && (
+                            <span>+{tools.length - 4}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* View More */}
+                    <button
+                      className="view-more-btn"
+                      onClick={() => setSelectedRequest(item)}
+                    >
+                      View Full Details →
+                    </button>
+
+                    {/* Actions */}
+                    <div className="card-actions">
+                      {activeTab === "requested" ? (
+                        <>
+                          <button
+                            className="action-btn btn-danger"
+                            onClick={() => deleteRequest(item.id)}
+                          >
+                            Decline
+                          </button>
+                          <button
+                            className="action-btn btn-success"
+                            onClick={() => hireFreelancer(item)}
+                          >
+                            Hire Now
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="action-btn btn-primary"
+                          onClick={() =>
+                            navigate("/chat", {
+                              state: {
+                                currentUid: auth.currentUser.uid,
+                                otherUid: item.freelancerId,
+                                otherName: item.freelancerName,
+                                otherImage: profile.profileImage || item.profileImage,
+                                initialMessage: getStartMessage(service.title || item.title),
+                              },
+                            })
+                          }
+                        >
+                          <IoChatbubbleEllipsesOutline />
+                          Start Conversation
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* DETAIL MODAL */}
+        {selectedRequest && (
+          <div 
+            className="detail-modal-backdrop"
+            onClick={() => setSelectedRequest(null)}
+          >
+            <div 
+              className="detail-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <button 
+                  className="modal-close"
+                  onClick={() => setSelectedRequest(null)}
+                >
+                  ✕
+                </button>
+                <h2 style={{ margin: 0, fontSize: 20 }}>
+                  {selectedRequest.freelancerName}
+                </h2>
+                <p style={{ margin: "4px 0 0", opacity: 0.9, fontSize: 14 }}>
+                  {selectedRequest.service?.category || "Freelancer"}
+                </p>
+              </div>
+
+              <div className="modal-body">
+                {/* Service Title */}
+                <div className="modal-section">
+                  <div className="modal-section-title">
+                    <IoBriefcaseOutline /> Service
+                  </div>
+                  <p style={{ fontWeight: 600, color: "#1f2937" }}>
+                    {selectedRequest.service?.title || selectedRequest.title}
+                  </p>
+                </div>
+
+                {/* Description */}
+                {selectedRequest.service?.description && (
+                  <div className="modal-section">
+                    <div className="modal-section-title">Description</div>
+                    <p className="modal-desc">
+                      {selectedRequest.service.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Budget */}
+                <div className="modal-section">
+                  <div className="modal-section-title">
+                    <IoCashOutline /> Budget
+                  </div>
+                  <p style={{ color: "#059669", fontWeight: 600, fontSize: 18 }}>
+                    {formatBudget(
+                      selectedRequest.service?.budget_from,
+                      selectedRequest.service?.budget_to
+                    )}
+                  </p>
+                </div>
+
+                {/* Delivery Duration */}
+                {selectedRequest.service?.deliveryDuration && (
+                  <div className="modal-section">
+                    <div className="modal-section-title">
+                      <IoTimeOutline /> Delivery Duration
+                    </div>
+                    <p>{selectedRequest.service.deliveryDuration}</p>
+                  </div>
+                )}
+
+                {/* Skills */}
+                {selectedRequest.service?.skills?.length > 0 && (
+                  <div className="modal-section">
+                    <div className="modal-section-title">Skills</div>
+                    <div className="skills">
+                      {selectedRequest.service.skills.map((s, i) => (
+                        <span key={i}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tools */}
+                {selectedRequest.service?.tools?.length > 0 && (
+                  <div className="modal-section">
+                    <div className="modal-section-title">
+                      <IoConstructOutline /> Tools
+                    </div>
+                    <div className="tools">
+                      {selectedRequest.service.tools.map((t, i) => (
+                        <span key={i}>{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Client Requirements */}
+                {selectedRequest.service?.clientRequirements && (
+                  <div className="modal-section">
+                    <div className="modal-section-title">Client Requirements</div>
+                    <p className="modal-desc">
+                      {selectedRequest.service.clientRequirements}
+                    </p>
+                  </div>
+                )}
+
+                {/* Meta Info */}
+                <div className="modal-section" style={{ 
+                  background: "#f9fafb", 
+                  padding: 16, 
+                  borderRadius: 12 
+                }}>
+                  <div style={{ 
+                    display: "grid", 
+                    gridTemplateColumns: "1fr 1fr", 
+                    gap: 12,
+                    fontSize: 13
+                  }}>
+                    <div>
+                      <strong>Job ID:</strong><br />
+                      <span style={{ color: "#6b7280" }}>{selectedRequest.jobId}</span>
+                    </div>
+                    <div>
+                      <strong>Service ID:</strong><br />
+                      <span style={{ color: "#6b7280" }}>
+                        {selectedRequest.service?.serviceId || "N/A"}
+                      </span>
+                    </div>
+                    <div>
+                      <strong>Source:</strong><br />
+                      <span style={{ color: "#6b7280" }}>
+                        {selectedRequest.service?.source || "manual"}
+                      </span>
+                    </div>
+                    <div>
+                      <strong>Applied:</strong><br />
+                      <span style={{ color: "#6b7280" }}>
+                        {timeAgo(selectedRequest.timestamp)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="card-actions" style={{ marginTop: 24 }}>
+                  {activeTab === "requested" ? (
+                    <>
+                      <button
+                        className="action-btn btn-danger"
+                        onClick={() => {
+                          deleteRequest(selectedRequest.id);
+                          setSelectedRequest(null);
+                        }}
+                      >
+                        Decline Request
+                      </button>
+                      <button
+                        className="action-btn btn-success"
+                        onClick={() => {
+                          hireFreelancer(selectedRequest);
+                          setSelectedRequest(null);
+                        }}
+                      >
+                        Hire This Freelancer
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="action-btn btn-primary"
+                      style={{ width: "100%" }}
+                      onClick={() => {
+                        setSelectedRequest(null);
+                        navigate("/chat", {
+                          state: {
+                            currentUid: auth.currentUser.uid,
+                            otherUid: selectedRequest.freelancerId,
+                            otherName: selectedRequest.freelancerName,
+                            initialMessage: getStartMessage(
+                              selectedRequest.service?.title || selectedRequest.title
+                            ),
+                          },
+                        });
+                      }}
+                    >
+                      <IoChatbubbleEllipsesOutline />
+                      Start Conversation
+                    </button>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

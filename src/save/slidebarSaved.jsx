@@ -1396,9 +1396,6 @@
 
 
 
-
-
-
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -1533,64 +1530,61 @@ export default function ServiceScreenOne() {
 
   const finalServices = sortArr(filterSearch(services));
   const final24 = sortArr(filterSearch(jobs24));
-  const renderEmptyState = (btnText, onClick) => (
+const renderEmptyState = (btnText, onClick) => (
+  <div
+    style={{
+      width: "100%",
+      minHeight: "60vh", // 👈 vertical centering
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      gap: 16,
+    }}
+  >
+    <img
+      src={serviceEmpty}
+      alt="Empty"
+      style={{
+        width: isMobile ? 180 : 240,
+      }}
+    />
+
+    <div style={{ fontSize: 20, fontWeight: 600 }}>
+      Start your first service today
+    </div>
+
     <div
       style={{
-        width: "100%",
-        minHeight: 300,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 16,
-        marginTop: 40,
-        textAlign: "center",
-        marginLeft: isMobile ? 10 : 400,
+        fontSize: 14,
+        color: "#555",
+        maxWidth: 520,
+        lineHeight: "20px",
       }}
     >
-      <img
-        src={serviceEmpty}
-        alt="Empty"
-        style={{
-          width: isMobile ? 180 : 240,
-          marginBottom: 12,
-
-        }}
-      />
-
-      <div style={{ fontSize: 20, fontWeight: 600 }}>
-        Start your first service today
-      </div>
-
-      <div
-        style={{
-          fontSize: 14,
-          color: "#555",
-          maxWidth: 520,
-          lineHeight: "20px",
-        }}
-      >
-        Showcase your skills with a service offering that attracts the right
-        clients. Start now and turn your expertise into opportunities!
-      </div>
-
-      <button
-        onClick={onClick}
-        style={{
-          marginTop: 12,
-          height: 44,
-          padding: "0 28px",
-          borderRadius: 30,
-          background: "#FFF27A",
-          border: "none",
-          fontWeight: 700,
-          cursor: "pointer",
-        }}
-      >
-        {btnText}
-      </button>
+      Showcase your skills with a service offering that attracts the right
+      clients. Start now and turn your expertise into opportunities!
     </div>
-  );
+
+    <button
+      onClick={onClick}
+      style={{
+        marginTop: 12,
+        height: 44,
+        padding: "0 28px",
+        borderRadius: 30,
+        background: "#FFF27A",
+        border: "none",
+        fontWeight: 700,
+        cursor: "pointer",
+      }}
+    >
+      {btnText}
+    </button>
+  </div>
+);
+
 
   /* ---------------- CARD ---------------- */
   const WorkCard = (job) => (
@@ -1604,19 +1598,20 @@ export default function ServiceScreenOne() {
         )
       }
       style={{
-        width: isMobile ? "100%" : 496,
+        width: "100%", // 👈 fills column
         height: isMobile ? "auto" : 259,
         borderRadius: 24,
-        border: "0.8px solid #E6E6E6",
         backgroundColor: "#FFFFFF",
         padding: 16,
-        boxShadow: "0 8px 20px rgba(16,24,40,0.06)",
+        boxShadow:
+          "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         position: "relative",
       }}
+
     >
       <img
         src={arrow}
@@ -1643,7 +1638,7 @@ export default function ServiceScreenOne() {
         </div>
 
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 16 }}>{job.title}</div>
+          <div style={{ fontWeight: 600, fontSize: 16, textTransform: "uppercase" }}>{job.title}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
             {job.skills?.slice(0, 3).map((s, i) => (
               <div
@@ -1730,142 +1725,158 @@ export default function ServiceScreenOne() {
 
   /* ---------------- UI ---------------- */
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 24,
-        background: "#FFF",
-        marginLeft: isMobile ? 0 : collapsed ? "-150px" : "40px",
-        transition: "margin-left 0.3s ease-in-out",
-        marginTop: isMobile ? 50 : collapsed ? 0 : 0,
-
-      }}
-    >
-      {/* HEADER */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, }}>
-        <div
-          onClick={() => navigate(-1)}
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 14,
-            border: "0.8px solid #E0E0E0",
-            backgroundColor: "#FFFFFF",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
-            flexShrink: 0,
-
-          }}
-        >
-          <img
-            src={backarrow}
-            alt="Back"
-            style={{
-              width: 16,
-              height: 18,
-              objectFit: "contain",
-            }}
-          />
-        </div>
-
-        <div>
-          <div style={{ fontSize: 32, fontWeight: 400 }}>Your Service</div>
-          <div style={{ fontSize: 14 }}>List Your Service, Reach More People.</div>
-        </div>
-      </div>
-
-      {/* TABS */}
+    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
       <div
         style={{
-          width: isMobile ? "100%" : "100%",
-          height: 49.6,
-          borderRadius: 16,
-          border: "0.8px solid #E6E6E6",
-          padding: 6,
-          display: "flex",
-          gap: 6,
-          marginTop: 24,
-          background: "#FFF8E1",
+          minHeight: "100vh",
+          padding: 24,
+          background: "#FFF",
+          marginLeft: isMobile ? 0 : collapsed ? "-150px" : "40px",
+          transition: "margin-left 0.3s ease-in-out",
+          marginTop: isMobile ? 50 : collapsed ? 0 : 0,
+
         }}
       >
-        {["Works", "24 Hours"].map((tab) => (
+        {/* HEADER */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, }}>
           <div
-            key={tab}
-            onClick={() => setSelectedTab(tab)}
+            onClick={() => navigate(-1)}
             style={{
-              width: 165.79,
-              height: 29,
-              padding: "10px 24px",
+              width: 36,
+              height: 36,
               borderRadius: 14,
-              border: "0.8px solid #E6E6E6",
+              border: "0.8px solid #E0E0E0",
+              backgroundColor: "#FFFFFF",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 14,
-              fontWeight: 600,
               cursor: "pointer",
-              background: selectedTab === tab ? "#FFF" : "transparent",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+              flexShrink: 0,
+              marginLeft: isMobile ? 0 : "40px ",
             }}
           >
-            {tab}
+            <img
+              src={backarrow}
+              alt="Back"
+              style={{
+                width: 16,
+                height: 18,
+                objectFit: "contain",
+
+              }}
+            />
           </div>
-        ))}
+
+          <div>
+            <div style={{ fontSize: 32, fontWeight: 400 }}>Your Service</div>
+            <div style={{ fontSize: 14 }}>List Your Service, Reach More People.</div>
+          </div>
+        </div>
+
+        {/* TABS + GRID CONTAINER */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 928,
+            margin: "24px auto",
+          }}
+        >
+          {/* TABS */}
+          {/* TABS */}
+          <div
+            style={{
+              maxWidth: 928,
+              margin: "24px auto 0",
+              height: 49.6,
+              borderRadius: 16,
+              padding: 10,
+              display: "flex",
+              gap: 12,
+              justifyContent: "flex-start", // 👈 LEFT aligned
+              background: "#FFF8E1",
+              boxShadow:
+                "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+            }}
+          >
+            {["Works", "24 Hours"].map((tab) => (
+              <div
+                key={tab}
+                onClick={() => setSelectedTab(tab)}
+                style={{
+                  minWidth: 120, // 👈 consistent size
+                  height: 29,
+                  padding: "10px 24px",
+                  borderRadius: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: selectedTab === tab ? "#FFF" : "transparent",
+                }}
+              >
+                {tab}
+              </div>
+            ))}
+          </div>
+
+
+          {/* GRID */}
+          <div
+            style={{
+              marginTop: 24,
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+              gap: 32,
+              justifyItems: "stretch", // 👈 cards stretch evenly
+            }}
+          >
+            {selectedTab === "Works" ? (
+              servicesLoading ? (
+                <div>Loading...</div>
+              ) : finalServices.length === 0 ? (
+                  <div style={{ gridColumn: "1 / -1" }}>
+              {  renderEmptyState("Create Service", () =>
+                  navigate("/freelance-dashboard/add-service-form")
+                )}</div>
+              ) : (
+                finalServices.map(WorkCard)
+              )
+            ) : jobs24Loading ? (
+              <div>Loading...</div>
+            ) : final24.length === 0 ? (
+               <div style={{ gridColumn: "1 / -1" }}>{
+              renderEmptyState("Create 24h Service", () =>
+                navigate("/freelance-dashboard/add-service-form")
+              )}</div>
+            ) : (
+              final24.map(WorkCard)
+            )}
+          </div>
+        </div>
+
+        {/* FAB */}
+        <button
+          onClick={() => navigate("/freelance-dashboard/add-service-form")}
+          style={{
+            position: "fixed",
+            right: 32,
+            bottom: 32,
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "#7B3CFF",
+            color: "#FFF",
+            fontSize: 32,
+            border: "none",
+          }}
+        >
+          +
+        </button>
       </div>
-
-      {/* GRID */}
-      <div
-        style={{
-          width: isMobile ? "100%" : 928,
-          marginTop: 24,
-          display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 456px)",
-          gap: 54,
-
-        }}
-      >
-        {selectedTab === "Works" ? (
-          servicesLoading ? (
-            <div>Loading...</div>
-          ) : finalServices.length === 0 ? (
-            renderEmptyState("Create Service", () =>
-              navigate("/freelance-dashboard/add-service-form")
-            )
-          ) : (
-            finalServices.map(WorkCard)
-          )
-        ) : jobs24Loading ? (
-          <div>Loading...</div>
-        ) : final24.length === 0 ? (
-          renderEmptyState("Create 24h Service", () =>
-            navigate("/freelance-dashboard/add-service-form")
-          )
-        ) : (
-          final24.map(WorkCard)
-        )}
-
-      </div>
-
-      {/* FAB */}
-      <button
-        onClick={() => navigate("/freelance-dashboard/add-service-form")}
-        style={{
-          position: "fixed",
-          right: 32,
-          bottom: 32,
-          width: 64,
-          height: 64,
-          borderRadius: "50%",
-          background: "#7B3CFF",
-          color: "#FFF",
-          fontSize: 32,
-          border: "none",
-        }}
-      >
-        +
-      </button>
     </div>
   );
+
 }

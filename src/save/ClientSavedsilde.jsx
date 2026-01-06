@@ -2557,7 +2557,7 @@ export default function SavedServicesOnly() {
     <div
       className="freelance-wrapper"
       style={{
-        marginLeft: collapsed ? "-110px" : "110px",
+        marginLeft: collapsed ? "20px" : "30px",
         transition: "margin-left 0.25s ease",
         padding: "20px 22px",
       }}

@@ -38,6 +38,7 @@ margin-top: 40px;
 .fh-header-left {
   width: 100%;
   margin-top: 35px;
+
 }
 
 .fh-welcome {
@@ -48,8 +49,6 @@ margin-top: 40px;
 /* Align avatars and icons to the right */
 .fh-header-right {
   position: absolute;
-  margin-left: 30px;
-
 
   display: flex;
   align-items: center;
@@ -62,7 +61,7 @@ margin-top: 40px;
   width: 100%;
   margin-top: 10px;
   display: flex;
-  justify-content: flex-start;   /* aligns left */
+  justify-content: flex-start;   
   align-items: center;
   gap: 15px;
   font-family: "Rubik", sans-serif;
@@ -130,11 +129,6 @@ margin-top: 40px;
   transition: 0.2s ease;
 }
 
-/* .icon-btn:hover {
-  transform: scale(1.1);
-} */
-
-/* Notification count badge */
 .notif-count {
   position: absolute;
   top: -4px;
@@ -183,6 +177,10 @@ margin-top: 40px;
   gap:18px;
   margin: 6px 0 18px;
   align-items:stretch;
+}
+#fh-hero-card{
+background-color: #000;
+width: 200px;
 }
 
 .fh-hero-card{
@@ -514,13 +512,6 @@ padding: 22px;
 }
 
 /* 🔥 hero card images positioned same as screenshot */
-.hero-img {
-  position: absolute;
-  width: 65px;
-  height: 65px;
-  object-fit: contain;
-  opacity: 0.95;
-}
 
 /* Browse All Projects card PNGs */
 .img-1 { top: 15px; left: 5px;height: 30px; }
@@ -697,6 +688,7 @@ padding: 22px;
     align-items: center;
     gap: 12px;
     margin-top: 35;
+    
   }
 
 
@@ -735,6 +727,8 @@ padding: 22px;
     #fh-header-right{
   padding: 10px;
     margin-top: 45px;
+
+    
   }
 
 }
@@ -796,12 +790,16 @@ padding: 22px;
   align-items: center;
   gap: 16px;
   z-index: 1000;
+  
 }
 @media (max-width: 768px) {
   .fh-header-right {
     top: 20px;        /* 🔥 MOBILE GAP */
     right: 14px;
     gap: 12px;
+
+    
+    
   }
 }
 
@@ -812,6 +810,8 @@ padding: 22px;
   height: 29px;
   cursor: pointer;
   object-fit: contain;
+  
+  
 }
 
 /* Avatar */
@@ -846,6 +846,7 @@ padding: 22px;
     top: 47px;
     right: 14px;
     gap: 12px;
+    
   }
 
   .fh-header-right img {
@@ -884,6 +885,7 @@ padding: 22px;
   .fh-header-right {
     z-index: 1;
     position: relative;
+   
   }
 }
 .job-card {
@@ -908,7 +910,7 @@ margin-top: -30px;
   position: absolute;
   top: 50px;
   right: 24px;
-margin-right: 200px;
+margin-right: 280px;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -968,4 +970,25 @@ margin-right: 55px;
   background: #fff;
 }
 
+}
+
+
+
+@media (min-width: 1400px) {
+
+
+  #freelancer-browerproject-title{
+   
+    margin-right: 10px;
+  }
+
+  #fh-page1{
+    
+    margin-right: 200px;
+  }
+
+  #browertitle{
+  
+    margin-right: -70px;
+  }
 }
