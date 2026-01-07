@@ -3528,6 +3528,8 @@ import arrow from "../../../assets/arrow.png";
 import profile from "../../../assets/profile.png";
 
 
+import ActionCard from "../../../assets/Brouse2.png";
+import Job from "../../../assets/My_Work.png";
 import noCardsImg from "../../../assets/dashboard.png";
 import noInternetImg from "../../../assets/nointernet.png";
 import notification from "../../../assets/notification.png";
@@ -3889,7 +3891,7 @@ export default function FreelanceHome() {
 
         {/* ================= MAIN ================= */}
         <main className="fh-main">
-
+{/* 
           <section className="fh-hero">
 
             <div
@@ -3928,7 +3930,17 @@ export default function FreelanceHome() {
             </div>
 
 
-          </section>
+          </section> */}
+
+
+                      <section >
+          
+          
+                        <img onClick={() => navigate("/freelance-dashboard/freelancebrowesproject")} style={{ width: "50%", cursor: "pointer",marginLeft:'-30px' }} src={ActionCard} alt="ActionCard" />
+          
+                        <img onClick={() => navigate("/freelance-dashboard/freelancermyworks")} style={{ width: "50%", cursor: "pointer",marginLeft:"30px" }} src={Job} alt="ActionCard" />
+          
+                      </section>
 
           {/* JOB LIST */}
           <section className="fh-section">

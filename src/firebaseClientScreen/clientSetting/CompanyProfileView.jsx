@@ -964,6 +964,416 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { getAuth } from "firebase/auth";
+// import {
+//   doc,
+//   getDoc,
+//   updateDoc,
+//   collection,
+//   query,
+//   where,
+//   onSnapshot,
+// } from "firebase/firestore";
+
+// import editicon from "../../assets/editicon.png";
+// import { db } from "../../firbase/Firebase";
+
+// /* ======================================================
+//    COMPANY PROFILE SUMMARY
+// ====================================================== */
+
+// export default function ProfileSummary() {
+//   const navigate = useNavigate();
+
+//   /* ---------------- SIDEBAR ---------------- */
+//   const [collapsed, setCollapsed] = useState(
+//     localStorage.getItem("sidebar-collapsed") === "true"
+//   );
+
+//   useEffect(() => {
+//     const handleToggle = (e) => setCollapsed(e.detail);
+//     window.addEventListener("sidebar-toggle", handleToggle);
+//     return () => window.removeEventListener("sidebar-toggle", handleToggle);
+//   }, []);
+
+//   /* ---------------- MOBILE ---------------- */
+//   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+//   useEffect(() => {
+//     const resize = () => setIsMobile(window.innerWidth < 768);
+//     window.addEventListener("resize", resize);
+//     return () => window.removeEventListener("resize", resize);
+//   }, []);
+
+//   /* ---------------- PROFILE DATA ---------------- */
+//   const [loading, setLoading] = useState(true);
+//   const [data, setData] = useState(null);
+
+//   useEffect(() => {
+//     const fetchProfile = async () => {
+//       const auth = getAuth();
+//       const user = auth.currentUser;
+//       if (!user) {
+//         setLoading(false);
+//         return;
+//       }
+
+//       const snap = await getDoc(doc(db, "users", user.uid));
+//       if (snap.exists()) setData(snap.data());
+//       setLoading(false);
+//     };
+//     fetchProfile();
+//   }, []);
+
+//   /* ---------------- JOBS DATA ---------------- */
+//   const auth = getAuth();
+//   const user = auth.currentUser;
+
+//   const [tab, setTab] = useState("Works");
+//   const [worksJobs, setWorksJobs] = useState([]);
+//   const [jobs24, setJobs24] = useState([]);
+
+//   useEffect(() => {
+//     if (!user) return;
+
+//     const q1 = query(
+//       collection(db, "jobs"),
+//       where("userId", "==", user.uid)
+//     );
+//     const q2 = query(
+//       collection(db, "jobs_24h"),
+//       where("userId", "==", user.uid)
+//     );
+
+//     const unsub1 = onSnapshot(q1, (snap) =>
+//       setWorksJobs(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+//     );
+
+//     const unsub2 = onSnapshot(q2, (snap) =>
+//       setJobs24(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+//     );
+
+//     return () => {
+//       unsub1();
+//       unsub2();
+//     };
+//   }, [user]);
+
+//   if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
+//   if (!data) return <div style={{ padding: 20 }}>No profile found.</div>;
+
+//   const jobsList = tab === "Works" ? worksJobs : jobs24;
+
+//   return (
+//     <div
+//       style={{
+//         marginLeft: isMobile ? 0 : collapsed ? "-110px" : "-1px",
+//         transition: "margin-left 0.25s ease",
+        
+//       }}
+//     >
+//       <div
+//         style={{
+//           minHeight: "100vh",
+//           fontFamily: "Rubik",
+//           background: "#fafafa",
+//           display: "flex",
+//           justifyContent: "center",
+//         }}
+//       >
+//         <div style={{ width: "100%", maxWidth: 920,marginTop:"20px"}}>
+//           {/* ================= HEADER ================= */}
+//           <div
+//             style={{
+//               background:
+//                 "linear-gradient(180deg, #FFFECB 0%, #FFFDE4 40%, #FFFFFF 100%)",
+//               padding: isMobile ? "30px 20px 60px" : "40px 30px 80px",
+//               borderBottomLeftRadius: 30,
+//               borderBottomRightRadius: 30,
+//               position: "relative",
+//             }}
+//           >
+//             <button
+//               onClick={() => navigate("/client-dashbroad2/companyprofileedit")}
+//               style={{
+//                 position: "absolute",
+//                 right: 10,
+//                 top: 10,
+//                 border: "none",
+//                 background: "transparent",
+//                 cursor: "pointer",
+//               }}
+//             >
+//               <img
+//                 src={editicon}
+//                 alt="edit"
+//                 style={{ width: isMobile ? 42 : 60 }}
+//               />
+//             </button>
+
+//             <div
+//               style={{
+//                 display: "flex",
+//                 flexDirection: isMobile ? "column" : "row",
+//                 gap: 18,
+//                 alignItems: isMobile ? "flex-start" : "center",
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   width: 72,
+//                   height: 72,
+//                   borderRadius: "50%",
+//                   background: "#D8D8D8",
+//                   overflow: "hidden",
+//                 }}
+//               >
+//                 <img
+//                   src={data?.profileImage || ""}
+//                   alt=""
+//                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
+//                 />
+//               </div>
+
+//               <div>
+//                 <div style={{ fontSize: isMobile ? 22 : 30 }}>
+//                   {data?.company_name}
+//                 </div>
+//                 <div style={{ color: "#707070", fontSize: 14 }}>
+//                   {data?.email}
+//                 </div>
+//                 <div style={{ marginTop: 10 }}>
+//                   {data?.industry} • {data?.location}
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* ================= CONTENT ================= */}
+//           <div style={{ padding: isMobile ? 16 : 24 }}>
+//             <Card title="About">{data?.business_description}</Card>
+//             <Card title="Company Size">{data?.team_size}</Card>
+//             <Card title="Email Address">{data?.email}</Card>
+
+//             {/* ================= JOBS ================= */}
+//             <div style={{ marginTop: 40 }}>
+//               <h2>Jobs</h2>
+
+//               <div style={styles.toggleGroup}>
+//                 <div
+//                   style={{
+//                     ...styles.toggleButton,
+//                     background: tab === "Works" ? "#fff" : "transparent",
+//                   }}
+//                   onClick={() => setTab("Works")}
+//                 >
+//                   Works
+//                 </div>
+//                 <div
+//                   style={{
+//                     ...styles.toggleButton,
+//                     background: tab === "24" ? "#fff" : "transparent",
+//                   }}
+//                   onClick={() => setTab("24")}
+//                 >
+//                   24 Hours
+//                 </div>
+//               </div>
+
+//               <div style={styles.cardsWrap}>
+//                 {jobsList.map((job) => (
+//                   <JobCard
+//                     key={job.id}
+//                     job={job}
+//                     type={tab}
+//                   />
+//                 ))}
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ================= REUSABLE ================= */
+
+// function Card({ title, children }) {
+//   return (
+//     <div
+//       style={{
+//         background: "#fff",
+//         padding: 22,
+//         borderRadius: 20,
+//         boxShadow: "0 4px 25px rgba(0,0,0,0.07)",
+//         marginBottom: 20,
+//       }}
+//     >
+//       <h3 style={{ marginBottom: 10 }}>{title}</h3>
+//       <div style={{ color: "#555" }}>{children}</div>
+//     </div>
+//   );
+// }
+
+// function JobCard({ job, type }) {
+//   const navigate = useNavigate();
+
+//   /* ---------- PAUSE / RESUME ---------- */
+//   const handlePause = async (e) => {
+//     e.stopPropagation();
+
+//     const collectionName = type === "Works" ? "jobs" : "jobs_24h";
+//     const ref = doc(db, collectionName, job.id);
+
+//     await updateDoc(ref, {
+//       status: job.status === "paused" ? "active" : "paused",
+//     });
+//   };
+
+//   /* ---------- EDIT ---------- */
+//   const handleEdit = (e) => {
+//     e.stopPropagation();
+
+//     navigate("/client-dashbroad2/clientedit24jobs", {
+//       state: { jobId: job.id, jobData: job },
+//     });
+//   };
+
+//   return (
+//     <div
+//       onClick={() =>
+//         navigate(
+//           type === "Works"
+//             ? `/client-dashbroad2/clienteditjob/${job.id}`
+//             : `/client-dashbroad2/clientedit24jobs/${job.id}`
+//         )
+//       }
+//       style={{
+//         border: "1px solid #ddd",
+//         borderRadius: 24,
+//         padding: 20,
+//         cursor: "pointer",
+//       }}
+//     >
+//       <div style={{ display: "flex", gap: 12 }}>
+//         <div style={styles.avatarBox}>
+//           {(job?.title || "J").substring(0, 2).toUpperCase()}
+//         </div>
+//         <div>
+//           <div style={styles.jobTitle}>{job?.title}</div>
+//           <div style={{ display: "flex", marginTop: 6 }}>
+//             {job?.skills?.slice(0, 2).map((s, i) => (
+//               <div key={i} style={styles.skillChip}>
+//                 {s}
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       <div style={{ marginTop: 12, color: "#7C3CFF", fontWeight: 600 }}>
+//         ₹{job?.budget_from || job?.budget}
+//       </div>
+
+//       <div style={{ marginTop: 6, fontSize: 13 }}>
+//         {job?.timeline || "24 hours"} • Remote
+//       </div>
+
+//       <div style={styles.buttonRow}>
+//         <button style={styles.secondaryBtn} onClick={handlePause}>
+//           {job.status === "paused" ? "Resume Service" : "Pause Service"}
+//         </button>
+
+//         <button style={styles.primaryBtn} onClick={handleEdit}>
+//           Edit Service
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ================= STYLES ================= */
+
+// const styles = {
+//   avatarBox: {
+//     width: 42,
+//     height: 42,
+//     borderRadius: "50%",
+//     background: "#EEE",
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     fontWeight: 700,
+//   },
+//   jobTitle: { fontWeight: 700, fontSize: 15 },
+//   skillChip: {
+//     background: "#F1EDFF",
+//     color: "#5A3BFF",
+//     padding: "4px 8px",
+//     borderRadius: 8,
+//     fontSize: 12,
+//     marginRight: 6,
+//   },
+//   toggleGroup: {
+//     display: "flex",
+//     gap: 10,
+//     background: "#f0f0f0",
+//     padding: 6,
+//     borderRadius: 14,
+//     width: "fit-content",
+//     margin: "20px 0",
+//   },
+//   toggleButton: {
+//     padding: "8px 16px",
+//     borderRadius: 10,
+//     cursor: "pointer",
+//     fontWeight: 600,
+//   },
+//   cardsWrap: {
+//     display: "flex",
+//     flexDirection: "column",
+//     gap: 14,
+//   },
+//   buttonRow: {
+//     display: "flex",
+//     gap: 12,
+//     marginTop: 14,
+//   },
+//   secondaryBtn: {
+//     flex: 1,
+//     height: 38,
+//     borderRadius: 30,
+//     border: "1px solid #BDBDBD",
+//     background: "#fff",
+//     fontWeight: 600,
+//     cursor: "pointer",
+//   },
+//   primaryBtn: {
+//     flex: 1,
+//     height: 38,
+//     borderRadius: 30,
+//     background: "rgba(253,253,150,1)",
+//     border: "none",
+//     fontWeight: 700,
+//     cursor: "pointer",
+//   },
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
@@ -1070,30 +1480,32 @@ export default function ProfileSummary() {
       style={{
         marginLeft: isMobile ? 0 : collapsed ? "-110px" : "-1px",
         transition: "margin-left 0.25s ease",
-        
+     marginTop:  collapsed ? "10px" : "10px",
       }}
     >
       <div
         style={{
           minHeight: "100vh",
           fontFamily: "Rubik",
-          background: "#fafafa",
+          // background: "#fafafa",
           display: "flex",
           justifyContent: "center",
         }}
       >
-        <div style={{ width: "100%", maxWidth: 920,marginTop:"20px"}}>
+        <div style={{ width: "100%", maxWidth: 920, marginTop: "20px" }}>
           {/* ================= HEADER ================= */}
           <div
             style={{
-              background:
-                "linear-gradient(180deg, #FFFECB 0%, #FFFDE4 40%, #FFFFFF 100%)",
+              // background:
+              //   "linear-gradient(180deg, #FFFECB 0%, #FFFDE4 40%, #FFFFFF 100%)",
               padding: isMobile ? "30px 20px 60px" : "40px 30px 80px",
-              borderBottomLeftRadius: 30,
-              borderBottomRightRadius: 30,
+              // borderBottomLeftRadius: 30,
+              // borderBottomRightRadius: 30,
+              // borderBottom:"2px solid  #00000040",
               position: "relative",
             }}
           >
+
             <button
               onClick={() => navigate("/client-dashbroad2/companyprofileedit")}
               style={{
@@ -1149,7 +1561,9 @@ export default function ProfileSummary() {
               </div>
             </div>
           </div>
-
+          <div className="borderbottom" style={{
+            borderBottom: "2px solid  #00000040",width:"93%",marginLeft:"25px",
+          }}></div>
           {/* ================= CONTENT ================= */}
           <div style={{ padding: isMobile ? 16 : 24 }}>
             <Card title="About">{data?.business_description}</Card>
@@ -1164,7 +1578,8 @@ export default function ProfileSummary() {
                 <div
                   style={{
                     ...styles.toggleButton,
-                    background: tab === "Works" ? "#fff" : "transparent",
+                    background: tab === "Works" ? "#9050FF" : "transparent",
+                          color: tab === "24" ? "#000  " : "#fff",
                   }}
                   onClick={() => setTab("Works")}
                 >
@@ -1173,7 +1588,8 @@ export default function ProfileSummary() {
                 <div
                   style={{
                     ...styles.toggleButton,
-                    background: tab === "24" ? "#fff" : "transparent",
+                    background: tab === "24" ? "#9050FF  " : "transparent",
+                      color: tab === "24" ? "#fff  " : "#000",
                   }}
                   onClick={() => setTab("24")}
                 >
@@ -1207,7 +1623,7 @@ function Card({ title, children }) {
         background: "#fff",
         padding: 22,
         borderRadius: 20,
-        boxShadow: "0 4px 25px rgba(0,0,0,0.07)",
+         boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
         marginBottom: 20,
       }}
     >
@@ -1251,10 +1667,11 @@ function JobCard({ job, type }) {
         )
       }
       style={{
-        border: "1px solid #ddd",
+        // border: "1px solid #ddd",
         borderRadius: 24,
         padding: 20,
         cursor: "pointer",
+         boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
       }}
     >
       <div style={{ display: "flex", gap: 12 }}>
@@ -1319,11 +1736,12 @@ const styles = {
   toggleGroup: {
     display: "flex",
     gap: 10,
-    background: "#f0f0f0",
+    background: "#fff",
     padding: 6,
     borderRadius: 14,
-    width: "fit-content",
+    width: "100%",
     margin: "20px 0",
+      boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
   },
   toggleButton: {
     padding: "8px 16px",
@@ -1332,9 +1750,11 @@ const styles = {
     fontWeight: 600,
   },
   cardsWrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 14,
+
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gap: 16,
+
   },
   buttonRow: {
     display: "flex",
@@ -1360,11 +1780,3 @@ const styles = {
     cursor: "pointer",
   },
 };
-
-
-
-
-
-
-
-

@@ -1412,13 +1412,13 @@ const BlockedUsersScreen = () => {
         transition: "margin-left 0.25s ease",
       }}
     >
-      <Box sx={{ marginRight: "220px", minHeight: "100vh", bgcolor: "#fff7f4" }}>
+      <Box sx={{ marginRight: "220px", minHeight: "100vh",  }}>
         {/* ================= HEADER ================= */}
         <AppBar
           position="static"
           elevation={0}
           sx={{
-            bgcolor: "#fff7f4",
+            bgcolor: "white",
             color: "#000",
           }}
         >

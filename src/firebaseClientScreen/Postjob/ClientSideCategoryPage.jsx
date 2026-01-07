@@ -2356,7 +2356,7 @@ export default function CategoryPage({ initialTab = "Work" }) {
         </div>
       </div>
 
-      <div id="fh-header-right" className="fh-header-right" style={{ marginTop: "1px" }}>
+      <div id="fh-header-right" className="fh-header-right" style={{ marginTop: "1px",marginRight:"190px" }}>
 
         <img onClick={() => navigate("/client-dashbroad2/messages")} style={{ width: "26px" }} src={message} alt="message" />
 
@@ -2542,59 +2542,59 @@ export default function CategoryPage({ initialTab = "Work" }) {
         </div>
       </div>
 
-      {/* RIGHT – SORT */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          padding: "10px 14px",
-          // backgroundColor:"green",
-          marginTop: '15px'
-        }}
-      >
-        {/* LEFT – FILTER */}
-        <div
-          onClick={() => setShowFilter(true)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            cursor: "pointer",
-            fontWeight: 500,
-            marginLeft: "1000px",
+{/* FILTER + SORT BAR */}
+<div
+  style={{
+    display: "flex",
+    // alignItems: "center",
+    justifyContent: "flex-end", // 🔥 key point
+    width: "100%",
+    padding: "10px 14px",
+    marginTop: "15px",
+    flexWrap: "wrap", // mobile safety
+    gap: "10px",
+    // marginLeft:
+  }}
+>
+  {/* LEFT – FILTER */}
+  <div
+    onClick={() => setShowFilter(true)}
+   style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      cursor: "pointer",
+      fontWeight: 500,
+    }}
+  >
+    <img
+      src={filter1}
+      alt="Filter"
+      style={{ width: 18, height: 18 }}
+    />
+    <span>Filter</span>
+  </div>
 
+  {/* RIGHT – SORT */}
+  <div
+    onClick={() => setShowSort(!showSort)}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      cursor: "pointer",
+      fontWeight: 500,
+    }}
+  >
+    <img
+      src={sortimg}
+      alt="Sort"
+      style={{ width: 18, height: 18 }}
+    />
+    <span>Sort</span>
+  </div>
+</div>
 
-          }}
-        >
-          <img
-            src={filter1}
-            alt="Filter"
-            style={{ width: 18, height: 18 }}
-          />
-          <span>Filter</span>
-        </div>
-
-        {/* RIGHT – SORT */}
-        <div
-          onClick={() => setShowSort(!showSort)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            cursor: "pointer",
-            fontWeight: 500,
-          }}
-        >
-          <img
-            src={sortimg}
-            alt="Sort"
-            style={{ width: 18, height: 18 }}
-          />
-          <span>Sort</span>
-        </div>
-      </div>
 
 
       <div style={{ marginTop: 20 }}>

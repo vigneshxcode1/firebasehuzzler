@@ -1688,6 +1688,8 @@ import worksImg1 from "../assets/file.png";
 import worksImg2 from "../assets/yellowwave.png";
 import arrow from "../assets/arrow.png";
 import profile from "../assets/profile.png";
+import ActionCard from "../assets/ActionCard.png";
+import Job from "../assets/Job_Card.png";
 
 // ====== ICONS ======
 import {
@@ -1982,9 +1984,9 @@ export default function ClientHomeUI() {
               <div></div>
             </div>
 
-            <div id="fh-header-right" className="fh-header-right">
+            <div  id="fh-header-right" className="fh-header-right">
 
-              <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
+              <button   className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
                 <FiMessageCircle />
               </button>
 
@@ -2066,42 +2068,12 @@ export default function ClientHomeUI() {
 
           <main className="fh-main">
 
-            <section className="fh-hero">
+            <section >
 
-              <div
-                id="fh-hero-card"
-                className="fh-hero-card primary"
-                onClick={() => navigate("/client-dashbroad2/clientcategories")}
-              >
-                <img src={browseImg1} id="hero-img-brower" className="hero-img img-1" style={{
-                  width: "50px", paddingTop: "20px"
-                }} />
-                <img src={browseImg2} className="hero-img img-2" style={{ width: "300px", height: "200px", marginRight: "150px" }} />
-                <div id="browertitle">
-                  <h3> <span>Browse Freelancer</span></h3>
-                  <p><span>Explore verified professionals</span></p>
-                </div>
-                <div className="hero-right">
-                  <img src={arrow} className="arrow" width={25} />
-                </div>
-              </div>
 
-              <div
-                id="fh-hero-card"
-                className="fh-hero-card secondary"
-                onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
-              >
-                <img src={worksImg1} id="hero-img" className="hero-img img-3" style={{ width: "50px", paddingTop: "20px" }} />
-                <img src={worksImg2} className="hero-img img-4" style={{ width: "300px", height: "200px", marginRight: "150px" }} />
-                <div id="browertitle" className="jobtitle">
-                  <h3>Job Proposal</h3>
-                  <p>Find the right freelancers for your project</p>
-                </div>
-                <div className="hero-right">
-                  <img src={arrow} className="arrow" width={25} />
-                </div>
-              </div>
+              <img onClick={() => navigate("/client-dashbroad2/clientcategories")} style={{ width: "50%", cursor: "pointer",marginLeft:'-30px' }} src={ActionCard} alt="ActionCard" />
 
+              <img onClick={() => navigate("/client-dashbroad2/AddJobScreen")} style={{ width: "50%", cursor: "pointer",marginLeft:"30px" }} src={Job} alt="ActionCard" />
 
             </section>
 

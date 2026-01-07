@@ -573,7 +573,6 @@
 
 
 
-
 import React, { useEffect, useState } from "react";
 import { IoChevronBack, IoClose } from "react-icons/io5";
 import { getAuth } from "firebase/auth";
@@ -586,11 +585,12 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firbase/Firebase";
 import backarrow from "../../assets/backarrow.png";
+import { useNavigate } from "react-router-dom";
 
-/* ======================================================
-   HELP CENTER + RAISE TICKET MODAL
-====================================================== */
+
 export default function HelpCenter() {
+  const navigate = useNavigate();
+
   const [collapsed, setCollapsed] = useState(
     localStorage.getItem("sidebar-collapsed") === "true"
   );
@@ -635,12 +635,24 @@ export default function HelpCenter() {
 }
 
 
-        .header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 20px;
-        }
+      .header {
+  width: 100%;
+  max-width: 700px;      /* SAME as faq-item */
+  margin: 0 auto;        /* center horizontally */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+}
+.head h1 {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+
+
+
 
         .title {
           margin: 60px 0 50px;
@@ -871,107 +883,132 @@ export default function HelpCenter() {
 
       <div className="page" style={{ marginLeft: collapsed ? "-110px" : "50px" }}>
         <div className="header">
-         <img
-           src={backarrow}
-           alt="Back"
-           style={{
-             width: 16,
-             height: 18,
-             objectFit: "contain",
-           }}
-         />
-          Help Center
-        </div>
-
-        <div className="title">
-          Frequently Asked
-          <br />
-          Questions
-        </div>
-
-        <div className="faq-list">
-          {faqData.map((f, i) => (
-            <div key={i} className="faq-item" onClick={() => toggleFAQ(i)}>
-              <div className="faq-q">
-                {f.question}
-                <div className="plus">{openIndex === i ? "−" : "+"}</div>
-              </div>
-              {openIndex === i && <div className="faq-a">{f.answer}</div>}
+          
+            <div
+              onClick={() => navigate(-1)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 14,
+                border: "0.8px solid #E0E0E0",
+                backgroundColor: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+                flexShrink: 0,
+              }}
+            >
+              <img
+                src={backarrow}
+                alt="Back"
+                style={{
+                  width: 16,
+                  height: 18,
+                  objectFit: "contain",
+                }}
+              />
             </div>
-          ))}
-        </div>
 
-        {/* HOW CAN WE HELP */}
-        <div className="help-box">
-          <h3>How can we help you?</h3>
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 400 }}>
+                Help Center
+              </div>
+            </div>
+       
+          </div>
 
-          <div className="help-actions">
-            <select onChange={(e) => setSelectedCategory(e.target.value)}>
-              <option value="">Select an issue category</option>
-       <option value="">  "Chat Message Not Delivered / Duplicate Issue"</option> 
-   <option> Notification Failure",</option> 
-   <option>  "Fake Accounts / Bot Profiles",</option> 
-   <option>  "Data Loss / Profile Reset Bug",</option> 
-   <option>  "Slow Home Feed / App Freeze",</option> 
-    <option> "Crash on Image Upload",</option> 
-   <option>  "Logout Login Chat Missing",</option> 
-   <option>  "Notification Badge Count Wrong",</option> 
-   <option>  "Account Block / Delete Sync Bug",</option> 
-            </select>
 
-            <button className="raise-btn" onClick={() => setShowModal(true)}>
-              Raise a Ticket
-            </button>
+          <div className="title">
+            Frequently Asked
+            <br />
+            Questions
+          </div>
+
+          <div className="faq-list">
+            {faqData.map((f, i) => (
+              <div key={i} className="faq-item" onClick={() => toggleFAQ(i)}>
+                <div className="faq-q">
+                  {f.question}
+                  <div className="plus">{openIndex === i ? "−" : "+"}</div>
+                </div>
+                {openIndex === i && <div className="faq-a">{f.answer}</div>}
+              </div>
+            ))}
+          </div>
+
+          {/* HOW CAN WE HELP */}
+          <div className="help-box">
+            <h3>How can we help you?</h3>
+
+            <div className="help-actions">
+              <select onChange={(e) => setSelectedCategory(e.target.value)}>
+                <option value="">Select an issue category</option>
+                <option value="">  "Chat Message Not Delivered / Duplicate Issue"</option>
+                <option> Notification Failure",</option>
+                <option>  "Fake Accounts / Bot Profiles",</option>
+                <option>  "Data Loss / Profile Reset Bug",</option>
+                <option>  "Slow Home Feed / App Freeze",</option>
+                <option> "Crash on Image Upload",</option>
+                <option>  "Logout Login Chat Missing",</option>
+                <option>  "Notification Badge Count Wrong",</option>
+                <option>  "Account Block / Delete Sync Bug",</option>
+              </select>
+
+              <button className="raise-btn" onClick={() => setShowModal(true)}>
+                Raise a Ticket
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ================= RAISE TICKET MODAL ================= */}
-      {showModal && (
-        <div className="overlay">
-          <div className="modal">
-            <IoClose className="close" onClick={() => setShowModal(false)} />
-            <RaiseTicketModal
-              selectedCategory={selectedCategory}
-              onClose={() => setShowModal(false)}
-            />
+        {/* ================= RAISE TICKET MODAL ================= */}
+        {showModal && (
+          <div className="overlay">
+            <div className="modal">
+              <IoClose className="close" onClick={() => setShowModal(false)} />
+              <RaiseTicketModal
+                selectedCategory={selectedCategory}
+                onClose={() => setShowModal(false)}
+              />
+            </div>
           </div>
-        </div>
-      )}
-    </>
-  );
+        )}
+      </>
+      );
 }
 
-/* ======================================================
-   RAISE TICKET MODAL (BACKEND UNCHANGED)
-====================================================== */
-function RaiseTicketModal({ selectedCategory, onClose }) {
+      /* ======================================================
+         RAISE TICKET MODAL (BACKEND UNCHANGED)
+      ====================================================== */
+      function RaiseTicketModal({selectedCategory, onClose}) {
   const auth = getAuth();
-  const user = auth.currentUser;
+      const user = auth.currentUser;
 
-  const [ticketId, setTicketId] = useState("");
-  const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(selectedCategory);
-  const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
+      const [ticketId, setTicketId] = useState("");
+      const [email, setEmail] = useState("");
+      const [subject, setSubject] = useState("");
+      const [description, setDescription] = useState("");
+      const [category, setCategory] = useState(selectedCategory);
+      const [expanded, setExpanded] = useState(false);
+      const [loading, setLoading] = useState(false);
 
-  const categories = [
-    "Chat Message Not Delivered / Duplicate Issue",
-    "Push Notification Failure",
-    "Fake Accounts / Bot Profiles",
-    "Data Loss / Profile Reset Bug",
-    "Slow Home Feed / App Freeze",
-    "Crash on Image Upload",
-    "Logout Login Chat Missing",
-    "Notification Badge Count Wrong",
-    "Account Block / Delete Sync Bug",
-  ];
+      const categories = [
+      "Chat Message Not Delivered / Duplicate Issue",
+      "Push Notification Failure",
+      "Fake Accounts / Bot Profiles",
+      "Data Loss / Profile Reset Bug",
+      "Slow Home Feed / App Freeze",
+      "Crash on Image Upload",
+      "Logout Login Chat Missing",
+      "Notification Badge Count Wrong",
+      "Account Block / Delete Sync Bug",
+      ];
 
   useEffect(() => {
-    setTicketId(`HZ-${new Date().getFullYear()}-${Math.floor(Math.random() * 999999)}`);
-    if (!user) return;
+        setTicketId(`HZ-${new Date().getFullYear()}-${Math.floor(Math.random() * 999999)}`);
+      if (!user) return;
     getDoc(doc(db, "users", user.uid)).then(snap => {
       if (snap.exists()) setEmail(snap.data().email);
     });
@@ -979,12 +1016,12 @@ function RaiseTicketModal({ selectedCategory, onClose }) {
 
   const submitTicket = async () => {
     if (!category || !subject || !description) {
-      alert("All fields required");
+        alert("All fields required");
       return;
     }
 
-    try {
-      setLoading(true);
+      try {
+        setLoading(true);
 
       await addDoc(collection(db, "support_tickets"), {
         ticketId,
@@ -993,69 +1030,69 @@ function RaiseTicketModal({ selectedCategory, onClose }) {
         subject,
         description,
         userId: user.uid,
-        status: "raised",
-        createdAt: serverTimestamp(),
+      status: "raised",
+      createdAt: serverTimestamp(),
       });
 
       await fetch("https://huzzler.onrender.com/api/support/raise-ticket", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId, category, email, subject, description }),
+      headers: {"Content-Type": "application/json" },
+      body: JSON.stringify({ticketId, category, email, subject, description}),
       });
 
       alert("Ticket submitted successfully");
       onClose();
     } catch {
-      alert("Something went wrong");
+        alert("Something went wrong");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
-  return (
-    <>
-      <h3>Raise a Support Ticket</h3>
+      return (
+      <>
+        <h3>Raise a Support Ticket</h3>
 
-      <label>Ticket ID</label>
-      <input value={ticketId} disabled className="input" />
+        <label>Ticket ID</label>
+        <input value={ticketId} disabled className="input" />
 
-      <label>Ticket Category</label>
-      <div className="input" onClick={() => setExpanded(!expanded)}>
-        {category || "Select category"}
-      </div>
+        <label>Ticket Category</label>
+        <div className="input" onClick={() => setExpanded(!expanded)}>
+          {category || "Select category"}
+        </div>
 
-    {expanded &&
-  categories.map((c) => (
-    <div
-      key={c}
-      className="dropdown-item"
-      onClick={() => {
-        setCategory(c);
-        setExpanded(false);
-      }}
-    >
-      {c}
-    </div>
-  ))}
+        {expanded &&
+          categories.map((c) => (
+            <div
+              key={c}
+              className="dropdown-item"
+              onClick={() => {
+                setCategory(c);
+                setExpanded(false);
+              }}
+            >
+              {c}
+            </div>
+          ))}
 
 
-      <label>Email</label>
-      <input value={email} disabled className="input" />
+        <label>Email</label>
+        <input value={email} disabled className="input" />
 
-      <label>Subject</label>
-      <input value={subject} onChange={e => setSubject(e.target.value)} className="input" />
+        <label>Subject</label>
+        <input value={subject} onChange={e => setSubject(e.target.value)} className="input" />
 
-      <label>Description</label>
-      <textarea value={description} onChange={e => setDescription(e.target.value)} className="input" />
+        <label>Description</label>
+        <textarea value={description} onChange={e => setDescription(e.target.value)} className="input" />
 
-    <button
-  className="submit-btn"
-  onClick={submitTicket}
-  disabled={loading}
->
-  {loading ? "Submitting..." : "Submit Ticket"}
-</button>
+        <button
+          className="submit-btn"
+          onClick={submitTicket}
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Submit Ticket"}
+        </button>
 
-    </>
-  );
+      </>
+      );
 }

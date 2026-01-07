@@ -1794,45 +1794,45 @@ export default function ClientProfileMenuScreen() {
 
 
 
- const handleDeleteAccount = async () => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to permanently delete your account?"
-  );
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to permanently delete your account?"
+    );
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  try {
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-
-    const uid = currentUser.uid;
-
-    // 🗑 Delete profile image (optional)
     try {
-      const imageRef = ref(storage, `users/${uid}/profile.jpg`);
-      await deleteObject(imageRef);
-    } catch (e) {
-      // ignore if image does not exist
-    }
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
 
-    // 🗑 Delete Firestore user document
-    await deleteDoc(doc(db, "users", uid));
+      const uid = currentUser.uid;
 
-    // 🗑 Delete Firebase Authentication user
-    await deleteUser(currentUser);
+      // 🗑 Delete profile image (optional)
+      try {
+        const imageRef = ref(storage, `users/${uid}/profile.jpg`);
+        await deleteObject(imageRef);
+      } catch (e) {
+        // ignore if image does not exist
+      }
 
-    alert("Your account has been deleted successfully.");
-    navigate("/firelogin");
-  } catch (error) {
-    if (error.code === "auth/requires-recent-login") {
-      alert("Please log in again to delete your account.");
+      // 🗑 Delete Firestore user document
+      await deleteDoc(doc(db, "users", uid));
+
+      // 🗑 Delete Firebase Authentication user
+      await deleteUser(currentUser);
+
+      alert("Your account has been deleted successfully.");
       navigate("/firelogin");
-    } else {
-      console.error(error);
-      alert("Unable to delete account.");
+    } catch (error) {
+      if (error.code === "auth/requires-recent-login") {
+        alert("Please log in again to delete your account.");
+        navigate("/firelogin");
+      } else {
+        console.error(error);
+        alert("Unable to delete account.");
+      }
     }
-  }
-};
+  };
 
 
   if (!user) return null;
@@ -1853,7 +1853,7 @@ export default function ClientProfileMenuScreen() {
       <div style={styles.page}>
         {/* HEADER */}
         <div style={{ ...styles.titleWrap, flexWrap: "wrap" }}>
-          <div
+          {/* <div
             style={{
               ...styles.backBtn,
               marginLeft: isMobile ? "0px" : collapsed ? "-100px" : "10px",
@@ -1861,14 +1861,39 @@ export default function ClientProfileMenuScreen() {
             onClick={() => navigate(-1)}
           >
             <img src={backarrow} width={20} />
+          </div> */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              onClick={() => navigate(-1)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 14,
+                border: "0.8px solid #E0E0E0",
+                backgroundColor: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+                flexShrink: 0,
+              }}
+            >
+              <img
+                src={backarrow}
+                alt="back"
+                style={{ width: 16, height: 16 }}
+              />
+            </div>
+            <div style={{ marginLeft: 12 }}>
+              <h1 style={styles.title}>Profile</h1>
+              <p style={styles.subtitle}>
+                Manage your account and preferences.
+              </p>
+            </div>
           </div>
 
-          <div style={{ marginLeft: 12 }}>
-            <h1 style={styles.title}>Profile</h1>
-            <p style={styles.subtitle}>
-              Manage your account and preferences.
-            </p>
-          </div>
+
         </div>
 
         {/* PROFILE CARD */}
@@ -1904,7 +1929,7 @@ export default function ClientProfileMenuScreen() {
         <div style={styles.section}>
           <h3 style={styles.sectionTitle}>My Account</h3>
           <MenuItem title="Profile Summary" icon={profilePlaceholder} onClick={() => navigate("/client-dashbroad2/companyprofileview")} />
-          <MenuItem title="Saved" icon={saved} onClick={() => navigate("/client-dashbroad2/saved")} />
+          <MenuItem title="Saved" icon={saved} onClick={() => navigate("/client-dashbroad2/Clientsaved")} />
           <MenuItem title="Job Posted" icon={jobposted} onClick={() => navigate("/client-dashbroad2/PostJob")} />
           <MenuItem title="Hiring" icon={hiring} onClick={() => navigate("/client-dashbroad2/my-hires")} />
           {/* <MenuItem title="Paused Service" icon={paused2} onClick={() => navigate("/client-dashbroad2/clientpausedjobs")} /> */}
@@ -1915,7 +1940,7 @@ export default function ClientProfileMenuScreen() {
         {/* SUPPORT */}
         <div style={styles.section}>
           <h3 style={styles.sectionTitle}>Support</h3>
-          <MenuItem title="Notifications" icon={notification} onClick={() => navigate("")} />
+          {/* <MenuItem title="Notifications" icon={notification} onClick={() => navigate("")} /> */}
           <MenuItem title="Account Settings" icon={settings} onClick={() => navigate("/client-dashbroad2/companyprofileview")} />
           <MenuItem title="Help Center" icon={helpcenter} onClick={() => navigate("/client-dashbroad2/helpcenter")} />
           <MenuItem title="Terms of Service" icon={helpcenter} onClick={() => navigate("/termsofservice")} />

@@ -2592,7 +2592,7 @@ export default function SavedServicesOnly() {
             />
           </div>
           <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-            Hire Freelancer
+            Saved
           </h1>
         </div>
 

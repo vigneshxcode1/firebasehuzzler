@@ -15,14 +15,12 @@
 .fh-page {
     min-height: 100vh;
     /* background: #fdfcf9; */
-    
 }
 
 .fh-container {
     max-width: 100%;
     padding: 20px 16px;
     padding-bottom: 100px;
-    
 }
 
 /* ====== HEADER ====== */
@@ -298,7 +296,7 @@
     transform: translateY(-50%);
     width: 28px;
     height: 28px;
-    /* background: rgba(255, 255, 255, 0.25); */
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -311,9 +309,9 @@
     filter: brightness(0) invert(1);
 }
 
-/* .fh-hero-card.secondary .hero-right {
+.fh-hero-card.secondary .hero-right {
     background: rgba(0, 0, 0, 0.08);
-} */
+}
 
 .fh-hero-card.secondary .hero-right .arrow {
     filter: none;
