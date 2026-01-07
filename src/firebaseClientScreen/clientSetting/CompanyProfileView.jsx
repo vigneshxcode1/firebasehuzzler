@@ -1068,8 +1068,9 @@ export default function ProfileSummary() {
   return (
     <div
       style={{
-        marginLeft: isMobile ? 0 : collapsed ? "-110px" : "50px",
+        marginLeft: isMobile ? 0 : collapsed ? "-110px" : "-1px",
         transition: "margin-left 0.25s ease",
+        
       }}
     >
       <div
@@ -1081,7 +1082,7 @@ export default function ProfileSummary() {
           justifyContent: "center",
         }}
       >
-        <div style={{ width: "100%", maxWidth: 920 }}>
+        <div style={{ width: "100%", maxWidth: 920,marginTop:"20px"}}>
           {/* ================= HEADER ================= */}
           <div
             style={{

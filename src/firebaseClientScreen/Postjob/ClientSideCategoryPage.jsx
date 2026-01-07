@@ -2517,12 +2517,15 @@ export default function CategoryPage({ initialTab = "Work" }) {
                 key={t}
                 onClick={() => setTab(t)}
                 style={{
-                  padding: "4px 28px",
+                  padding: "7px 28px",
                   borderRadius: "999px",
                   cursor: "pointer",
                   fontSize: "14px",
                   fontWeight: isActive ? 600 : 500,
-                  color: "#333",
+
+                  // 🔥 CHANGE HERE
+                  color: isActive ? "#FFFFFF" : "#333",
+
                   background: isActive ? "#7C3CFF" : "transparent",
                   boxShadow: isActive
                     ? "0 4px 10px rgba(0,0,0,0.15)"
@@ -2533,6 +2536,7 @@ export default function CategoryPage({ initialTab = "Work" }) {
               >
                 {t}
               </span>
+
             );
           })}
         </div>

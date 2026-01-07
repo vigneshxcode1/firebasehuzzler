@@ -866,6 +866,7 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import backarrow from "../../assets/backarrow.png";
+import search from "../../assets/search.png";
 
 import { db } from "../../firbase/Firebase";
 import emptyWorks from "../../assets/job.png"; // dummy image
@@ -1010,28 +1011,32 @@ const styles = {
     boxSizing: "border-box",
     maxWidth: 928,
   },
-  searchContainer: {
-    flex: 1,
-    height: 44,
-    borderRadius: 14,
-    border: "1px solid #DADADA",
-    borderTop: "1.2px solid #D0D0D0",
-    paddingLeft: 14,
-    paddingRight: 14,
-    display: "flex",
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    boxSizing: "border-box",
-    boxShadow: "0px 1px 3px rgba(0,0,0,0.06)", // ⭐ Slight shadow for better visibility
-  },
+ searchContainer: {
+  width: "100%",            // ✅ FULL WIDTH
+  maxWidth: "100%",         // extra safety
+  height: 52,               // 🔥 little taller (premium feel)
+  borderRadius: 16,
+  border: "1px solid #DADADA",
+  borderTop: "1.2px solid #D0D0D0",
+  paddingLeft: 18,
+  paddingRight: 18,
+  display: "flex",
+  alignItems: "center",
+  backgroundColor: "#FFF",
+  boxSizing: "border-box",
+  boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+},
+
   searchIcon: { fontSize: 18, color: "#757575" },
   searchInput: {
     border: "none",
     outline: "none",
+    // width:"200%",
     flex: 1,
     marginLeft: 10,
     fontSize: 14,
     marginTop: 15,
+    marginLeft:"-0px"
   },
 
   sortButtonWrapper: {
@@ -1723,7 +1728,7 @@ const handleOpenJobDetail = (job) => {
                 ))}
 
               {job.skills?.length > 2 && (
-                <div className="more-chip">
+                <div className="more-chip" style={{backgroundColor:""}}>
                   +{job.skills.length - 2}
                 </div>
               )}
@@ -2034,7 +2039,7 @@ const handleOpenJobDetail = (job) => {
           }}
         >
           <div className="addjobpostsearch" style={styles.searchContainer}>
-            <span style={styles.searchIcon}>🔍</span>
+            <span style={styles.searchIcon}><img style={{width:"18px"}} src={search} alt="search" /></span>
             <input
               style={styles.searchInput}
               placeholder="Search"

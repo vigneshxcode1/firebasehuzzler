@@ -383,8 +383,8 @@
 
 
 
-      {/* Accepted Chats */}
-      {/* <h1 style={{ marginTop: 24, marginBottom: 12 }}>Accepted Chats</h1>
+{/* Accepted Chats */ }
+{/* <h1 style={{ marginTop: 24, marginBottom: 12 }}>Accepted Chats</h1>
       {acceptedChats.length === 0 && (
         <p style={{ color: "#777" }}>No accepted chats yet.</p>
       )}
@@ -428,7 +428,7 @@
           </small>
         </div>
       ))} */}
-      
+
 //     </div>
 //   );
 // }
@@ -554,7 +554,7 @@
 //   }, [user]);
 
 
-  
+
 
 //   const acceptRequest = async (req) => {
 //     try {
@@ -695,7 +695,7 @@
 //         </div>
 //       ))}
 
-     
+
 
 //     </div>
 //   );
@@ -1557,53 +1557,56 @@ export default function FreelancerRequestsAndChats() {
 
   // ===== Render =====
   return (
-    <div style={{ padding: 20, minHeight: "100vh", background: "#f5f5f5" }}>
-      {/* Pending Requests */}
-      <h1>Pending Requests</h1>
-      {requests.length === 0 && <p style={{ color: "#777" }}>No pending requests.</p>}
-      {requests.map((req) => (
-        <div
-          key={req.id}
-          style={{
-            background: "#fff",
-            padding: 14,
-            borderRadius: 12,
-            marginBottom: 12,
-            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-          }}
-        >
-          <h4>{req.title || req.jobTitle}</h4>
-          <p>{req.body}</p>
-          <div style={{ display: "flex", gap: 12 }}>
-            <button
-              onClick={() => acceptRequest(req)}
-              style={{
-                padding: "8px 16px",
-                background: "#4CAF50",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-              }}
-            >
-              Accept
-            </button>
-            <button
-              onClick={() => rejectRequest(req)}
-              style={{
-                padding: "8px 16px",
-                background: "#F44336",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-              }}
-            >
-              Reject
-            </button>
-          </div>
-        </div>
-      ))}
+    <div id="fh-page" className="fh-page rubik-font">
+      <div id="fh-containers" className="fh-container" >
 
-      {/* Accepted Chats */}
+        <div style={{ padding: 20, minHeight: "100vh",  }}>
+          {/* Pending Requests */}
+          <h1>Pending Requests</h1>
+          {requests.length === 0 && <p style={{ color: "#777" }}>No pending requests.</p>}
+          {requests.map((req) => (
+            <div
+              key={req.id}
+              style={{
+                background: "#fff",
+                padding: 14,
+                borderRadius: 12,
+                marginBottom: 12,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+              }}
+            >
+              <h4>{req.title || req.jobTitle}</h4>
+              <p>{req.body}</p>
+              <div style={{ display: "flex", gap: 12 }}>
+                <button
+                  onClick={() => acceptRequest(req)}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#4CAF50",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 8,
+                  }}
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() => rejectRequest(req)}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#F44336",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 8,
+                  }}
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {/* Accepted Chats
       <h1 style={{ marginTop: 24 }}>Accepted Chats</h1>
       {acceptedChats.length === 0 && <p style={{ color: "#777" }}>No accepted chats yet.</p>}
       {acceptedChats.map((chat) => (
@@ -1641,7 +1644,11 @@ export default function FreelancerRequestsAndChats() {
               : ""}
           </small>
         </div>
-      ))}
+      ))} */}
+        </div>
+
+      </div>
     </div>
+
   );
 }

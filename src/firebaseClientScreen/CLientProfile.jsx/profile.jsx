@@ -1907,7 +1907,7 @@ export default function ClientProfileMenuScreen() {
           <MenuItem title="Saved" icon={saved} onClick={() => navigate("/client-dashbroad2/saved")} />
           <MenuItem title="Job Posted" icon={jobposted} onClick={() => navigate("/client-dashbroad2/PostJob")} />
           <MenuItem title="Hiring" icon={hiring} onClick={() => navigate("/client-dashbroad2/my-hires")} />
-          <MenuItem title="Paused Service" icon={paused2} onClick={() => navigate("/client-dashbroad2/clientpausedjobs")} />
+          {/* <MenuItem title="Paused Service" icon={paused2} onClick={() => navigate("/client-dashbroad2/clientpausedjobs")} /> */}
           <MenuItem title="Invite Friends" icon={invitefriends} />
           <MenuItem title="Blocked" icon={blocked} onClick={() => navigate("/client-dashbroad2/clientBlock")} />
         </div>

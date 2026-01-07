@@ -822,7 +822,7 @@ margin-top:10px;
   font-size: 12px;
   color: #666;
  
-  margin-top:-20px;
+  margin-top:-4px;
  
 }
 

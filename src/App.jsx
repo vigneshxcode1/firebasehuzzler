@@ -272,13 +272,13 @@ export default function App() {
         <Route path="messages" element={<Message />} />
         <Route path="helpcenter" element={<HelpCenter />} />
         <Route path="helpcenter1" element={<ClientHelpCenter1 />} />
-        
+
         <Route
           path="freelancerblockSreen/:userId"
           element={<FreelancerBlockSreen />}
         />
 
-        
+
       </Route>
 
 
@@ -332,7 +332,7 @@ export default function App() {
 
         <Route path="paused-services" element={<FreelancerPausedpage />} />
         <Route path="blocked" element={<Blocked />} />
-     <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
+        <Route path="freelancermessages" element={<FreelancerAcceptedChats />} />
 
 
 
@@ -341,7 +341,7 @@ export default function App() {
         {/* <Route path="freelancermessages" element={<FreelancerAcceptedChats />} /> */}
         <Route path="helpcenter" element={<HelpCenter />} />
 
-
+        <Route path="Requestmessagefreelancer" element={<RequestChatListScreen />}></Route>
 
 
 

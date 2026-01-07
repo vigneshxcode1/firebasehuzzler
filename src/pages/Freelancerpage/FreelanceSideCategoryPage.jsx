@@ -2309,6 +2309,10 @@ export default function ExploreFreelancer() {
                   fontSize: "clamp(12px, 3.5vw, 14px)",
                   fontWeight: 500,
                   whiteSpace: "nowrap",
+
+                  // 🔥 THIS IS THE FIX
+                  color: isActive ? "#FFFFFF" : "#333",
+
                   background: isActive ? "#7C3CFF" : "transparent",
                   boxShadow: isActive
                     ? "0 6px 20px rgba(0,0,0,0.19)"
@@ -2321,6 +2325,7 @@ export default function ExploreFreelancer() {
               </button>
             );
           })}
+
         </div>
         <div
           style={{
@@ -2507,8 +2512,8 @@ export default function ExploreFreelancer() {
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
-                  marginLeft:"1190px",
-                  marginTop:"8px"
+                  marginLeft: "1190px",
+                  marginTop: "8px"
                 }}
               >
                 <img

@@ -3417,7 +3417,7 @@ export default function MyWorksScreen() {
           <img
             src={message}
             style={{ width: 22, cursor: "pointer" }}
-            onClick={() => navigate("/freelancermessages")}
+            onClick={() => navigate("/freelance-dashboard/freelancermessages")}
           />
           <img
             src={notification}

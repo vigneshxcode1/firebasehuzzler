@@ -2480,7 +2480,7 @@
 //   const [jobs, setJobs] = useState([]);
 //   const [savedJobs, setSavedJobs] = useState([]);
 //   const [userMap, setUserMap] = useState({});
-  
+
 
 
 //   const [userInfo, setUserInfo] = useState({
@@ -2990,7 +2990,7 @@
 //     });
 //   }, []);
 
-  
+
 // const handleNotificationClick = async (notif) => {
 //   try {
 //     if (!notif.read) {
@@ -3890,49 +3890,50 @@ export default function FreelanceHome() {
         {/* ================= MAIN ================= */}
         <main className="fh-main">
 
-         <section className="fh-hero">
-      
-                    <div
-                      id="fh-hero-card"
-                      className="fh-hero-card primary"
-                      onClick={() => navigate("/client-dashbroad2/clientcategories")}
-                    >
-                      <img src={browseImg1} id="hero-img-brower" className="hero-img img-1" style={{
-                      
-                      }} />
-                      <img src={browseImg2} className="hero-img img-" />
-                      <div id="browertitle">
-                        <h3><span id="freelancer-browerproject-title">Browse Freelancer</span></h3>
-                        <p><span>Explore verified professionals</span></p>
-                      </div>
-                      <div className="hero-right">
-                        <img src={arrow} className="arrow" width={25} />
-                      </div>
-                    </div>
-      
-                    <div
-                      id="fh-hero-card"
-                      className="fh-hero-card secondary"
-                      onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
-                    >
-                      <img src={worksImg1} id="hero-img" className="hero-img img-3" />
-                      <img src={worksImg2} className="hero-img img-4" />
-                      <div id="browertitle" className="jobtitle">
-                        <h3>Job proposal</h3>
-                        <p>Find the right freelancers</p>
-                      </div>
-                      <div className="hero-right">
-                        <img src={arrow} className="arrow" width={25} />
-                      </div>
-                    </div>
-      
-      
-                  </section>
+          <section className="fh-hero">
+
+            <div
+              id="fh-hero-card"
+              className="fh-hero-card primary"
+              onClick={() => navigate("/client-dashbroad2/clientcategories")}
+            >
+              <img src={browseImg1} id="hero-img-brower" className="hero-img img-1" style={{
+                width: "50px", paddingTop: "20px"
+              }} />
+              <img src={browseImg2} className="hero-img img-2" style={{ width: "300px", height: "200px", marginRight: "150px" }} />
+              <div id="browertitle" style={{marginRight:"-110px"}}>
+                <h3><span id="freelancer-browerproject-title">Browse All Projects</span></h3>
+                <p><span>Explore all available opportunities</span></p>
+              </div>
+              <div className="hero-right">
+                <img src={arrow} className="arrow" width={25} />
+              </div>
+            </div>
+
+            <div
+              id="fh-hero-card"
+              className="fh-hero-card secondary"
+              onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+              
+            >
+              <img src={worksImg1} id="hero-img" className="hero-img img-3" style={{ width: "50px", paddingTop: "20px" }} />
+              <img src={worksImg2} className="hero-img img-4" style={{ width: "300px", height: "200px", marginRight: "150px" }} />
+              <div id="browertitle" style={{marginRight:"-9px"}} className="jobtitle">
+                <h3>My Works</h3>
+                <p>Track your work</p>
+              </div>
+              <div className="hero-right">
+                <img src={arrow} className="arrow" width={25} />
+              </div>
+            </div>
+
+
+          </section>
 
           {/* JOB LIST */}
           <section className="fh-section">
             <div className="section-header">
-              <h2 style={{ color: "#000000c7", marginLeft: "10px",fontSize:20,fontWeight:400  }}>Top Recommendations for You</h2>
+              <h2 style={{ color: "#000000c7", marginLeft: "10px", fontSize: 20, fontWeight: 400 }}>Top Recommendations for You</h2>
               <Link className="view-all" to="/freelance-dashboard/freelancebrowesproject">
                 View All →
               </Link>
@@ -3947,8 +3948,8 @@ export default function FreelanceHome() {
                 >
                   <div className="job-card-top">
                     <div>
-                       <h3 className="job-title">{job.title}</h3>
-                        <div className="job-sub">{job.category || "Service"}</div>
+                      <h3 className="job-title">{job.title}</h3>
+                      <div className="job-sub">{job.category || "Service"}</div>
                     </div>
 
                     <button
@@ -3965,24 +3966,24 @@ export default function FreelanceHome() {
                   </div>
 
                   <p className="skill-required">Skills</p>
-                  <div  className="job-skills">
+                  <div className="job-skills">
                     {job.skills?.map((s, i) => (
                       <span key={i} className="skill-chip">{s}</span>
                     ))}
                   </div>
 
-                 <div id="job-meta" className="job-meta">
-                      <div className="job-stats">
-                        <div className="views">
-                          <FiEye /> <span>{job.views || 0} views</span>
-                        </div>
-                        <div className="created"><Clock size={16} />{timeAgo(job.createdAt)}</div>
-
+                  <div id="job-meta" className="job-meta">
+                    <div className="job-stats">
+                      <div className="views">
+                        <FiEye /> <span>{job.views || 0} views</span>
                       </div>
-
-                      <div id="job-budget" className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
+                      <div className="created"><Clock size={16} />{timeAgo(job.createdAt)}</div>
 
                     </div>
+
+                    <div id="job-budget" className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
+
+                  </div>
                 </article>
               ))}
             </div>

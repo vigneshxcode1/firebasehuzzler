@@ -2304,6 +2304,7 @@ import {
   FiEye,
   FiClock,
 } from "react-icons/fi";
+import backarrow from '../assets/backarrow.png';
 
 export default function SavedServicesOnly() {
   const auth = getAuth();
@@ -2532,7 +2533,7 @@ export default function SavedServicesOnly() {
 
     const matchCategory =
       selectedCategory === "" ||
-      selectedCategory === "No Category Assigned"
+        selectedCategory === "No Category Assigned"
         ? true
         : job.category === selectedCategory;
 
@@ -2557,18 +2558,42 @@ export default function SavedServicesOnly() {
     <div
       className="freelance-wrapper"
       style={{
-        marginLeft: collapsed ? "20px" : "30px",
+        marginLeft: collapsed ? "40px" : "150px",
         transition: "margin-left 0.25s ease",
+        marginTop:"40px",
         padding: "20px 22px",
+        width:'80%'
+
       }}
     >
       {/* HEADER */}
       <div className="topbar">
-        <div className="top-left">
-          <div className="back-btn" onClick={() => navigate(-1)}>
-            <FiArrowLeft size={20} />
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            onClick={() => navigate(-1)}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 14,
+              border: "0.8px solid #E0E0E0",
+              backgroundColor: "#FFFFFF",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src={backarrow}
+              alt="back"
+              style={{ width: 16, height: 16 }}
+            />
           </div>
-          <h2 className="page-title">Saved Services</h2>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
+            Hire Freelancer
+          </h1>
         </div>
 
         <div className="top-right">
@@ -2623,7 +2648,7 @@ export default function SavedServicesOnly() {
         <input
           type="text"
           className="search-input"
-          placeholder="Search services..."
+          placeholder="Search"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
@@ -2647,7 +2672,7 @@ export default function SavedServicesOnly() {
       </div>
 
       {/* Categories */}
-      {categories.length > 0 ? (
+      {/* {categories.length > 0 ? (
         <div className="category-row">
           {categories.map((cat) => (
             <button
@@ -2671,12 +2696,12 @@ export default function SavedServicesOnly() {
         <div style={{ padding: "10px 0", opacity: 0.5 }}>
           No categories found in database.
         </div>
-      )}
+      )} */}
 
       {/* Tabs UI (same look – Saved active only) */}
-      <div className="jobtabs-wrapper">
+      <div style={{marginLeft:"-10px"}} className="jobtabs-wrapper">
 
-        <button className="jobtab active-tab">Saved</button>
+        <button  className="jobtab active-tab">Saved</button>
       </div>
 
       {/* Job List (SAVED ONLY) */}
@@ -2696,9 +2721,8 @@ export default function SavedServicesOnly() {
             <div className="job-top">
               <h3 className="job-title">{job.title}</h3>
               <FiBookmark
-                className={`bookmark-icon ${
-                  savedJobs.includes(job.id) ? "bookmarked" : ""
-                }`}
+                className={`bookmark-icon ${savedJobs.includes(job.id) ? "bookmarked" : ""
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleSave(job.id);

@@ -1966,7 +1966,7 @@ export default function ClientHomeUI() {
   return (
     <>
 
-      <div id="fh-page" className="fh-page rubik-font">
+      <div id="fh-page" style={{ marginLeft: "-20px" }} className="fh-page rubik-font">
         <div id="fh-containers" className="fh-container" >
           {/* HEADER */}
           <header className="fh-header">
@@ -1976,14 +1976,14 @@ export default function ClientHomeUI() {
                   Welcome,<div>{userInfo.firstName || "Huzzlers"}</div>
                 </h1>
                 <div id="fh-title" className="fh-subtitle">
-                 Find the right talent for your Project
+                  Find the right talent for your Project
                 </div>
               </div>
               <div></div>
             </div>
 
-             <div id="fh-header-right" className="fh-header-right">
-              
+            <div id="fh-header-right" className="fh-header-right">
+
               <button className="icon-btn" onClick={() => navigate("/client-dashbroad2/messages")}>
                 <FiMessageCircle />
               </button>
@@ -2058,15 +2058,15 @@ export default function ClientHomeUI() {
               )}
             </div>
 
-            
+
           </header>
 
 
 
 
-         <main className="fh-main">
+          <main className="fh-main">
 
-         <section className="fh-hero">
+            <section className="fh-hero">
 
               <div
                 id="fh-hero-card"
@@ -2074,11 +2074,11 @@ export default function ClientHomeUI() {
                 onClick={() => navigate("/client-dashbroad2/clientcategories")}
               >
                 <img src={browseImg1} id="hero-img-brower" className="hero-img img-1" style={{
-                
+                  width: "50px", paddingTop: "20px"
                 }} />
-                <img src={browseImg2} className="hero-img img-" />
+                <img src={browseImg2} className="hero-img img-2" style={{ width: "300px", height: "200px", marginRight: "150px" }} />
                 <div id="browertitle">
-                  <h3><span>Browse Freelancer</span></h3>
+                  <h3> <span>Browse Freelancer</span></h3>
                   <p><span>Explore verified professionals</span></p>
                 </div>
                 <div className="hero-right">
@@ -2091,11 +2091,11 @@ export default function ClientHomeUI() {
                 className="fh-hero-card secondary"
                 onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
               >
-                <img src={worksImg1} id="hero-img" className="hero-img img-3" />
-                <img src={worksImg2} className="hero-img img-4" />
+                <img src={worksImg1} id="hero-img" className="hero-img img-3" style={{ width: "50px", paddingTop: "20px" }} />
+                <img src={worksImg2} className="hero-img img-4" style={{ width: "300px", height: "200px", marginRight: "150px" }} />
                 <div id="browertitle" className="jobtitle">
-                  <h3>Job proposal</h3>
-                  <p>Find the right freelancers</p>
+                  <h3>Job Proposal</h3>
+                  <p>Find the right freelancers for your project</p>
                 </div>
                 <div className="hero-right">
                   <img src={arrow} className="arrow" width={25} />
@@ -2104,7 +2104,6 @@ export default function ClientHomeUI() {
 
 
             </section>
-
 
             <section id="category-scroll-wrapper" className="category-scroll-wrapper">
               {categories.map((cat, i) => (
@@ -2134,7 +2133,7 @@ export default function ClientHomeUI() {
 
             <section className="fh-section">
               <div className="section-header">
-                <h2 style={{ color: "#000000c7", marginLeft: "10px",fontSize:20,fontWeight:400  }}>Based On Your Industry, Here are profile to explore </h2>
+                <h2 style={{ color: "#000000c7", marginLeft: "10px", fontSize: 20, fontWeight: 400 }}>Based On Your Industry, Here are profile to explore </h2>
               </div>
 
               <div id="jobs-list" className="jobs-list">
@@ -2164,9 +2163,9 @@ export default function ClientHomeUI() {
                       </div>
                     </div>
 
-                <p className="skill-required">Skills</p>
+                    <p className="skill-required">Skills</p>
                     <div className="job-skills">
-                    
+
                       {(job.skills || []).slice(0, 3).map((skill, i) => (
                         <span key={i} className="skill-chip">{skill}</span>
                       ))}
