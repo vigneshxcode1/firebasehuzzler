@@ -1995,7 +1995,7 @@ const handleOpenJobDetail = (job) => {
         <div
           style={{
             ...styles.toggleBarWrapper,
-            width: isMobile ? "100%" : 928,
+            width: isMobile ? "90%" : 928,
             marginLeft: isMobile ? 0 : 32,
             paddingLeft: isMobile ? 12 : 6,
             paddingRight: isMobile ? 12 : 6,

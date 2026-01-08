@@ -1,246 +1,6 @@
-// // screens/ServiceFullDetailScreen.jsx
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { getAuth } from "firebase/auth";
-// import {
-//     doc,
-//     onSnapshot,
-//     deleteDoc,
-//     getFirestore,
-// } from "firebase/firestore";
-
-// export default function ServiceFullDetailScreen() {
-//     const { id } = useParams();
-//     const auth = getAuth();
-//     const db = getFirestore();
-//     const navigate = useNavigate();
-
-//     const [service, setService] = useState(null);
-//     const [loading, setLoading] = useState(true);
 
 
 
-
-//     useEffect(() => {
-//         if (!id) return;
-
-//         const ref = doc(db, "services", id);
-//         const unsub = onSnapshot(ref, (snap) => {
-//             if (!snap.exists()) {
-//                 setService(null);
-//                 setLoading(false);
-//                 return;
-//             }
-
-//             const data = snap.data();
-//             setService({
-//                 id: snap.id,
-//                 title: data.title || "",
-//                 description: data.description || "",
-//                 budgetFrom: data.budget_from ?? 0,
-//                 budgetTo: data.budget_to ?? 0,
-//                 category: data.category || "",
-//                 subCategory: data.subCategory || "",
-//                 skills: data.skills || [],
-//                 createdAt: data.createdAt?.toDate?.() || new Date(),
-//                 userId: data.userId,
-//             });
-
-//             setLoading(false);
-//         });
-
-//         return () => unsub();
-//     }, [id, db]);
-
-
-
-//     const handleDelete = async () => {
-//         if (!window.confirm("Delete this service?")) return;
-//         await deleteDoc(doc(db, "services", id));
-//         alert("Service deleted");
-//         navigate(-1);
-//     };
-
-//     if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
-//     if (!service) return <div style={{ padding: 40 }}>Service not found ❌</div>;
-
-//     const isOwner = auth.currentUser?.uid === service.userId;
-
-//     return (
-//         <div style={page}>
-//             <div style={card}>
-//                 {/* HEADER */}
-//                 <div style={header}>
-//                     <div>
-//                         <h1 style={title}>{service.title}</h1>
-//                         <div style={budget}>
-//                             ₹{service.budgetFrom} – ₹{service.budgetTo}
-//                         </div>
-//                         <p style={category}>
-//                             {service.category}
-//                             {service.subCategory && ` • ${service.subCategory}`}
-//                         </p>
-//                     </div>
-
-
-//                 </div>
-
-//                 <p style={date}>
-//                     Posted on {service.createdAt.toLocaleDateString()}
-//                 </p>
-
-//                 {/* DESCRIPTION */}
-//                 <section style={section}>
-//                     <h3 style={sectionTitle}>Description</h3>
-//                     <p style={desc}>{service.description}</p>
-//                 </section>
-
-//                 {/* SKILLS */}
-//                 {service.skills.length > 0 && (
-//                     <section style={section}>
-//                         <h3 style={sectionTitle}>Skills</h3>
-//                         <div style={skills}>
-//                             {service.skills.map((s, i) => (
-//                                 <span key={i} style={skillChip}>{s}</span>
-//                             ))}
-//                         </div>
-//                     </section>
-//                 )}
-
-//                 {/* OWNER ACTIONS */}
-//                 {isOwner && (
-//                     <div style={actions}>
-//                         <button
-//                             style={editBtn}
-//                             onClick={() =>
-//                                 navigate(
-//                                     `/freelance-dashboard/freelanceredit-service/${service.id}`,
-//                                     { state: { service } }
-//                                 )
-//                             }
-//                         >
-//                             Edit Service
-//                         </button>
-
-//                         <button style={deleteBtn} onClick={handleDelete}>
-//                             Delete
-//                         </button>
-//                     </div>
-//                 )}
-//             </div>
-//         </div>
-//     );
-
-// }
-
-
-// const page = {
-//     minHeight: "100vh",
-//     background: "#f9fafb",
-//     padding: "40px 16px",
-// };
-
-// const card = {
-//     maxWidth: 900,
-//     margin: "0 auto",
-//     background: "#ffffff",
-//     borderRadius: 16,
-//     padding: 24,
-//     boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-// };
-
-// const header = {
-//     display: "flex",
-//     justifyContent: "space-between",
-//     alignItems: "flex-start",
-//     gap: 20,
-//     flexWrap: "wrap",
-// };
-
-// const title = {
-//     fontSize: 26,
-//     fontWeight: 700,
-//     marginBottom: 6,
-// };
-
-// const category = {
-//     fontSize: 14,
-//     color: "#6b7280",
-// };
-
-// const budget = {
-//     background: "#eef2ff",
-//     color: "#4f46e5",
-//     padding: "10px 16px",
-//     borderRadius: 12,
-//     fontWeight: 700,
-//     fontSize: 16,
-//     whiteSpace: "nowrap",
-// };
-
-// const date = {
-//     marginTop: 12,
-//     fontSize: 13,
-//     color: "#9ca3af",
-// };
-
-// const section = {
-//     marginTop: 28,
-// };
-
-// const sectionTitle = {
-//     fontSize: 18,
-//     fontWeight: 600,
-//     marginBottom: 10,
-// };
-
-// const desc = {
-//     fontSize: 15,
-//     lineHeight: 1.7,
-//     color: "#374151",
-//     whiteSpace: "pre-line",
-// };
-
-// const skills = {
-//     display: "flex",
-//     flexWrap: "wrap",
-//     gap: 10,
-// };
-
-// const skillChip = {
-//     background: "#f1f5f9",
-//     padding: "6px 14px",
-//     borderRadius: 999,
-//     fontSize: 14,
-//     fontWeight: 500,
-// };
-
-// const actions = {
-//     marginTop: 32,
-//     display: "flex",
-//     gap: 14,
-//     flexWrap: "wrap",
-// };
-
-// const editBtn = {
-//     background: "#4f46e5",
-//     color: "#fff",
-//     border: "none",
-//     padding: "12px 22px",
-//     borderRadius: 10,
-//     fontWeight: 600,
-//     cursor: "pointer",
-// };
-
-// const deleteBtn = {
-//     background: "#fee2e2",
-//     color: "#b91c1c",
-//     border: "none",
-//     padding: "12px 22px",
-//     borderRadius: 10,
-//     fontWeight: 600,
-//     cursor: "pointer",
-// };
 
 
 // // screens/ServiceFullDetailScreen.jsx
@@ -253,9 +13,13 @@
 //   deleteDoc,
 //   getFirestore,
 // } from "firebase/firestore";
-// import { Bookmark, Clock, Share2Icon } from "lucide-react";
+// import { Bookmark, Calendar, Clock, MapPin, Share2 } from "lucide-react";
 // import { FiEye } from "react-icons/fi";
-
+//   const getInitials = (title) => {
+//     if (!title) return "";
+//     const w = title.split(" ");
+//     return (w[0][0] + (w[1]?.[0] || "")).toUpperCase();
+//   };
 // export default function ServiceFullDetailScreen() {
 //   const { id } = useParams();
 //   const auth = getAuth();
@@ -283,8 +47,6 @@
 //         description: data.description || "",
 //         budgetFrom: data.budget_from ?? 0,
 //         budgetTo: data.budget_to ?? 0,
-//         category: data.category || "",
-//         subCategory: data.subCategory || "",
 //         skills: data.skills || [],
 //         createdAt: data.createdAt?.toDate?.() || new Date(),
 //         userId: data.userId,
@@ -316,38 +78,55 @@
 //       <div style={card}>
 //         {/* HEADER */}
 //         <div style={topBar}>
-//           <h2 style={heading}>Project Details</h2>
+//           <span style={heading}>Project Details</span>
 
 //           <div style={iconRow}>
-//             <button style={iconBtn} onClick={() => alert("Saved")}><Bookmark/></button>
-//             <button style={iconBtn} onClick={() => alert("Shared")}><Share2Icon/></button>
-//             <button style={iconBtn} onClick={() => navigate(-1)}>✕</button>
+//             <div style={iconBtn}><Bookmark size={16} /></div>
+//             <div style={iconBtn}><Share2 size={16} /></div>
+//             <div style={iconBtn} onClick={() => navigate(-1)}>✕</div>
 //           </div>
 //         </div>
 
 //         {/* TITLE */}
-//         <h1 style={title}>{service.title}</h1>
-
-//         {/* META ROW */}
+//          <div
+//           style={{
+//             width: 56,
+//             height: 56,
+//             borderRadius: 14,
+//             background: "linear-gradient(135deg,#7B3CFF,#9B42FF)",
+//             color: "#FFF",
+//             fontWeight: 700,
+//             display: "flex",
+//             alignItems: "center",
+//             justifyContent: "center",
+//             fontSize: 18,
+//           }}
+//         >
+//           {getInitials(service.title)}
+        
+       
+// </div>
+//  <h1 style={title}>{service.title}</h1>
+//         {/* META */}
 //         <div style={metaRow}>
 //           <div>
-//             <strong>Budget</strong>
-//             <div>₹{service.budgetFrom} – ₹{service.budgetTo}</div>
+//             <span style={metaLabel}>Budget</span>
+//             <p style={metaValue}>₹{service.budgetFrom} - ₹{service.budgetTo}</p>
 //           </div>
 //           <div>
-//             <strong>Timeline</strong>
-//             <div>2 – 3 weeks</div>
+//             <span style={metaLabel}>Timeline</span>
+//             <p style={metaValue}><Calendar size={16}/>2 - 3 weeks</p>
 //           </div>
 //           <div>
-//             <strong>Location</strong>
-//             <div>Remote</div>
+//             <span style={metaLabel}>Location</span>
+//             <p style={metaValue}><MapPin size={16}/>Remote</p>
 //           </div>
 //         </div>
 
-//         {/* IMPRESSIONS */}
+//         {/* IMPRESSION */}
 //         <div style={impression}>
-//           <span><FiEye/>29 Impression</span>
-//           <span><Clock size={13}/> {daysAgo} days ago</span>
+//           <span><FiEye /> 29 Impression</span>
+//           <span><Clock size={13} /> {daysAgo} days ago</span>
 //         </div>
 
 //         {/* SKILLS */}
@@ -362,20 +141,18 @@
 //           </>
 //         )}
 
-//         {/* DESCRIPTION */}
+//         {/* DESCRIPTION (SCROLLABLE) */}
 //         <h3 style={sectionTitle}>Project Description</h3>
-//         <p style={desc}>{service.description}</p>
+//         <div style={descBox}>
+//           <p style={desc}>{service.description}</p>
+//         </div>
 
 //         {/* ACTIONS */}
 //         {isOwner && (
 //           <div style={actions}>
-//             <button
-//               style={deleteBtn}
-//               onClick={handleDelete}
-//             >
+//             <button style={deleteBtn} onClick={handleDelete}>
 //               Delete this service
 //             </button>
-
 //             <button
 //               style={editBtn}
 //               onClick={() =>
@@ -398,7 +175,7 @@
 
 // const overlay = {
 //   minHeight: "100vh",
-//   background: "rgba(0,0,0,0.35)",
+//   // background: "rgba(0,0,0,0.35)",
 //   display: "flex",
 //   justifyContent: "center",
 //   alignItems: "center",
@@ -408,22 +185,24 @@
 // const card = {
 //   width: "100%",
 //   maxWidth: 520,
+//   height: "90vh",
 //   background: "#fff",
 //   borderRadius: 16,
 //   padding: 24,
-//   boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+//   boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
+//   display: "flex",
+//   flexDirection: "column",
 // };
 
 // const topBar = {
 //   display: "flex",
 //   justifyContent: "space-between",
 //   alignItems: "center",
-//   marginBottom: 12,
 // };
 
 // const heading = {
-//   fontSize: 16,
-//   fontWeight: 600,
+//   fontSize: 24,
+//   fontWeight: 400,
 //   color: "#6b7280",
 // };
 
@@ -435,26 +214,35 @@
 // const iconBtn = {
 //   width: 32,
 //   height: 32,
-//   borderRadius: "50%",
-//   border: "1px solid #e5e7eb",
-//   background: "#fff",
+//   // borderRadius: "50%",
+//   // border: "1px solid #e5e7eb",
+//   // background: "#fff",
 //   cursor: "pointer",
 // };
 
 // const title = {
-//   fontSize: 22,
-//   fontWeight: 700,
-//   marginBottom: 16,
+//   fontSize: 24,
+//   fontWeight: 400,
+ 
 // };
 
 // const metaRow = {
 //   display: "flex",
 //   justifyContent: "space-between",
-//   gap: 12,
-//   background: "#f9fafb",
+//   // background: "#f9fafb",
 //   padding: 14,
 //   borderRadius: 12,
-//   fontSize: 14,
+//   marginTop: 14,
+// };
+
+// const metaLabel = {
+//   fontSize: 12,
+//   color: "#6b7280",
+// };
+
+// const metaValue = {
+//   fontSize: 20,
+//   fontWeight: 400,
 // };
 
 // const impression = {
@@ -462,29 +250,36 @@
 //   fontSize: 13,
 //   color: "#6b7280",
 //   display: "flex",
-//   gap: 8,
+//   gap: 12,
 // };
 
 // const sectionTitle = {
-//   marginTop: 22,
-//   marginBottom: 10,
-//   fontSize: 16,
-//   fontWeight: 600,
+//   marginTop: 18,
+//   marginBottom: 15,
+//   fontSize: 20,
+//   fontWeight: 400,
 // };
 
 // const skills = {
 //   display: "flex",
 //   flexWrap: "wrap",
 //   gap: 8,
+//    fontSize: 20,
+//   fontWeight: 400,
 // };
 
 // const skillChip = {
-//   background: "#FEF08A",
-//   color: "#000",
+//   background: "rgba(255, 240, 133, 0.7)",
 //   padding: "6px 12px",
-//   borderRadius: 999,
+//   borderRadius:"8px",
 //   fontSize: 13,
 //   fontWeight: 500,
+// };
+
+// const descBox = {
+//   flex: 1,
+//   overflowY: "auto",
+//   paddingRight: 6,
 // };
 
 // const desc = {
@@ -495,9 +290,8 @@
 // };
 
 // const actions = {
-//   marginTop: 28,
+//   marginTop: 16,
 //   display: "flex",
-//   justifyContent: "space-between",
 //   gap: 12,
 // };
 
@@ -526,6 +320,7 @@
 
 
 
+
 // screens/ServiceFullDetailScreen.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -538,11 +333,13 @@ import {
 } from "firebase/firestore";
 import { Bookmark, Calendar, Clock, MapPin, Share2 } from "lucide-react";
 import { FiEye } from "react-icons/fi";
-  const getInitials = (title) => {
-    if (!title) return "";
-    const w = title.split(" ");
-    return (w[0][0] + (w[1]?.[0] || "")).toUpperCase();
-  };
+
+const getInitials = (title) => {
+  if (!title) return "";
+  const w = title.split(" ");
+  return (w[0][0] + (w[1]?.[0] || "")).toUpperCase();
+};
+
 export default function ServiceFullDetailScreen() {
   const { id } = useParams();
   const auth = getAuth();
@@ -611,7 +408,7 @@ export default function ServiceFullDetailScreen() {
         </div>
 
         {/* TITLE */}
-         <div
+        <div
           style={{
             width: 56,
             height: 56,
@@ -626,10 +423,10 @@ export default function ServiceFullDetailScreen() {
           }}
         >
           {getInitials(service.title)}
-        
-       
-</div>
- <h1 style={title}>{service.title}</h1>
+
+
+        </div>
+        <h1 style={title}>{service.title}</h1>
         {/* META */}
         <div style={metaRow}>
           <div>
@@ -638,11 +435,11 @@ export default function ServiceFullDetailScreen() {
           </div>
           <div>
             <span style={metaLabel}>Timeline</span>
-            <p style={metaValue}><Calendar size={16}/>2 - 3 weeks</p>
+            <p style={metaValue}><Calendar size={16} />2 - 3 weeks</p>
           </div>
           <div>
             <span style={metaLabel}>Location</span>
-            <p style={metaValue}><MapPin size={16}/>Remote</p>
+            <p style={metaValue}><MapPin size={16} />Remote</p>
           </div>
         </div>
 
@@ -746,7 +543,7 @@ const iconBtn = {
 const title = {
   fontSize: 24,
   fontWeight: 400,
- 
+
 };
 
 const metaRow = {
@@ -787,14 +584,14 @@ const skills = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
-   fontSize: 20,
+  fontSize: 20,
   fontWeight: 400,
 };
 
 const skillChip = {
   background: "rgba(255, 240, 133, 0.7)",
   padding: "6px 12px",
-  borderRadius:"8px",
+  borderRadius: "8px",
   fontSize: 13,
   fontWeight: 500,
 };

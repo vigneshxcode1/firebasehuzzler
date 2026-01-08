@@ -1070,7 +1070,7 @@
 //       style={{
 //         marginLeft: isMobile ? 0 : collapsed ? "-110px" : "-1px",
 //         transition: "margin-left 0.25s ease",
-        
+
 //       }}
 //     >
 //       <div
@@ -1480,7 +1480,7 @@ export default function ProfileSummary() {
       style={{
         marginLeft: isMobile ? 0 : collapsed ? "-110px" : "-1px",
         transition: "margin-left 0.25s ease",
-     marginTop:  collapsed ? "10px" : "10px",
+        marginTop: collapsed ? "10px" : "10px",
       }}
     >
       <div
@@ -1498,7 +1498,8 @@ export default function ProfileSummary() {
             style={{
               // background:
               //   "linear-gradient(180deg, #FFFECB 0%, #FFFDE4 40%, #FFFFFF 100%)",
-              padding: isMobile ? "30px 20px 60px" : "40px 30px 80px",
+             padding: isMobile ? "20px 16px 40px" : "40px 30px 80px",
+
               // borderBottomLeftRadius: 30,
               // borderBottomRightRadius: 30,
               // borderBottom:"2px solid  #00000040",
@@ -1561,11 +1562,18 @@ export default function ProfileSummary() {
               </div>
             </div>
           </div>
-          <div className="borderbottom" style={{
-            borderBottom: "2px solid  #00000040",width:"93%",marginLeft:"25px",
-          }}></div>
+          <div
+            className="borderbottom"
+            style={{
+              borderBottom: "2px solid #00000040",
+              width: isMobile ? "100%" : "93%",
+              marginLeft: isMobile ? "0px" : "25px",
+            }}
+          ></div>
+
           {/* ================= CONTENT ================= */}
-          <div style={{ padding: isMobile ? 16 : 24 }}>
+          <div style={{ padding: isMobile ? "12px 14px" : 24 }}>
+
             <Card title="About">{data?.business_description}</Card>
             <Card title="Company Size">{data?.team_size}</Card>
             <Card title="Email Address">{data?.email}</Card>
@@ -1579,7 +1587,7 @@ export default function ProfileSummary() {
                   style={{
                     ...styles.toggleButton,
                     background: tab === "Works" ? "#9050FF" : "transparent",
-                          color: tab === "24" ? "#000  " : "#fff",
+                    color: tab === "24" ? "#000  " : "#fff",
                   }}
                   onClick={() => setTab("Works")}
                 >
@@ -1589,7 +1597,7 @@ export default function ProfileSummary() {
                   style={{
                     ...styles.toggleButton,
                     background: tab === "24" ? "#9050FF  " : "transparent",
-                      color: tab === "24" ? "#fff  " : "#000",
+                    color: tab === "24" ? "#fff  " : "#000",
                   }}
                   onClick={() => setTab("24")}
                 >
@@ -1623,7 +1631,7 @@ function Card({ title, children }) {
         background: "#fff",
         padding: 22,
         borderRadius: 20,
-         boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+        boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
         marginBottom: 20,
       }}
     >
@@ -1671,7 +1679,7 @@ function JobCard({ job, type }) {
         borderRadius: 24,
         padding: 20,
         cursor: "pointer",
-         boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+        boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
       }}
     >
       <div style={{ display: "flex", gap: 12 }}>
@@ -1741,7 +1749,7 @@ const styles = {
     borderRadius: 14,
     width: "100%",
     margin: "20px 0",
-      boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+    boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
   },
   toggleButton: {
     padding: "8px 16px",
@@ -1751,16 +1759,19 @@ const styles = {
   },
   cardsWrap: {
 
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: 16,
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    // gap: isMobile ? 12 : 16,
+
 
   },
-  buttonRow: {
-    display: "flex",
-    gap: 12,
-    marginTop: 14,
-  },
+buttonRow: {
+  display: "flex",
+  flexDirection: window.innerWidth < 768 ? "column" : "row",
+  gap: 10,
+  marginTop: 14,
+},
+
   secondaryBtn: {
     flex: 1,
     height: 38,

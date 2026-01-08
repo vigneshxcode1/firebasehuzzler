@@ -3,7 +3,8 @@ import helpcenterimg from "../../assets/logo.png";
 import "./Helpcenter.css";
 
 const HelpCenter = () => {
-  const [activeTab, setActiveTab] = useState("terms");
+  const [activeTab, setActiveTab] = useState("privacy");
+
 
   return (
     <div className="freelance-wrapper">

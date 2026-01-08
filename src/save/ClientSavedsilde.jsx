@@ -2347,6 +2347,7 @@ export default function SavedServicesOnly() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [currentUserCategory, setCurrentUserCategory] = useState("");
   const [userProfile, setUserProfile] = useState(null);
+  const isMobile = window.innerWidth <= 768;
 
   /* =====================================================
         FETCH USER PROFILE
@@ -2558,13 +2559,22 @@ export default function SavedServicesOnly() {
     <div
       className="freelance-wrapper"
       style={{
-        marginLeft: collapsed ? "40px" : "150px",
-        transition: "margin-left 0.25s ease",
-        marginTop:"40px",
-        padding: "20px 22px",
-        width:'80%'
+  marginLeft: isMobile
+    ? "12px"                     // 🔥 MOBILE → small left gap
+    : collapsed
+    ? "40px"
+    : "150px",
 
-      }}
+  marginRight: isMobile ? "12px" : "0", // 🔥 MOBILE RIGHT SPACE
+
+  transition: "margin-left 0.25s ease",
+  marginTop: "40px",
+  padding: isMobile ? "16px" : "20px 22px",
+
+  width: isMobile ? "100%" : "80%",     // 🔥 MOBILE FULL WIDTH
+  boxSizing: "border-box",
+}}
+
     >
       {/* HEADER */}
       <div className="topbar">

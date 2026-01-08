@@ -1412,7 +1412,13 @@ const BlockedUsersScreen = () => {
         transition: "margin-left 0.25s ease",
       }}
     >
-      <Box sx={{ marginRight: "220px", minHeight: "100vh",  }}>
+      <Box
+        sx={{
+          marginRight: { xs: 0, sm: "220px" }, // 🔥 mobile-la remove
+          minHeight: "100vh",
+        }}
+      >
+
         {/* ================= HEADER ================= */}
         <AppBar
           position="static"
@@ -1459,27 +1465,27 @@ const BlockedUsersScreen = () => {
           <List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {blockedUsers.map((u) => (
               <ListItem
-                key={u.id}
                 sx={{
                   bgcolor: "#fffdf8",
                   borderRadius: 999,
-                  px: 62,
-                  marginLeft: "-230px",
+                  px: { xs: 2, sm: 62 },          // 🔥 mobile padding
+                  marginLeft: { xs: 0, sm: "-230px" }, // 🔥 mobile reset
                   py: 1.0,
                   display: "flex",
                   alignItems: "center",
                   border: "1px solid #eee",
                 }}
               >
+
                 <Avatar
-                  src={u.blockedUserImage || ""}
                   sx={{
                     width: 46,
                     height: 46,
-                    marginLeft: "-490px",
+                    marginLeft: { xs: 0, sm: "-490px" }, // 🔥 mobile normal
                     mr: 2,
                   }}
                 >
+
                   <PersonIcon />
                 </Avatar>
 
@@ -1498,7 +1504,7 @@ const BlockedUsersScreen = () => {
                     px: 3,
                     height: 36,
                     fontSize: 14,
-                    marginRight: "-480px",
+                    marginRight: { xs: 0, sm: "-480px" }, // 🔥 mobile reset
                     fontWeight: 500,
                     textTransform: "none",
                     "&:hover": { bgcolor: "#ffef4d" },
@@ -1568,7 +1574,7 @@ const BlockedUsersScreen = () => {
                   border: "1.8px solid #9b5cff",
                   color: "#9b5cff",
                   fontSize: 16,
-                  marginLeft:"10px",
+                  marginLeft: "10px",
                   fontWeight: 500,
                   textTransform: "none",
                   boxShadow: "0 6px 14px rgba(155,92,255,0.15)",
@@ -1588,7 +1594,7 @@ const BlockedUsersScreen = () => {
                   color: "#fff",
                   fontSize: 16,
                   fontWeight: 500,
-                  marginLeft:'70px',
+                  marginLeft: '70px',
                   textTransform: "none",
                   // boxShadow: "0 10px 18px rgba(155,60,255,0.35)",
                   "&:hover": {

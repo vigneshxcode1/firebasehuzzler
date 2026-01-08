@@ -1524,6 +1524,10 @@ export default function ClientProfileMenuScreen() {
               title: "Support",
               items: [
                 ["Help Center", helpcenter, "/freelance-dashboard/helpcenter"],
+                ["Terms of Service", helpcenter, "/termsofservice"],
+                ["Privacy Policy", helpcenter, "/privacypolicy"],
+                // <MenuItem title="Terms of Service" icon={helpcenter} onClick={() => navigate("/termsofservice")} />
+                // <MenuItem title="Privacy Policy" icon={helpcenter} onClick={() => navigate("/privacypolicy")} />
                 ["Sign out", Logout, handleLogout],
                 ["Delete account", Logout, handleDeleteAccount],
               ],

@@ -2477,7 +2477,7 @@ export default function HireFreelancer() {
               color: activeTab === "requested" ? "#fff" : "#111827",
               boxShadow:
                 activeTab === "requested"
-                  ? "0 8px 20px rgba(139,92,246,0.35)"
+                  ? ""
                   : "0 2px 8px rgba(0,0,0,0.04)",
               transition: "all 0.25s ease",
             }}
@@ -2551,7 +2551,6 @@ export default function HireFreelancer() {
                 fontSize: 14,
                 fontWeight: 500,
                 cursor: "pointer",
-                boxShadow: "0 6px 14px rgba(124,58,237,0.3)",
               }}
             >
               Work
@@ -2575,264 +2574,280 @@ export default function HireFreelancer() {
         </div>
 
         {/* CARDS */}
-        {finalList.length === 0 ? (
+{finalList.length === 0 ? (
+  <div
+    style={{
+      textAlign: "center",
+      padding: isMobile ? 40 : 60,
+      color: "#9CA3AF",
+      fontSize: 16,
+    }}
+  >
+    <IoBriefcaseOutline
+      size={isMobile ? 44 : 60}
+      style={{ marginBottom: 16, opacity: 0.5 }}
+    />
+    <p>
+      No {activeTab === "requested" ? "requests" : "hired freelancers"} found
+    </p>
+  </div>
+) : (
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+      gap: isMobile ? 20 : 40,
+      maxWidth: 1200,
+      margin: "0 auto",
+      padding: isMobile ? "0 12px" : "0",
+    }}
+  >
+    {finalList.map((item) => {
+      const service = item.service || {};
+      const profile = freelancerProfiles[item.freelancerId] || {};
+      const skills = Array.isArray(service.skills) ? service.skills : [];
+
+      return (
+        <div
+          key={item.id}
+          onClick={() => setSelectedRequest(item)}
+          style={{
+            background: "#fff",
+            borderRadius: isMobile ? 18 : 24,
+            overflow: "hidden",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            transition: "all 0.25s ease",
+            width: "100%",
+          }}
+          onMouseEnter={(e) => {
+            if (!isMobile) {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow =
+                "0 18px 35px rgba(124,58,237,0.2)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 25px rgba(0,0,0,0.08)";
+          }}
+        >
+          {/* TOP GRADIENT */}
           <div
             style={{
-              textAlign: "center",
-              padding: 60,
-              color: "#9CA3AF",
-              fontSize: 16,
+              height: isMobile ? 70 : 96,
+              background: "linear-gradient(135deg,#7c3aed,#4f46e5)",
+              position: "relative",
+              height:'130px'
             }}
           >
-            <IoBriefcaseOutline size={60} style={{ marginBottom: 16, opacity: 0.5 }} />
-            <p>No {activeTab === "requested" ? "requests" : "hired freelancers"} found</p>
+            {/* TIME */}
+            <div
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 12,
+                background: "rgba(255,255,255,0.25)",
+                backdropFilter: "blur(10px)",
+                padding: "5px 12px",
+                borderRadius: 20,
+                fontSize: 11,
+                color: "#fff",
+                fontWeight: 600,
+              }}
+            >
+              {timeAgo(item.timestamp)}
+            </div>
+
+            {/* PROFILE IMAGE */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: isMobile ? -28 : -38,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: isMobile ? 58 : 76,
+                height: isMobile ? 58 : 76,
+                borderRadius: "50%",
+                border: isMobile ? "3px solid #fff" : "4px solid #fff",
+                overflow: "hidden",
+                background: "#E5E7EB",
+              }}
+            >
+              <img
+                src={
+                  profile.profileImage || item.profileImage || profileImg
+                }
+                alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
           </div>
-        ) : (
+
+          {/* BODY */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)", // 🔥 ALWAYS 2 CARDS
-              gap: 40,                               // 🔥 MORE SPACE
-              maxWidth: 1200,                        // 🔥 GRID WIDTH BIG
-              margin: "0 auto",
+              padding: isMobile
+                ? "36px 16px 16px"
+                : "56px 22px 22px",
+              textAlign: "center",
             }}
           >
-            {finalList.map((item) => {
-              const service = item.service || {};
-              const profile = freelancerProfiles[item.freelancerId] || {};
-              const skills = Array.isArray(service.skills) ? service.skills : [];
+            <h3
+              style={{
+                fontSize: isMobile ? 18 : 23,
+                margin: "0 0 4px",
+                color: "#101828",
+                fontWeight: 400,
+              }}
+            >
+              {item.freelancerName}
+            </h3>
 
-              return (
+            <div
+              style={{
+                color: "#7c3aed",
+                fontWeight: 600,
+                fontSize: isMobile ? 12 : 14,
+              }}
+            >
+              {profile.role || service.category || "Freelancer"}
+            </div>
+
+            <div
+              style={{
+                fontSize: 12,
+                color: "#6B7280",
+                marginTop: 4,
+                marginBottom: 12,
+              }}
+            >
+              {profile.location || profile.city || "Location not specified"}
+            </div>
+
+            {/* PROJECT */}
+            <div style={{ textAlign: "left", marginBottom: 12 }}>
+              <div style={{ fontSize: 14, color: "#6B7280" }}>
+                Project title
+              </div>
+              <div
+                style={{
+                  color: "#7c3aed",
+                  marginTop: 6,
+                  fontSize: isMobile ? 16 : 22,
+                  fontWeight: 400,
+                  textAlign:"center"
+                }}
+              >
+                {service.title || item.title || "Service Request"}
+              </div>
+            </div>
+
+            {/* SKILLS */}
+            {skills.length > 0 && (
+              <div style={{ textAlign: "left", marginBottom: 16 }}>
+                <div style={{ fontSize: 14, color: "#6B7280" }}>
+                  Skills
+                </div>
+
                 <div
-                  key={item.id}
-                  onClick={() => setSelectedRequest(item)}
                   style={{
-                    background: "#fff",
-                    borderRadius: 24,
-                    overflow: "hidden",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-                    cursor: "pointer",
-                    transition: "all 0.25s ease",
-                    width: "100%",          // 🔥 CARD FULL WIDTH
-                  }}
-
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 18px 35px rgba(124,58,237,0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 10px 25px rgba(0,0,0,0.08)";
+                    display: "flex",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    marginTop: 8,
                   }}
                 >
-                  {/* TOP GRADIENT */}
-                  <div
-                    style={{
-                      height: 96,
-                      background: "linear-gradient(135deg,#7c3aed,#4f46e5)",
-                      position: "relative",
-                    }}
-                  >
-                    {/* TIME */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 13,
-                        paddingTop:"8px",
-                        marginTop:"10px",
-                        marginRight:"16px",
-                        height:"30px",
-                        right: 12,
-                        background: "rgba(255,255,255,0.25)",
-                        backdropFilter: "blur(10px)",
-                        padding: "6px 14px",
-                        borderRadius: 20,
-                        fontSize: 12,
-                        color: "#fff",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {timeAgo(item.timestamp)}
-                    </div>
-
-                    {/* PROFILE IMAGE */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: -38,
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: 76,
-                        height: 76,
-                        borderRadius: "50%",
-                        border: "4px solid #fff",
-                        overflow: "hidden",
-                        background: "#E5E7EB",
-                      }}
-                    >
-                      <img
-                        src={profile.profileImage || item.profileImage || profileImg}
-                        alt=""
+                  {skills
+                    .slice(0, isMobile ? 2 : 3)
+                    .map((s, i) => (
+                      <span
+                        key={i}
                         style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* BODY */}
-                  <div style={{ padding: "56px 22px 22px", textAlign: "center" }}>
-                    <h3
-                      style={{
-                        fontSize: 23,
-                        fontWeight: 700,
-                        margin: "0 0 4px",
-                        color: "#101828",
-                        fontWeight:"400"
-                      }}
-                    >
-                      {item.freelancerName}
-                    </h3>
-
-                    <div style={{ color: "#7c3aed", fontWeight: 600, fontSize: 14 }}>
-                      {profile.role || service.category || "Freelancer"}
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: "#6B7280",
-                        marginTop: 4,
-                        marginBottom: 16,
-                      }}
-                    >
-                      {profile.location || profile.city || "Location not specified"}
-                    </div>
-
-                    {/* PROJECT */}
-                    <div style={{ textAlign: "left", marginBottom: 14 }}>
-                      <div style={{ fontSize: 16,fontWeight:"400", color: "#6B7280" }}>
-                        Project title
-                      </div>
-                      <div
-                        style={{
-                          fontWeight: 600,
+                          background: "#FAF5FF",
                           color: "#7c3aed",
-                          marginTop:24,
-                          marginLeft:"190px",
-                          fontWeight:"400",
-                          fontSize:"22px"
+                          padding: isMobile
+                            ? "6px 14px"
+                            : "8px 20px",
+                          borderRadius: 999,
+                          fontSize: 12,
+                          border: "1.5px solid #E9D5FF",
+                          marginTop:'11px'
                         }}
                       >
-                        {service.title || item.title || "Service Request"}
-                      </div>
-                    </div>
+                        {s}
+                      </span>
+                    ))}
 
-                    {/* SKILLS */}
-                    {skills.length > 0 && (
-                      <div style={{ textAlign: "left", marginBottom: 20 }}>
-                        <div
-                          style={{ fontSize: 16,fontWeight:"400", color: "#6B7280" }}
-                        >
-                          Skills
-                        </div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 10,
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          {skills.slice(0, 3).map((s, i) => (
-                            <span
-                              key={i}
-                              style={{
-                                background: "#FAF5FF",
-                                color: "#7c3aed",
-                                padding: "8px 20px",
-                                borderRadius: 999,
-                                fontSize: 13,
-                                fontWeight: 500,
-                                border: "1.5px solid #E9D5FF",
-                                marginTop:"14px",
-                                height:"35px",
-                              }}
-                            >
-                              {s}
-                            </span>
-                          ))}
-
-                          {skills.length > 3 && (
-                            <span
-                              style={{
-                                background: "#FAF5FF",
-                                color: "#7c3aed",
-                                padding: "15px 11px",
-                                borderRadius: 999,
-                                fontSize: 14,
-                                fontWeight: 500,
-                                border: "1.5px solid #E9D5FF",
-                                height:"33px",
-                                paddingTop:"8px",
-                                marginTop:"11px"
-                              }}
-                            >
-                              +{skills.length - 3}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-
-                    {/* ACTION BUTTON */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (activeTab === "requested") {
-                          deleteRequest(item.id);
-                        } else {
-                          navigate("/chat", {
-                            state: {
-                              currentUid: auth.currentUser.uid,
-                              otherUid: item.freelancerId,
-                              otherName: item.freelancerName,
-                              otherImage: profile.profileImage || item.profileImage,
-                              initialMessage: getStartMessage(
-                                service.title || item.title
-                              ),
-                            },
-                          });
-                        }
-                      }}
+                  {skills.length > (isMobile ? 2 : 3) && (
+                    <span
                       style={{
-                        width: "100%",
-                        padding: 16,
-                        borderRadius: 18,
-                        border: "none",
-                        fontSize: 15,
-                        fontWeight: 600,
-                        color: "#fff",
-                        cursor: "pointer",
-                        background: "linear-gradient(135deg,#7c3aed,#4f46e5)",
-
+                        background: "#FAF5FF",
+                        color: "#7c3aed",
+                        borderRadius: 21,
+                        paddingLeft:"7px",
+                        paddingTop:"9px",
+                        marginTop:"10px",
+                        width:'33px',
+                        height:"34px",
+                        fontSize: 12,
+                        border: "1.5px solid #E9D5FF",
                       }}
                     >
-                      {activeTab === "requested"
-                        ? "Delete Request"
-                        : "Start Message"}
-                    </button>
-                  </div>
+                      +{skills.length - (isMobile ? 2 : 3)}
+                    </span>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            )}
+
+            {/* ACTION BUTTON */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (activeTab === "requested") {
+                  deleteRequest(item.id);
+                } else {
+                  navigate("/chat", {
+                    state: {
+                      currentUid: auth.currentUser.uid,
+                      otherUid: item.freelancerId,
+                      otherName: item.freelancerName,
+                      otherImage:
+                        profile.profileImage || item.profileImage,
+                      initialMessage: getStartMessage(
+                        service.title || item.title
+                      ),
+                    },
+                  });
+                }
+              }}
+              style={{
+                width: "100%",
+                padding: isMobile ? 12 : 16,
+                borderRadius: isMobile ? 14 : 18,
+                border: "none",
+                fontSize: isMobile ? 14 : 15,
+                fontWeight: 600,
+                color: "#fff",
+                cursor: "pointer",
+                marginTop:"10px",
+                background:
+                  "linear-gradient(135deg,#7c3aed,#4f46e5)",
+              }}
+            >
+              {activeTab === "requested"
+                ? "Delete Request"
+                : "Start Message"}
+            </button>
           </div>
-        )}
+        </div>
+      );
+    })}
+  </div>
+)}
+
       </div>
 
       {/* DETAIL MODAL */}
