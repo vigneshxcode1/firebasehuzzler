@@ -1971,7 +1971,7 @@ export default function ClientHomeUI() {
   return (
     <>
 
-      <div id="fh-pae" style={{ marginLeft: isMobile ? "-130px" : "-60px",margin: isMobile ? "-0px" : "" ,marginTop: isMobile ? "-120px" : "-40px", }} className="fh-page rubik-font">
+      <div id="fh-pae" style={{ marginLeft: isMobile ? "-130px" : "-60px", margin: isMobile ? "-0px" : "", marginTop: isMobile ? "-120px" : "-40px", }} className="fh-page rubik-font">
         <div id="fh-containers" className="fh-container" >
           {/* HEADER */}
           <header className="fh-header">
@@ -1987,7 +1987,7 @@ export default function ClientHomeUI() {
               <div></div>
             </div>
 
-            <div id="fh-header-right" style={{marginTop:isMobile?"84px":"1px",}} className="fh-header-right">
+            <div id="fh-header-right" style={{ marginTop: isMobile ? "84px" : "1px", }} className="fh-header-right">
 
               <div className="icbtn" onClick={() => navigate("/client-dashbroad2/messages")}>
                 <img src={message} alt="message" />
@@ -2070,15 +2070,14 @@ export default function ClientHomeUI() {
 
 
           <main className="fh-main">
-
             <section
               style={{
                 display: "flex",
-                flexDirection: isMobile ? "column" : "row", // 🔥 key line
+                flexDirection: isMobile ? "column" : "row",
                 justifyContent: "center",
                 alignItems: "center",
-                gap: "20px",
-                marginTop: isMobile ? "-1px" : "", 
+                gap: isMobile ? "8px" : "0px", // 🔥 mobile gap small
+                marginTop: isMobile ? "-1px" : "",
               }}
             >
               <img
@@ -2088,10 +2087,11 @@ export default function ClientHomeUI() {
                 src={ActionCard}
                 alt="ActionCard"
                 style={{
-                  width: isMobile ? "112%" : "50%", // mobile big, web normal
+                  width: isMobile ? "112%" : "50%",
                   cursor: "pointer",
                   marginLeft: isMobile ? "0px" : "-30px",
                   marginTop: isMobile ? "-3px" : "",
+                  
                 }}
               />
 
@@ -2102,22 +2102,23 @@ export default function ClientHomeUI() {
                 src={Job}
                 alt="ActionCard"
                 style={{
-                width: isMobile ? "112%" : "50%",
-                cursor: "pointer",
-                marginLeft: isMobile ? "0px" : "30px",
-                marginTop: isMobile ? "-30px" : "",
-                border: "2px solid #0000"
-              }}
+                  width: isMobile ? "112%" : "50%",
+                  cursor: "pointer",
+                  marginLeft: isMobile ? "0px" : "30px",
+                  marginTop: isMobile ? "-30px" : "",
+                  border: "2px solid #0000"
+                }}
               />
             </section>
 
-            <section style={{marginTop:"-50px"}} id="category-scroll-wrapper" className="category-scroll-wrapper">
+
+            <section style={{ marginTop: "-50px" }} id="category-scroll-wrapper" className="category-scroll-wrapper">
               {categories.map((cat, i) => (
                 <div
                   key={i}
 
                   className="category-card-img"
-                  
+
                   onClick={() =>
                     navigate("/client-dashbroad2/clientcategories", {
                       state: { category: cat },
@@ -2140,7 +2141,7 @@ export default function ClientHomeUI() {
 
             <section className="fh-secin">
               <div className="section-heaer">
-                <h2 style={{ color: "#000000c7", marginLeft: "-4px",marginTop:"-8px", fontSize: 20, fontWeight: 400 }}>Based On Your Industry, Here are profile to explore </h2>
+                <h2 style={{ color: "#000000c7", marginLeft: "-4px", marginTop: "-8px", fontSize: 20, fontWeight: 400 }}>Based On Your Industry, Here are profile to explore </h2>
               </div>
 
               <div id="jobs-list" className="jobs-list">
@@ -2179,9 +2180,9 @@ export default function ClientHomeUI() {
                     </div>
 
                     <p className="job-desc">
-                    {job.description?.slice(0, 180)}
-                    {job.description?.length > 180 ? "..." : ""}
-                  </p>
+                      {job.description?.slice(0, 180)}
+                      {job.description?.length > 180 ? "..." : ""}
+                    </p>
 
                     <div id="job-meta" className="job-meta">
                       <div className="job-stats">

@@ -1,1728 +1,49 @@
-// // frontend/src/pages/SavedJobsScreen.jsx
-// // NOTE: Firebase config must be in another file (e.g. firbase/Firebase.js)
-// // This file only imports { db } from there.
 
 // import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
 // import {
 //   collection,
 //   doc,
-//   onSnapshot,
 //   getDoc,
-//   getDocs,
+//   onSnapshot,
 //   updateDoc,
-//   arrayUnion,
-//   arrayRemove,
-//   increment,
+//   deleteDoc,
 // } from "firebase/firestore";
 // import { getAuth } from "firebase/auth";
-// import { db } from "../firbase/Firebase"; // 🔁 keep your existing path
+// import { Link, useNavigate } from "react-router-dom";
+// import { db } from "../firbase/Firebase";
 
-// // -------------------- UTIL FUNCTIONS -------------------- //
+// import {
+//   FiBell,
+//   FiMessageSquare,
+//   FiUser,
+//   FiArrowLeft,
+//   FiBookmark,
+//   FiPlus,
+//   FiEye,
+//   FiClock,
+// } from "react-icons/fi";
+// import backarrow from '../assets/backarrow.png';
 
-// function timeAgo(date) {
-//   const diff = Date.now() - date.getTime();
-//   const minutes = Math.floor(diff / (1000 * 60));
-//   if (minutes < 1) return "just now";
-//   if (minutes < 60) return `${minutes} min ago`;
-//   const hours = Math.floor(minutes / 60);
-//   if (hours < 24) return `${hours} hr${hours > 1 ? "s" : ""} ago`;
-//   const days = Math.floor(hours / 24);
-//   return `${days} day${days > 1 ? "s" : ""} ago`;
-// }
-
-// function formatAmount(amount) {
-//   const num = Number(amount) || 0;
-//   if (num < 1000) return num.toFixed(0);
-//   if (num < 1_000_000) {
-//     const v = num / 1000;
-//     return `${v.toFixed(v === Math.trunc(v) ? 0 : 1)}K`;
-//   }
-//   const v = num / 1_000_000;
-//   return `${v.toFixed(v === Math.trunc(v) ? 0 : 1)}M`;
-// }
-
-// // -------------------- MAIN COMPONENT -------------------- //
-
-// export default function SavedJobsScreen() {
-//   const navigate = useNavigate();
+// export default function SavedServicesOnly() {
 //   const auth = getAuth();
-
-//   const [savedJobIds, setSavedJobIds] = useState([]);
-//   const [savedJobs, setSavedJobs] = useState([]);
-//   const [loadingSaved, setLoadingSaved] = useState(true);
-
-//   // Notification dialog (optional, same style as your other screen)
-//   const [notifications, setNotifications] = useState([]);
-//   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
-
 //   const user = auth.currentUser;
-
-//   // -------------------- LISTEN TO USER SAVED JOBS -------------------- //
-
-//   useEffect(() => {
-//     if (!user) {
-//       setLoadingSaved(false);
-//       return;
-//     }
-
-//     const userRef = doc(db, "users", user.uid);
-//     const unsub = onSnapshot(
-//       userRef,
-//       (snap) => {
-//         const data = snap.data() || {};
-//         const ids = data.savedJobs || [];
-//         setSavedJobIds(ids);
-//       },
-//       (err) => {
-//         console.error("user snapshot error", err);
-//       }
-//     );
-
-//     return unsub;
-//   }, [db, user]);
-
-//   // -------------------- LOAD SAVED JOB DOCUMENTS -------------------- //
-
-//   useEffect(() => {
-//     if (!user) return;
-
-//     async function loadSaved() {
-//       try {
-//         setLoadingSaved(true);
-
-//         if (!savedJobIds.length) {
-//           setSavedJobs([]);
-//           return;
-//         }
-
-//         const [servicesSnap, service24Snap] = await Promise.all([
-//           getDocs(collection(db, "services")),
-//           getDocs(collection(db, "service_24h")),
-//         ]);
-
-//         const all = [];
-
-//         servicesSnap.forEach((docSnap) => {
-//           if (savedJobIds.includes(docSnap.id)) {
-//             all.push({
-//               id: docSnap.id,
-//               type: "services",
-//               ...docSnap.data(),
-//             });
-//           }
-//         });
-
-//         service24Snap.forEach((docSnap) => {
-//           if (savedJobIds.includes(docSnap.id)) {
-//             all.push({
-//               id: docSnap.id,
-//               type: "service_24h",
-//               ...docSnap.data(),
-//             });
-//           }
-//         });
-
-//         // 🔥 Sort by createdAt (recent first)
-//         all.sort((a, b) => {
-//           const getDate = (job) => {
-//             const ts = job.createdAt;
-//             if (ts && typeof ts.toDate === "function") {
-//               return ts.toDate();
-//             }
-//             if (ts instanceof Date) return ts;
-//             return new Date(0); // fallback old
-//           };
-//           return getDate(b) - getDate(a);
-//         });
-
-//         setSavedJobs(all);
-//       } catch (err) {
-//         console.error("loadSavedJobs error", err);
-//       } finally {
-//         setLoadingSaved(false);
-//       }
-//     }
-
-//     loadSaved();
-//   }, [db, user, savedJobIds]);
-
-//   // -------------------- HANDLERS -------------------- //
-
-//   const toggleSavedJob = async (jobId) => {
-//     const currentUser = auth.currentUser;
-//     if (!currentUser) return;
-
-//     const userRef = doc(db, "users", currentUser.uid);
-//     const isSaved = savedJobIds.includes(jobId);
-
-//     try {
-//       if (isSaved) {
-//         await updateDoc(userRef, {
-//           savedJobs: arrayRemove(jobId),
-//         });
-//       } else {
-//         await updateDoc(userRef, {
-//           savedJobs: arrayUnion(jobId),
-//         });
-//       }
-//     } catch (err) {
-//       console.error("toggleSavedJob error", err);
-//     }
-//   };
-
-//   const incrementImpressionsAndNavigate = async (job) => {
-//     try {
-//       const currentUser = auth.currentUser;
-//       if (!currentUser) return;
-
-//       const collectionName = job.type === "service_24h" ? "service_24h" : "services";
-//       const ref = doc(db, collectionName, job.id);
-//       const snap = await getDoc(ref);
-
-//       if (snap.exists()) {
-//         const data = snap.data();
-//         const viewedBy = data.viewedBy || [];
-
-//         if (!viewedBy.includes(currentUser.uid)) {
-//           await updateDoc(ref, {
-//             viewedBy: arrayUnion(currentUser.uid),
-//             [collectionName === "service_24h" ? "views" : "impressions"]:
-//               increment(1),
-//           });
-//         }
-//       }
-
-//       if (collectionName === "service_24h") {
-//         navigate(`/client-dashbroad2/service-24h/${job.id}`);
-//       } else {
-//         navigate(`/client-dashbroad2/service/${job.id}`);
-//       }
-//     } catch (err) {
-//       console.error("incrementImpressionsAndNavigate error", err);
-//     }
-//   };
-
-//   // -------------------- RENDER -------------------- //
-
-//   if (!user) {
-//     return (
-//       <div className="min-h-screen bg-gray-100 flex items-center justify-center text-gray-700">
-//         Please login to view saved jobs.
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex flex-col">
-//       {/* HEADER */}
-//       <div className="relative">
-//         <div className="w-full bg-[#FDFD96] rounded-b-[30px] h-32 flex items-center justify-center px-4">
-//           <div className="flex items-center justify-between w-full max-w-3xl">
-//             <button
-//               onClick={() => navigate(-1)}
-//               className="text-gray-800 p-2 rounded-full hover:bg-yellow-200"
-//             >
-//               ←
-//             </button>
-
-//             <h1 className="text-xl sm:text-2xl font-medium text-black">
-//               Saved jobs
-//             </h1>
-
-//             {/* Notification icon */}
-//             <NotificationIcon
-//               count={notifications.length}
-//               onClick={() => setShowNotificationDialog(true)}
-//             />
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* LIST CONTENT */}
-//       <div className="flex-1 overflow-y-auto">
-//         <SavedTab
-//           jobs={savedJobs}
-//           loading={loadingSaved}
-//           savedJobIds={savedJobIds}
-//           onToggleSaved={toggleSavedJob}
-//           onOpenJob={(job) => incrementImpressionsAndNavigate(job)}
-//         />
-//       </div>
-
-//       {/* NOTIFICATION DIALOG */}
-//       {showNotificationDialog && (
-//         <NotificationDialog
-//           notifications={notifications}
-//           onClose={() => setShowNotificationDialog(false)}
-//           onClearAll={() => setNotifications([])}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
-// // -------------------- SAVED TAB -------------------- //
-
-// function SavedTab({ jobs, loading, savedJobIds, onToggleSaved, onOpenJob }) {
-//   if (loading) {
-//     return (
-//       <div className="h-full flex items-center justify-center">
-//         <div className="h-6 w-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-//       </div>
-//     );
-//   }
-
-//   if (!jobs.length) {
-//     return (
-//       <div className="h-full flex items-center justify-center text-gray-500">
-//         No saved jobs yet
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="px-4 py-3 space-y-3">
-//       {jobs.map((job) =>
-//         job.type === "services" ? (
-//           <JobCardWorks
-//             key={job.id}
-//             job={job}
-//             isSaved={savedJobIds.includes(job.id)}
-//             onToggleSaved={() => onToggleSaved(job.id)}
-//             onOpen={() => onOpenJob(job)}
-//           />
-//         ) : (
-//           <JobCard24h
-//             key={job.id}
-//             job={job}
-//             isSaved={savedJobIds.includes(job.id)}
-//             onToggleSaved={() => onToggleSaved(job.id)}
-//             onOpen={() => onOpenJob(job)}
-//           />
-//         )
-//       )}
-//     </div>
-//   );
-// }
-
-// // -------------------- WORKS CARD -------------------- //
-
-// function JobCardWorks({ job, isSaved, onToggleSaved, onOpen }) {
-//   const {
-//     title = "",
-//     description = "",
-//     deliveryDuration = "",
-//     price,
-//     budget_from,
-//     budget_to,
-//     impressions = 0,
-//     createdAt,
-//     skills = [],
-//     tools = [],
-//   } = job;
-
-//   const priceText =
-//     price != null
-//       ? `₹${price}`
-//       : budget_from != null && budget_to != null
-//       ? `₹${budget_from} - ₹${budget_to}`
-//       : "₹0";
-
-//   const createdDate =
-//     createdAt && typeof createdAt.toDate === "function"
-//       ? createdAt.toDate()
-//       : null;
-//   const timeText = createdDate ? timeAgo(createdDate) : "";
-
-//   const merged = [...skills, ...tools];
-//   const shown = merged.slice(0, 2);
-//   const remaining = merged.length - shown.length;
-
-//   return (
-//     <div
-//       onClick={onOpen}
-//       className="bg-white rounded-2xl border border-gray-300 shadow-sm p-4 cursor-pointer hover:shadow-md transition"
-//     >
-//       {/* Header Row */}
-//       <div className="flex items-start gap-3">
-//         <div className="flex-1">
-//           <h3 className="text-sm sm:text-base font-semibold text-black truncate">
-//             {title}
-//           </h3>
-//           <div className="mt-3 flex items-center gap-3 text-xs text-gray-700">
-//             <span className="flex items-center gap-1">
-//               <span className="material-icons text-[16px]">
-//                 remove_red_eye
-//               </span>
-//               {impressions} views
-//             </span>
-//             {timeText && <span>{timeText}</span>}
-//           </div>
-//         </div>
-
-//         {/* Price + duration badge */}
-//         <div className="flex flex-col items-end gap-2">
-//           <div className="relative">
-//             <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-white px-3 py-1 text-xs font-bold rounded-md shadow-sm">
-//               {priceText}
-//             </div>
-//             <div className="mt-6 bg-yellow-400 rounded-b-md px-4 py-1 text-xs font-bold text-black text-center min-w-[90px]">
-//               {deliveryDuration || "N/A"}
-//             </div>
-//           </div>
-
-//           <button
-//             type="button"
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSaved();
-//             }}
-//           >
-//             <span
-//               className={`material-icons text-[24px] ${
-//                 isSaved ? "text-indigo-400" : "text-gray-400"
-//               }`}
-//             >
-//               {isSaved ? "bookmark_add" : "bookmark_add_outlined"}
-//             </span>
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Description */}
-//       <p className="mt-3 text-xs sm:text-sm text-gray-800 line-clamp-4">
-//         {description}
-//       </p>
-
-//       {/* Skills/Tools chips */}
-//       <div className="mt-3 flex flex-wrap gap-2">
-//         {shown.map((item) => (
-//           <span
-//             key={item}
-//             className="px-3 py-1 rounded-full bg-gray-200 text-xs font-medium text-gray-800"
-//           >
-//             {item}
-//           </span>
-//         ))}
-//         {remaining > 0 && (
-//           <span className="px-3 py-1 rounded-full bg-gray-400 text-xs font-semibold text-white">
-//             +{remaining}
-//           </span>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- 24H CARD -------------------- //
-
-// function JobCard24h({ job, isSaved, onToggleSaved, onOpen }) {
-//   const {
-//     title = "Untitled",
-//     description = "",
-//     timeline = "24 Hours",
-//     budget,
-//     createdAt,
-//     views = 0,
-//     skills = [],
-//     tools = [],
-//   } = job;
-
-//   const budgetText = `₹${formatAmount(budget ?? 0)}`;
-//   const createdDate =
-//     createdAt && typeof createdAt.toDate === "function"
-//       ? createdAt.toDate()
-//       : null;
-//   const timeText = createdDate ? timeAgo(createdDate) : "Just now";
-
-//   const merged = [...skills, ...tools];
-//   const shown = merged.slice(0, 2);
-//   const remaining = merged.length - shown.length;
-
-//   return (
-//     <div
-//       onClick={onOpen}
-//       className="bg-white rounded-2xl border border-gray-300 shadow-sm p-4 cursor-pointer hover:shadow-md transition"
-//     >
-//       {/* Header Row */}
-//       <div className="flex items-start gap-3">
-//         <div className="flex-1">
-//           <h3 className="text-sm sm:text-base font-semibold text-black truncate">
-//             {title}
-//           </h3>
-//           <div className="mt-3 flex items-center gap-3 text-xs text-gray-700">
-//             <span className="flex items-center gap-1">
-//               <span className="material-icons text-[16px]">
-//                 remove_red_eye
-//               </span>
-//               {views} views
-//             </span>
-//             {timeText && <span>{timeText}</span>}
-//           </div>
-//         </div>
-
-//         {/* Budget + 24h badge + save */}
-//         <div className="flex flex-col items-end gap-2">
-//           <div className="relative">
-//             <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-white px-3 py-1 text-xs font-bold rounded-md shadow-sm">
-//               {budgetText}
-//             </div>
-//             <div className="mt-6 bg-orange-400 rounded-b-md px-4 py-1 text-xs font-bold text-black text-center min-w-[90px]">
-//               {timeline || "24 Hours"}
-//             </div>
-//           </div>
-
-//           <button
-//             type="button"
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSaved();
-//             }}
-//           >
-//             <span
-//               className={`material-icons text-[24px] ${
-//                 isSaved ? "text-indigo-400" : "text-gray-400"
-//               }`}
-//             >
-//               {isSaved ? "bookmark_add" : "bookmark_add_outlined"}
-//             </span>
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Description */}
-//       <p className="mt-3 text-xs sm:text-sm text-gray-800 line-clamp-4">
-//         {description}
-//       </p>
-
-//       {/* Skills/Tools chips */}
-//       <div className="mt-3 flex flex-wrap gap-2">
-//         {shown.map((item) => (
-//           <span
-//             key={item}
-//             className="px-3 py-1 rounded-full bg-gray-200 text-xs font-medium text-gray-800"
-//           >
-//             {item}
-//           </span>
-//         ))}
-//         {remaining > 0 && (
-//           <span className="px-3 py-1 rounded-full bg-gray-400 text-xs font-semibold text-white">
-//             +{remaining}
-//           </span>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- NOTIFICATIONS -------------------- //
-
-// function NotificationIcon({ count, onClick }) {
-//   return (
-//     <button
-//       onClick={onClick}
-//       className="relative p-2 rounded-xl hover:bg-yellow-200 transition"
-//     >
-//       <span className="material-icons text-gray-800 text-[24px]">
-//         notifications_none
-//       </span>
-//       {count > 0 && (
-//         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5">
-//           {count > 9 ? "9+" : count}
-//         </span>
-//       )}
-//     </button>
-//   );
-// }
-
-// function NotificationDialog({ notifications, onClose, onClearAll }) {
-//   return (
-//     <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50">
-//       <div className="mt-16 w-[90%] max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-//         {/* Header */}
-//         <div className="bg-[#FDFD96] px-4 py-3 flex items-center gap-3">
-//           <div className="p-2 bg-white/30 rounded-xl">
-//             <span className="material-icons text-gray-900 text-[20px]">
-//               notifications_active
-//             </span>
-//           </div>
-//           <div className="flex-1">
-//             <p className="text-sm font-semibold text-gray-900">
-//               Notifications
-//             </p>
-//             <p className="text-xs text-gray-700">
-//               {notifications.length}{" "}
-//               {notifications.length === 1 ? "notification" : "notifications"}
-//             </p>
-//           </div>
-//           {notifications.length > 0 && (
-//             <button
-//               className="text-xs font-semibold bg.white/40 px-2 py-1 rounded-lg mr-1"
-//               onClick={onClearAll}
-//             >
-//               Clear All
-//             </button>
-//           )}
-//           <button
-//             className="p-2 bg-white/40 rounded-xl"
-//             onClick={onClose}
-//           >
-//             <span className="material-icons text-gray-900 text-[18px]">
-//               close
-//             </span>
-//           </button>
-//         </div>
-
-//         {/* Body */}
-//         <div className="max-h-80 overflow-y-auto py-3">
-//           {notifications.length === 0 ? (
-//             <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500 text-sm">
-//               <div className="p-4 rounded-full bg-gray-100 mb-3">
-//                 <span className="material-icons text-[32px] text-gray-400">
-//                   notifications_off
-//                 </span>
-//               </div>
-//               <p className="font-semibold text-gray-700 mb-1">
-//                 No notifications yet
-//               </p>
-//               <p className="text-xs leading-relaxed text-gray-500">
-//                 You're all caught up! New notifications will appear here when
-//                 available.
-//               </p>
-//             </div>
-//           ) : (
-//             notifications.map((n, idx) => (
-//               <div
-//                 key={idx}
-//                 className="mx-4 mb-2 p-3 rounded-xl border border-gray-200 bg-gray-50 flex items-start gap-3"
-//               >
-//                 <div className="p-2 rounded-xl bg-[#FDFD96]">
-//                   <span className="material-icons text-gray-900 text-[20px]">
-//                     notifications
-//                   </span>
-//                 </div>
-//                 <div className="flex-1">
-//                   {n.title && (
-//                     <p className="text-sm font-semibold text-gray-900">
-//                       {n.title}
-//                     </p>
-//                   )}
-//                   {n.body && (
-//                     <p className="mt-1 text-xs text-gray-700">{n.body}</p>
-//                   )}
-//                   <p className="mt-1 text-[10px] text-gray-500">Just now</p>
-//                 </div>
-//               </div>
-//             ))
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   collection,
-//   doc,
-//   onSnapshot,
-//   getDoc,
-//   getDocs,
-//   updateDoc,
-//   arrayUnion,
-//   arrayRemove,
-//   increment,
-// } from "firebase/firestore";
-// import { getAuth } from "firebase/auth";
-// import { db } from "../firbase/Firebase"; // 🔁 keep your existing path
-
-// // 🔹 UI imports from UIFreelanceSaved.jsx
-// import backarrow from "../assets/backarrow.png";
-// import message from "../assets/message.png";
-// import notification from "../assets/notification.png";
-// import profile from "../assets/profile.png";
-// import save from "../assets/save.png";
-// import saved from "../assets/saved.png";
-// import search from "../assets/search.png";
-// import { MdAccessTime } from "react-icons/md";
-// import { FaEye } from "react-icons/fa";
-// import { FiPlus } from "react-icons/fi";
-
-// // -------------------- UTIL FUNCTIONS -------------------- //
-
-// function timeAgo(date) {
-//   if (!date) return "";
-//   const diff = Date.now() - date.getTime();
-//   const minutes = Math.floor(diff / (1000 * 60));
-//   if (minutes < 1) return "just now";
-//   if (minutes < 60) return `${minutes} min ago`;
-//   const hours = Math.floor(minutes / 60);
-//   if (hours < 24) return `${hours} hr${hours > 1 ? "s" : ""} ago`;
-//   const days = Math.floor(hours / 24);
-//   return `${days} day${days > 1 ? "s" : ""} ago`;
-// }
-
-// function formatAmount(amount) {
-//   const num = Number(amount) || 0;
-//   if (num < 1000) return num.toFixed(0);
-//   if (num < 1_000_000) {
-//     const v = num / 1000;
-//     return `${v.toFixed(v === Math.trunc(v) ? 0 : 1)}K`;
-//   }
-//   const v = num / 1_000_000;
-//   return `${v.toFixed(v === Math.trunc(v) ? 0 : 1)}M`;
-// }
-
-// // -------------------- INLINE STYLES (from UIFreelanceSaved) -------------------- //
-
-// const styles = {
-//   root: {
-//     backgroundColor: "#FFFFFF",
-//     minHeight: "100vh",
-//     fontFamily: "'Rubik', sans-serif",
-//     padding: "16px",
-//     paddingBottom: "96px", // space for FAB
-//   },
-//   topRow: {
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     marginBottom: 12,
-//     width: "100%",
-//   },
-//   leftRow: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 12,
-//   },
-//   backbtn: {
-//     width: 38,
-//     height: 38,
-//     borderRadius: 12,
-//     border: "1px solid #ccc",
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     cursor: "pointer",
-//     backgroundColor: "#fff",
-//   },
-//   backbtnimg: {
-//     height: 18,
-//     width: 18,
-//   },
-//   heading: {
-//     fontSize: 34,
-//     fontWeight: 500,
-//   },
-//   rightIcons: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 14,
-//   },
-//   iconImg: {
-//     width: 26,
-//     height: 26,
-//     cursor: "pointer",
-//   },
-//   searchBar: {
-//     width: "95%",
-//     height: 48,
-//     borderRadius: 25,
-//     backgroundColor: "#F3F3F3",
-//     display: "flex",
-//     alignItems: "center",
-//     padding: "0 16px",
-//     marginBottom: 20,
-//     marginTop: 30,
-//     gap: 12,
-//   },
-//   searchIcon: {
-//     width: 20,
-//     height: 20,
-//     opacity: 0.65,
-//   },
-//   searchInput: {
-//     border: "none",
-//     outline: "none",
-//     background: "transparent",
-//     width: "100%",
-//     fontSize: 15,
-//     fontFamily: "'Rubik', sans-serif",
-//   },
-//   jobCard: {
-//     width: "95%",
-//     margin: "0 auto",
-//     borderRadius: 18,
-//     backgroundColor: "#fff",
-//     border: "1px solid #ececec",
-//     padding: 16,
-//     marginBottom: 16,
-//     boxShadow: "0 3px 6px rgba(0,0,0,0.07)",
-//     cursor: "pointer",
-//   },
-//   cardTop: {
-//     display: "flex",
-//     alignItems: "flex-start",
-//     justifyContent: "space-between",
-//     width: "100%",
-//   },
-//   title: {
-//     fontSize: 18,
-//     fontWeight: 400,
-//     marginBottom: 6,
-//     lineHeight: "20px",
-//   },
-//   meta: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 6,
-//     color: "#777",
-//     fontSize: 12,
-//     marginTop: 10,
-//   },
-//   time: {
-//     marginLeft: 20,
-//   },
-//   budgetTop: {
-//     fontWeight: 600,
-//     fontSize: 15,
-//   },
-//   saveIcon: {
-//     cursor: "pointer",
-//     width: 20,
-//     height: 20,
-//     marginTop: 6,
-//   },
-//   skillsrequired: {
-//     fontWeight: 400,
-//     fontSize: 14,
-//     opacity: "70%",
-//     marginTop: 10,
-//   },
-//   desc: {
-//     marginTop: 10,
-//     fontSize: 13,
-//     color: "#555",
-//     lineHeight: "18px",
-//   },
-//   chipsRow: {
-//     marginTop: 10,
-//     display: "flex",
-//     flexWrap: "wrap",
-//     gap: 6,
-//   },
-//   chip: {
-//     backgroundColor: "rgba(255, 240, 133, 0.7)",
-//     padding: "4px 10px",
-//     borderRadius: 12,
-//     fontSize: 12,
-//   },
-//   emptyText: {
-//     textAlign: "center",
-//     marginTop: 40,
-//     color: "#777",
-//   },
-//   loader: {
-//     marginTop: 60,
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   loaderCircle: {
-//     height: 24,
-//     width: 24,
-//     borderRadius: "999px",
-//     border: "2px solid #aaa",
-//     borderTopColor: "transparent",
-//     animation: "spin 0.8s linear infinite",
-//   },
-//   fab: {
-//     position: "fixed",
-//     right: 36,
-//     bottom: 36,
-//     width: 56,
-//     height: 56,
-//     borderRadius: 999,
-//     background: "linear-gradient(180deg, #7c3aed, #6d28d9)",
-//     color: "white",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "center",
-//     border: 0,
-//     boxShadow: "0 10px 30px rgba(124,58,237,0.18)",
-//     cursor: "pointer",
-//     fontSize: 20,
-//   },
-// };
-
-// // -------------------- MAIN COMPONENT -------------------- //
-
-// export default function SavedJobsScreen() {
 //   const navigate = useNavigate();
-//   const auth = getAuth();
 
-//   const [savedJobIds, setSavedJobIds] = useState([]);
-//   const [savedJobs, setSavedJobs] = useState([]);
-//   const [loadingSaved, setLoadingSaved] = useState(true);
-
-//   // Notification dialog state (backend logic same)
-//   const [notifications, setNotifications] = useState([]);
-//   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
-
-//   const [searchQuery, setSearchQuery] = useState("");
-
-//   const user = auth.currentUser;
-
-//   // -------------------- LISTEN TO USER SAVED JOBS -------------------- //
-
-//   useEffect(() => {
-//     if (!user) {
-//       setLoadingSaved(false);
-//       return;
-//     }
-
-//     const userRef = doc(db, "users", user.uid);
-//     const unsub = onSnapshot(
-//       userRef,
-//       (snap) => {
-//         const data = snap.data() || {};
-//         const ids = data.savedJobs || [];
-//         setSavedJobIds(ids);
-//       },
-//       (err) => {
-//         console.error("user snapshot error", err);
-//       }
-//     );
-
-//     return unsub;
-//   }, [user]);
-
-//   // -------------------- LOAD SAVED JOB DOCUMENTS -------------------- //
-
-//   useEffect(() => {
-//     if (!user) return;
-
-//     async function loadSaved() {
-//       try {
-//         setLoadingSaved(true);
-
-//         if (!savedJobIds.length) {
-//           setSavedJobs([]);
-//           return;
-//         }
-
-//         const [servicesSnap, service24Snap] = await Promise.all([
-//           getDocs(collection(db, "services")),
-//           getDocs(collection(db, "service_24h")),
-//         ]);
-
-//         const all = [];
-
-//         servicesSnap.forEach((docSnap) => {
-//           if (savedJobIds.includes(docSnap.id)) {
-//             all.push({
-//               id: docSnap.id,
-//               type: "services",
-//               ...docSnap.data(),
-//             });
-//           }
-//         });
-
-//         service24Snap.forEach((docSnap) => {
-//           if (savedJobIds.includes(docSnap.id)) {
-//             all.push({
-//               id: docSnap.id,
-//               type: "service_24h",
-//               ...docSnap.data(),
-//             });
-//           }
-//         });
-
-//         // 🔥 Sort by createdAt (recent first) – same as original
-//         all.sort((a, b) => {
-//           const getDate = (job) => {
-//             const ts = job.createdAt;
-//             if (ts && typeof ts.toDate === "function") {
-//               return ts.toDate();
-//             }
-//             if (ts instanceof Date) return ts;
-//             return new Date(0); // fallback old
-//           };
-//           return getDate(b) - getDate(a);
-//         });
-
-//         setSavedJobs(all);
-//       } catch (err) {
-//         console.error("loadSavedJobs error", err);
-//       } finally {
-//         setLoadingSaved(false);
-//       }
-//     }
-
-//     loadSaved();
-//   }, [user, savedJobIds]);
-
-//   // -------------------- HANDLERS -------------------- //
-
-//   const toggleSavedJob = async (jobId) => {
-//     const currentUser = auth.currentUser;
-//     if (!currentUser) return;
-
-//     const userRef = doc(db, "users", currentUser.uid);
-//     const isSaved = savedJobIds.includes(jobId);
-
-//     try {
-//       if (isSaved) {
-//         await updateDoc(userRef, {
-//           savedJobs: arrayRemove(jobId),
-//         });
-//       } else {
-//         await updateDoc(userRef, {
-//           savedJobs: arrayUnion(jobId),
-//         });
-//       }
-//     } catch (err) {
-//       console.error("toggleSavedJob error", err);
-//     }
-//   };
-
-//   const incrementImpressionsAndNavigate = async (job) => {
-//     try
-//     {
-//       const currentUser = auth.currentUser;
-//       if (!currentUser) return;
-
-//       const collectionName = job.type === "service_24h" ? "service_24h" : "services";
-//       const ref = doc(db, collectionName, job.id);
-//       const snap = await getDoc(ref);
-
-//       if (snap.exists()) {
-//         const data = snap.data();
-//         const viewedBy = data.viewedBy || [];
-
-//         if (!viewedBy.includes(currentUser.uid)) {
-//           await updateDoc(ref, {
-//             viewedBy: arrayUnion(currentUser.uid),
-//             [collectionName === "service_24h" ? "views" : "impressions"]:
-//               increment(1),
-//           });
-//         }
-//       }
-
-//       if (collectionName === "service_24h") {
-//         navigate(`/client-dashbroad2/service-24h/${job.id}`);
-//       } else {
-//         navigate(`/client-dashbroad2/service/${job.id}`);
-//       }
-//     } catch (err) {
-//       console.error("incrementImpressionsAndNavigate error", err);
-//     }
-//   };
-
-//   // -------------------- FILTER (search) -------------------- //
-
-//   const filteredJobs = savedJobs.filter((job) => {
-//     if (!searchQuery.trim()) return true;
-//     const q = searchQuery.toLowerCase();
-//     const title = (job.title || "").toLowerCase();
-//     const desc = (job.description || "").toLowerCase();
-//     const skills = (job.skills || []).join(" ").toLowerCase();
-//     const tools = (job.tools || []).join(" ").toLowerCase();
-//     return (
-//       title.includes(q) ||
-//       desc.includes(q) ||
-//       skills.includes(q) ||
-//       tools.includes(q)
-//     );
-//   });
-
-//   // -------------------- RENDER -------------------- //
-
-//   if (!user) {
-//     // simple "not logged in" state; backend logic same
-//     return (
-//       <div
-//         style={{
-//           ...styles.root,
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//         }}
-//       >
-//         <div style={{ color: "#555", fontSize: 15 }}>
-//           Please login to view saved jobs.
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div style={styles.root}>
-//       {/* TOP ROW (UIFreelanceSaved style) */}
-//       <div style={styles.topRow}>
-//         <div style={styles.leftRow}>
-//           <div style={styles.backbtn} onClick={() => navigate(-1)}>
-//             <img style={styles.backbtnimg} src={backarrow} alt="back" />
-//           </div>
-
-//           <div style={styles.heading}>Saved Jobs</div>
-//         </div>
-
-//         <div style={styles.rightIcons}>
-//           <img onClick={() => navigate("/messages")} src={message} alt="msg" style={styles.iconImg} />
-//           <img
-//             src={notification}
-//             alt="notif"
-//             style={styles.iconImg}
-//             onClick={() => setShowNotificationDialog(true)}
-//           />
-//           <img src={profile} alt="profile" style={styles.iconImg} />
-//         </div>
-//       </div>
-
-//       {/* SEARCH BAR */}
-//       <div style={styles.searchBar}>
-//         <img src={search} style={styles.searchIcon} alt="search" />
-//         <input
-//           style={styles.searchInput}
-//           placeholder="Search"
-//           value={searchQuery}
-//           onChange={(e) => setSearchQuery(e.target.value)}
-//         />
-//       </div>
-
-//       {/* LIST / STATES */}
-//       {loadingSaved ? (
-//         <div style={styles.loader}>
-//           <div style={styles.loaderCircle} />
-//         </div>
-//       ) : filteredJobs.length === 0 ? (
-//         <div style={styles.emptyText}>No saved jobs found</div>
-//       ) : (
-//         <div>
-//           {filteredJobs.map((job) =>
-//             job.type === "services" ? (
-//               <JobCardWorks
-//                 key={job.id}
-//                 job={job}
-//                 isSaved={savedJobIds.includes(job.id)}
-//                 onToggleSaved={() => toggleSavedJob(job.id)}
-//                 onOpen={() => incrementImpressionsAndNavigate(job)}
-//               />
-//             ) : (
-//               <JobCard24h
-//                 key={job.id}
-//                 job={job}
-//                 isSaved={savedJobIds.includes(job.id)}
-//                 onToggleSaved={() => toggleSavedJob(job.id)}
-//                 onOpen={() => incrementImpressionsAndNavigate(job)}
-//               />
-//             )
-//           )}
-//         </div>
-//       )}
-
-//       {/* Floating + Button (same as UIFreelanceSaved) */}
-//       <button
-//         style={styles.fab}
-//         onClick={() => navigate("/client-dashbroad2/PostJob")}
-//         aria-label="Add"
-//       >
-//         <FiPlus />
-//       </button>
-
-//       {/* NOTIFICATION DIALOG (backend logic same, UI tailwind-based) */}
-//       {showNotificationDialog && (
-//         <NotificationDialog
-//           notifications={notifications}
-//           onClose={() => setShowNotificationDialog(false)}
-//           onClearAll={() => setNotifications([])}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
-// // -------------------- WORKS CARD (services) — UIFreelanceSaved style -------------------- //
-
-// function JobCardWorks({ job, isSaved, onToggleSaved, onOpen }) {
-//   const {
-//     title = "",
-//     description = "",
-//     deliveryDuration = "",
-//     price,
-//     budget_from,
-//     budget_to,
-//     impressions = 0,
-//     createdAt,
-//     skills = [],
-//     tools = [],
-//   } = job;
-
-//   const priceText =
-//     price != null
-//       ? `₹${price}`
-//       : budget_from != null && budget_to != null
-//       ? `₹${budget_from} - ₹${budget_to}`
-//       : "₹0";
-
-//   const createdDate =
-//     createdAt && typeof createdAt.toDate === "function"
-//       ? createdAt.toDate()
-//       : createdAt instanceof Date
-//       ? createdAt
-//       : null;
-//   const timeText = createdDate ? timeAgo(createdDate) : "";
-
-//   const chips = [...skills, ...tools];
-
-//   return (
-//     <div style={styles.jobCard} onClick={onOpen}>
-//       <div style={styles.cardTop}>
-//         <div style={{ flex: 1 }}>
-//           <div style={styles.title}>{title}</div>
-//         </div>
-
-//         <div
-//           style={{
-//             display: "flex",
-//             flexDirection: "column",
-//             alignItems: "flex-end",
-//           }}
-//         >
-//           <div style={styles.budgetTop}>{priceText}</div>
-
-//           <img
-//             src={isSaved ? saved : save}
-//             alt="save"
-//             style={styles.saveIcon}
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSaved();
-//             }}
-//           />
-//         </div>
-//       </div>
-
-//       <div style={styles.skillsrequired}>Skills Required</div>
-//       <div style={styles.chipsRow}>
-//         {chips.slice(0, 3).map((c) => (
-//           <span key={c} style={styles.chip}>
-//             {c}
-//           </span>
-//         ))}
-//         {chips.length > 3 && (
-//           <span style={styles.chip}>+{chips.length - 3}</span>
-//         )}
-//       </div>
-
-//       <div style={styles.desc}>{description}</div>
-
-//       <div style={styles.meta}>
-//         <FaEye size={14} /> {impressions ?? 0}
-//         <MdAccessTime size={14} style={styles.time} /> {timeText}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- 24H CARD (service_24h) — UIFreelanceSaved style -------------------- //
-
-// function JobCard24h({ job, isSaved, onToggleSaved, onOpen }) {
-//   const {
-//     title = "Untitled",
-//     description = "",
-//     timeline = "24 Hours",
-//     budget,
-//     createdAt,
-//     views = 0,
-//     skills = [],
-//     tools = [],
-//   } = job;
-
-//   const budgetText = `₹${formatAmount(budget ?? 0)}`;
-//   const createdDate =
-//     createdAt && typeof createdAt.toDate === "function"
-//       ? createdAt.toDate()
-//       : createdAt instanceof Date
-//       ? createdAt
-//       : null;
-//   const timeText = createdDate ? timeAgo(createdDate) : "Just now";
-
-//   const chips = [...skills, ...tools];
-
-//   return (
-//     <div style={styles.jobCard} onClick={onOpen}>
-//       <div style={styles.cardTop}>
-//         <div style={{ flex: 1 }}>
-//           <div style={styles.title}>{title}</div>
-//         </div>
-
-//         <div
-//           style={{
-//             display: "flex",
-//             flexDirection: "column",
-//             alignItems: "flex-end",
-//           }}
-//         >
-//           <div style={styles.budgetTop}>{budgetText}</div>
-
-//           <img
-//             src={isSaved ? saved : save}
-//             alt="save"
-//             style={styles.saveIcon}
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSaved();
-//             }}
-//           />
-//         </div>
-//       </div>
-
-//       <div style={styles.skillsrequired}>Skills Required</div>
-//       <div style={styles.chipsRow}>
-//         {chips.slice(0, 3).map((c) => (
-//           <span key={c} style={styles.chip}>
-//             {c}
-//           </span>
-//         ))}
-//         {chips.length > 3 && (
-//           <span style={styles.chip}>+{chips.length - 3}</span>
-//         )}
-//       </div>
-
-//       <div style={styles.desc}>{description}</div>
-
-//       <div style={styles.meta}>
-//         <FaEye size={14} /> {views ?? 0}
-//         <MdAccessTime size={14} style={styles.time} /> {timeText}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- NOTIFICATION DIALOG (same backend logic, Tailwind UI) -------------------- //
-
-// function NotificationDialog({ notifications, onClose, onClearAll }) {
-//   return (
-//     <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50">
-//       <div className="mt-16 w-[90%] max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-//         {/* Header */}
-//         <div className="bg-[#FDFD96] px-4 py-3 flex items-center gap-3">
-//           <div className="p-2 bg-white/30 rounded-xl">
-//             <span className="material-icons text-gray-900 text-[20px]">
-//               notifications_active
-//             </span>
-//           </div>
-//           <div className="flex-1">
-//             <p className="text-sm font-semibold text-gray-900">
-//               Notifications
-//             </p>
-//             <p className="text-xs text-gray-700">
-//               {notifications.length}{" "}
-//               {notifications.length === 1 ? "notification" : "notifications"}
-//             </p>
-//           </div>
-//           {notifications.length > 0 && (
-//             <button
-//               className="text-xs font-semibold bg.white/40 px-2 py-1 rounded-lg mr-1"
-//               onClick={onClearAll}
-//             >
-//               Clear All
-//             </button>
-//           )}
-//           <button className="p-2 bg-white/40 rounded-xl" onClick={onClose}>
-//             <span className="material-icons text-gray-900 text-[18px]">
-//               close
-//             </span>
-//           </button>
-//         </div>
-
-//         {/* Body */}
-//         <div className="max-h-80 overflow-y-auto py-3">
-//           {notifications.length === 0 ? (
-//             <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500 text-sm">
-//               <div className="p-4 rounded-full bg-gray-100 mb-3">
-//                 <span className="material-icons text-[32px] text-gray-400">
-//                   notifications_off
-//                 </span>
-//               </div>
-//               <p className="font-semibold text-gray-700 mb-1">
-//                 No notifications yet
-//               </p>
-//               <p className="text-xs leading-relaxed text-gray-500">
-//                 You're all caught up! New notifications will appear here when
-//                 available.
-//               </p>
-//             </div>
-//           ) : (
-//             notifications.map((n, idx) => (
-//               <div
-//                 key={idx}
-//                 className="mx-4 mb-2 p-3 rounded-xl border border-gray-200 bg-gray-50 flex items-start gap-3"
-//               >
-//                 <div className="p-2 rounded-xl bg-[#FDFD96]">
-//                   <span className="material-icons text-gray-900 text-[20px]">
-//                     notifications
-//                   </span>
-//                 </div>
-//                 <div className="flex-1">
-//                   {n.title && (
-//                     <p className="text-sm font-semibold text-gray-900">
-//                       {n.title}
-//                     </p>
-//                   )}
-//                   {n.body && (
-//                     <p className="mt-1 text-xs text-gray-700">{n.body}</p>
-//                   )}
-//                   <p className="mt-1 text-[10px] text-gray-500">Just now</p>
-//                 </div>
-//               </div>
-//             ))
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   collection,
-//   doc,
-//   onSnapshot,
-//   getDoc,
-//   getDocs,
-//   updateDoc,
-//   arrayUnion,
-//   arrayRemove,
-//   increment,
-// } from "firebase/firestore";
-// import { getAuth } from "firebase/auth";
-// import { db } from "../firbase/Firebase"; // 🔁 keep your existing path
-
-// // 🔹 UI imports from UIFreelanceSaved.jsx
-// import backarrow from "../assets/backarrow.png";
-// import message from "../assets/message.png";
-// import notification from "../assets/notification.png";
-// import profile from "../assets/profile.png";
-// import save from "../assets/save.png";
-// import saved from "../assets/saved.png";
-// import search from "../assets/search.png";
-// import { MdAccessTime } from "react-icons/md";
-// import { FaEye } from "react-icons/fa";
-// import { FiPlus } from "react-icons/fi";
-
-// // -------------------- UTIL FUNCTIONS -------------------- //
-
-// function timeAgo(date) {
-//   if (!date) return "";
-//   const diff = Date.now() - date.getTime();
-//   const minutes = Math.floor(diff / (1000 * 60));
-//   if (minutes < 1) return "just now";
-//   if (minutes < 60) return `${minutes} min ago`;
-//   const hours = Math.floor(minutes / 60);
-//   if (hours < 24) return `${hours} hr${hours > 1 ? "s" : ""} ago`;
-//   const days = Math.floor(hours / 24);
-//   return `${days} day${days > 1 ? "s" : ""} ago`;
-// }
-
-// function formatAmount(amount) {
-//   const num = Number(amount) || 0;
-//   if (num < 1000) return num.toFixed(0);
-//   if (num < 1_000_000) {
-//     const v = num / 1000;
-//     return `${v.toFixed(v === Math.trunc(v) ? 0 : 1)}K`;
-//   }
-//   const v = num / 1_000_000;
-//   return `${v.toFixed(v === Math.trunc(v) ? 0 : 1)}M`;
-// }
-
-// // -------------------- INLINE STYLES (from UIFreelanceSaved) -------------------- //
-
-// const styles = {
-//   root: {
-//     backgroundColor: "#FFFFFF",
-//     minHeight: "100vh",
-//     fontFamily: "'Rubik', sans-serif",
-//     padding: "16px",
-//     paddingBottom: "96px", // space for FAB
-//   },
-//   topRow: {
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     marginBottom: 12,
-//     width: "100%",
-//   },
-//   leftRow: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 12,
-//   },
-//   backbtn: {
-//     width: 38,
-//     height: 38,
-//     borderRadius: 12,
-//     border: "1px solid #ccc",
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     cursor: "pointer",
-//     backgroundColor: "#fff",
-//   },
-//   backbtnimg: {
-//     height: 18,
-//     width: 18,
-//   },
-//   heading: {
-//     fontSize: 34,
-//     fontWeight: 500,
-//   },
-//   rightIcons: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 14,
-//   },
-//   iconImg: {
-//     width: 26,
-//     height: 26,
-//     cursor: "pointer",
-//   },
-//   searchBar: {
-//     width: "95%",
-//     height: 48,
-//     borderRadius: 25,
-//     backgroundColor: "#F3F3F3",
-//     display: "flex",
-//     alignItems: "center",
-//     padding: "0 16px",
-//     marginBottom: 20,
-//     marginTop: 30,
-//     gap: 12,
-//   },
-//   searchIcon: {
-//     width: 20,
-//     height: 20,
-//     opacity: 0.65,
-//   },
-//   searchInput: {
-//     border: "none",
-//     outline: "none",
-//     background: "transparent",
-//     width: "100%",
-//     fontSize: 15,
-//     fontFamily: "'Rubik', sans-serif",
-//     marginTop:"14px",
-//     marginLeft:"-20px"
-//   },
-//   jobCard: {
-//     width: "95%",
-//     margin: "0 auto",
-//     borderRadius: 18,
-//     backgroundColor: "#fff",
-//     border: "1px solid #ececec",
-//     padding: 16,
-//     marginBottom: 16,
-//     boxShadow: "0 3px 6px rgba(0,0,0,0.07)",
-//     cursor: "pointer",
-//   },
-//   cardTop: {
-//     display: "flex",
-//     alignItems: "flex-start",
-//     justifyContent: "space-between",
-//     width: "100%",
-//   },
-//   title: {
-//     fontSize: 18,
-//     fontWeight: 400,
-//     marginBottom: 6,
-//     lineHeight: "20px",
-//   },
-//   meta: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 6,
-//     color: "#777",
-//     fontSize: 12,
-//     marginTop: 10,
-//   },
-//   time: {
-//     marginLeft: 20,
-//   },
-//   budgetTop: {
-//     fontWeight: 600,
-//     fontSize: 15,
-//   },
-//   saveIcon: {
-//     cursor: "pointer",
-//     width: 20,
-//     height: 20,
-//     marginTop: 6,
-//   },
-//   skillsrequired: {
-//     fontWeight: 400,
-//     fontSize: 14,
-//     opacity: "70%",
-//     marginTop: 10,
-//   },
-//   desc: {
-//     marginTop: 10,
-//     fontSize: 13,
-//     color: "#555",
-//     lineHeight: "18px",
-//   },
-//   chipsRow: {
-//     marginTop: 10,
-//     display: "flex",
-//     flexWrap: "wrap",
-//     gap: 6,
-//   },
-//   chip: {
-//     backgroundColor: "rgba(255, 240, 133, 0.7)",
-//     padding: "4px 10px",
-//     borderRadius: 12,
-//     fontSize: 12,
-//   },
-//   emptyText: {
-//     textAlign: "center",
-//     marginTop: 40,
-//     color: "#777",
-//   },
-//   loader: {
-//     marginTop: 60,
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   loaderCircle: {
-//     height: 24,
-//     width: 24,
-//     borderRadius: "999px",
-//     border: "2px solid #aaa",
-//     borderTopColor: "transparent",
-//     animation: "spin 0.8s linear infinite",
-//   },
-//   fab: {
-//     position: "fixed",
-//     right: 36,
-//     bottom: 36,
-//     width: 56,
-//     height: 56,
-//     borderRadius: 999,
-//     background: "linear-gradient(180deg, #7c3aed, #6d28d9)",
-//     color: "white",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "center",
-//     border: 0,
-//     boxShadow: "0 10px 30px rgba(124,58,237,0.18)",
-//     cursor: "pointer",
-//     fontSize: 20,
-//   },
-// };
-
-// // -------------------- MAIN COMPONENT -------------------- //
-
-// export default function SavedJobsScreen() {
-//   const navigate = useNavigate();
-//   const auth = getAuth();
-
-//   // 1️⃣ Sidebar collapsed state
+//   // -------------------------
+//   // Sidebar collapsed state
+//   // -------------------------
 //   const [collapsed, setCollapsed] = useState(
 //     localStorage.getItem("sidebar-collapsed") === "true"
 //   );
 
-//   // 2️⃣ Listen for sidebar toggle event
+//   useEffect(() => {
+//     try {
+//       localStorage.setItem("sidebar-collapsed", collapsed ? "true" : "false");
+//     } catch (e) {
+//       // ignore storage errors
+//     }
+//   }, [collapsed]);
+
 //   useEffect(() => {
 //     function handleToggle(e) {
 //       setCollapsed(e.detail);
@@ -1731,549 +52,620 @@
 //     return () => window.removeEventListener("sidebar-toggle", handleToggle);
 //   }, []);
 
-//   const [savedJobIds, setSavedJobIds] = useState([]);
+//   // -------------------------
+//   // existing state
+//   // -------------------------
+//   const [jobs, setJobs] = useState([]);
 //   const [savedJobs, setSavedJobs] = useState([]);
-//   const [loadingSaved, setLoadingSaved] = useState(true);
 
-//   // Notification dialog state (backend logic same)
-//   const [notifications, setNotifications] = useState([]);
-//   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+//   const [searchText, setSearchText] = useState("");
+//   const [suggestions, setSuggestions] = useState([]);
 
-//   const [searchQuery, setSearchQuery] = useState("");
+//   const [categories, setCategories] = useState([]);
+//   const [selectedCategory, setSelectedCategory] = useState("");
+//   const [currentUserCategory, setCurrentUserCategory] = useState("");
+//   const [userProfile, setUserProfile] = useState(null);
+//   const isMobile = window.innerWidth <= 768;
 
-//   const user = auth.currentUser;
-
-//   // -------------------- LISTEN TO USER SAVED JOBS -------------------- //
+//   /* =====================================================
+//         FETCH USER PROFILE
+//   ===================================================== */
+//   const fetchUserProfile = async (uid) => {
+//     try {
+//       const snap = await getDoc(doc(db, "users", uid));
+//       if (snap.exists()) {
+//         setUserProfile(snap.data());
+//       }
+//     } catch (e) {
+//       console.error("Profile fetch error:", e);
+//     }
+//   };
 
 //   useEffect(() => {
-//     if (!user) {
-//       setLoadingSaved(false);
-//       return;
-//     }
+//     const userCurrent = auth.currentUser;
+//     if (!userCurrent) return;
+//     fetchUserProfile(userCurrent.uid);
+//   }, []);
 
-//     const userRef = doc(db, "users", user.uid);
-//     const unsub = onSnapshot(
-//       userRef,
-//       (snap) => {
-//         const data = snap.data() || {};
-//         const ids = data.savedJobs || [];
-//         setSavedJobIds(ids);
-//       },
-//       (err) => {
-//         console.error("user snapshot error", err);
-//       }
-//     );
-
-//     return unsub;
-//   }, [user]);
-
-//   // -------------------- LOAD SAVED JOB DOCUMENTS -------------------- //
+//   /* =====================================================
+//         NOTIFICATION STATE + BACKEND FETCH
+//   ===================================================== */
+//   const [notifications, setNotifications] = useState([]);
+//   const [notifOpen, setNotifOpen] = useState(false);
 
 //   useEffect(() => {
 //     if (!user) return;
 
-//     async function loadSaved() {
-//       try {
-//         setLoadingSaved(true);
+//     const unsub = onSnapshot(collection(db, "notifications"), (snap) => {
+//       const userNots = snap.docs
+//         .map((d) => ({ id: d.id, ...d.data() }))
+//         .filter((n) => n.clientUid === user.uid);
 
-//         if (!savedJobIds.length) {
-//           setSavedJobs([]);
-//           return;
-//         }
+//       setNotifications(userNots);
+//     });
 
-//         const [servicesSnap, service24Snap] = await Promise.all([
-//           getDocs(collection(db, "services")),
-//           getDocs(collection(db, "service_24h")),
-//         ]);
+//     return unsub;
+//   }, [user]);
 
-//         const all = [];
+//   const pending = notifications.filter((n) => !n.read).length;
 
-//         servicesSnap.forEach((docSnap) => {
-//           if (savedJobIds.includes(docSnap.id)) {
-//             all.push({
-//               id: docSnap.id,
-//               type: "services",
-//               ...docSnap.data(),
-//             });
-//           }
-//         });
-
-//         service24Snap.forEach((docSnap) => {
-//           if (savedJobIds.includes(docSnap.id)) {
-//             all.push({
-//               id: docSnap.id,
-//               type: "service_24h",
-//               ...docSnap.data(),
-//             });
-//           }
-//         });
-
-//         // 🔥 Sort by createdAt (recent first) – same as original
-//         all.sort((a, b) => {
-//           const getDate = (job) => {
-//             const ts = job.createdAt;
-//             if (ts && typeof ts.toDate === "function") {
-//               return ts.toDate();
-//             }
-//             if (ts instanceof Date) return ts;
-//             return new Date(0); // fallback old
-//           };
-//           return getDate(b) - getDate(a);
-//         });
-
-//         setSavedJobs(all);
-//       } catch (err) {
-//         console.error("loadSavedJobs error", err);
-//       } finally {
-//         setLoadingSaved(false);
-//       }
-//     }
-
-//     loadSaved();
-//   }, [user, savedJobIds]);
-
-//   // -------------------- HANDLERS -------------------- //
-
-//   const toggleSavedJob = async (jobId) => {
-//     const currentUser = auth.currentUser;
-//     if (!currentUser) return;
-
-//     const userRef = doc(db, "users", currentUser.uid);
-//     const isSaved = savedJobIds.includes(jobId);
-
-//     try {
-//       if (isSaved) {
-//         await updateDoc(userRef, {
-//           savedJobs: arrayRemove(jobId),
-//         });
-//       } else {
-//         await updateDoc(userRef, {
-//           savedJobs: arrayUnion(jobId),
-//         });
-//       }
-//     } catch (err) {
-//       console.error("toggleSavedJob error", err);
-//     }
-//   };
-
-//   const incrementImpressionsAndNavigate = async (job) => {
-//     try {
-//       const currentUser = auth.currentUser;
-//       if (!currentUser) return;
-
-//       const collectionName =
-//         job.type === "service_24h" ? "service_24h" : "services";
-//       const ref = doc(db, collectionName, job.id);
-//       const snap = await getDoc(ref);
-
-//       if (snap.exists()) {
-//         const data = snap.data();
-//         const viewedBy = data.viewedBy || [];
-
-//         if (!viewedBy.includes(currentUser.uid)) {
-//           await updateDoc(ref, {
-//             viewedBy: arrayUnion(currentUser.uid),
-//             [collectionName === "service_24h" ? "views" : "impressions"]:
-//               increment(1),
-//           });
-//         }
-//       }
-
-//       if (collectionName === "service_24h") {
-//         navigate(`/client-dashbroad2/service-24h/${job.id}`);
-//       } else {
-//         navigate(`/client-dashbroad2/service/${job.id}`);
-//       }
-//     } catch (err) {
-//       console.error("incrementImpressionsAndNavigate error", err);
-//     }
-//   };
-
-//   // -------------------- FILTER (search) -------------------- //
-
-//   const filteredJobs = savedJobs.filter((job) => {
-//     if (!searchQuery.trim()) return true;
-//     const q = searchQuery.toLowerCase();
-//     const title = (job.title || "").toLowerCase();
-//     const desc = (job.description || "").toLowerCase();
-//     const skills = (job.skills || []).join(" ").toLowerCase();
-//     const tools = (job.tools || []).join(" ").toLowerCase();
-//     return (
-//       title.includes(q) ||
-//       desc.includes(q) ||
-//       skills.includes(q) ||
-//       tools.includes(q)
-//     );
-//   });
-
-//   // -------------------- RENDER -------------------- //
-
-//   if (!user) {
-//     // simple "not logged in" state; backend logic same
-//     return (
-//       <div
-//         className="freelance-wrapper"
-//         style={{
-//           marginLeft: collapsed ? "-140px" : "510px",
-//           transition: "margin-left 0.25s ease",
-//         }}
-//       >
-//         <div
-//           style={{
-//             ...styles.root,
-//             display: "flex",
-//             alignItems: "center",
-//             justifyContent: "center",
-//           }}
-//         >
-//           <div style={{ color: "#555", fontSize: 15 }}>
-//             Please login to view saved jobs.
-//           </div>
-//         </div>
-//       </div>
-//     );
+//   async function acceptNotif(item) {
+//     await updateDoc(doc(db, "notifications", item.id), { read: true });
 //   }
 
-//   // 3️⃣ Wrap whole UI inside margin-left wrapper
+//   async function declineNotif(item) {
+//     await deleteDoc(doc(db, "notifications", item.id));
+//   }
+
+//   /* =====================================================
+//         LOAD USER CATEGORY
+//   ===================================================== */
+//   useEffect(() => {
+//     if (!user) return;
+//     return onSnapshot(doc(db, "users", user.uid), (snap) => {
+//       setCurrentUserCategory(snap.data()?.category || "");
+//     });
+//   }, [user]);
+
+//   /* =====================================================
+//         LOAD USER LIST CATEGORIES
+//   ===================================================== */
+//   useEffect(() => {
+//     const unsub = onSnapshot(collection(db, "users"), (snap) => {
+//       const allCats = snap.docs
+//         .map((d) => d.data().category)
+//         .filter((cat) => cat && cat.trim() !== "");
+
+//       const uniqueCats = [...new Set(allCats)];
+
+//       const finalCats = uniqueCats.map((name, index) => ({
+//         id: index + 1,
+//         name,
+//       }));
+
+//       setCategories(finalCats);
+//     });
+
+//     return unsub;
+//   }, []);
+
+//   /* =====================================================
+//         LOAD ALL JOBS (services + service_24h)
+//   ===================================================== */
+//   useEffect(() => {
+//     const unsub1 = onSnapshot(collection(db, "services"), (snap) => {
+//       const normalJobs = snap.docs.map((docSnap) => ({
+//         id: docSnap.id,
+//         ...docSnap.data(),
+//         jobtype: "services",
+//       }));
+
+//       setJobs((prev) => {
+//         const only24h = prev.filter((j) => j.jobtype === "service_24h");
+//         return [...only24h, ...normalJobs];
+//       });
+//     });
+
+//     const unsub2 = onSnapshot(collection(db, "service_24h"), (snap) => {
+//       const fastJobs = snap.docs.map((docSnap) => ({
+//         id: docSnap.id,
+//         ...docSnap.data(),
+//         jobtype: "service_24h",
+//       }));
+
+//       setJobs((prev) => {
+//         const onlyNormal = prev.filter((j) => j.jobtype === "services");
+//         return [...onlyNormal, ...fastJobs];
+//       });
+//     });
+
+//     return () => {
+//       unsub1();
+//       unsub2();
+//     };
+//   }, []);
+
+//   /* =====================================================
+//         LOAD SAVED JOBS
+//   ===================================================== */
+//   useEffect(() => {
+//     if (!user) return;
+
+//     const unsub = onSnapshot(doc(db, "users", user.uid), (snap) => {
+//       setSavedJobs(snap.data()?.favoriteJobs || []);
+//     });
+
+//     return unsub;
+//   }, [user]);
+
+//   /* =====================================================
+//         SAVE / UNSAVE JOB
+//   ===================================================== */
+//   async function toggleSave(jobId) {
+//     if (!user) return;
+
+//     const ref = doc(db, "users", user.uid);
+//     const updated = savedJobs.includes(jobId)
+//       ? savedJobs.filter((id) => id !== jobId)
+//       : [...savedJobs, jobId];
+
+//     setSavedJobs(updated);
+//     await updateDoc(ref, { favoriteJobs: updated });
+//   }
+
+//   /* =====================================================
+//         SEARCH AUTOSUGGEST
+//   ===================================================== */
+//   function updateSuggestions(text) {
+//     const q = text.toLowerCase();
+//     const s = new Set();
+
+//     jobs.forEach((job) => {
+//       if (job.title?.toLowerCase().includes(q)) s.add(job.title);
+//       if (job.skills) {
+//         job.skills.forEach((sk) => {
+//           if (sk.toLowerCase().includes(q)) s.add(sk);
+//         });
+//       }
+//     });
+
+//     setSuggestions([...s].slice(0, 6));
+//   }
+
+//   useEffect(() => {
+//     if (!searchText.trim()) {
+//       setSuggestions([]);
+//       return;
+//     }
+//     updateSuggestions(searchText);
+//   }, [searchText]);
+
+//   /* =====================================================
+//         FILTER JOBS (SAVED ONLY)
+//   ===================================================== */
+//   const filteredJobs = jobs.filter((job) => {
+//     const matchSaved = savedJobs.includes(job.id);
+
+//     const matchSearch =
+//       job.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+//       job.description?.toLowerCase().includes(searchText.toLowerCase());
+
+//     const matchCategory =
+//       selectedCategory === "" ||
+//         selectedCategory === "No Category Assigned"
+//         ? true
+//         : job.category === selectedCategory;
+
+//     return matchSaved && matchSearch && matchCategory;
+//   });
+
+//   /* =====================================================
+//         OPEN JOB DETAILS
+//   ===================================================== */
+//   function onViewJob(job) {
+//     if (job.jobtype === "service_24h") {
+//       navigate(`/client-dashbroad2/service-24h/${job.id}`);
+//     } else {
+//       navigate(`/client-dashbroad2/service/${job.id}`);
+//     }
+//   }
+
+//   /* =====================================================
+//         PAGE UI (SAVED ONLY)
+//   ===================================================== */
 //   return (
 //     <div
 //       className="freelance-wrapper"
 //       style={{
-//         marginLeft: collapsed ? "-110px" : "110px",
-//         transition: "margin-left 0.25s ease",
-//       }}
+//   marginLeft: isMobile
+//     ? "12px"                     // 🔥 MOBILE → small left gap
+//     : collapsed
+//     ? "40px"
+//     : "150px",
+
+//   marginRight: isMobile ? "12px" : "0", // 🔥 MOBILE RIGHT SPACE
+
+//   transition: "margin-left 0.25s ease",
+//   marginTop: "40px",
+//   padding: isMobile ? "16px" : "20px 22px",
+
+//   width: isMobile ? "100%" : "80%",     // 🔥 MOBILE FULL WIDTH
+//   boxSizing: "border-box",
+// }}
+
 //     >
-//       <div style={styles.root}>
-//         {/* TOP ROW (UIFreelanceSaved style) */}
-//         <div style={styles.topRow}>
-//           <div style={styles.leftRow}>
-//             <div style={styles.backbtn} onClick={() => navigate(-1)}>
-//               <img style={styles.backbtnimg} src={backarrow} alt="back" />
-//             </div>
-
-//             <div style={styles.heading}>Saved Jobs</div>
-//           </div>
-
-//           <div style={styles.rightIcons}>
+//       {/* HEADER */}
+//       <div className="topbar">
+//         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+//           <div
+//             onClick={() => navigate(-1)}
+//             style={{
+//               width: 36,
+//               height: 36,
+//               borderRadius: 14,
+//               border: "0.8px solid #E0E0E0",
+//               backgroundColor: "#FFFFFF",
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "center",
+//               cursor: "pointer",
+//               boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+//               flexShrink: 0,
+//             }}
+//           >
 //             <img
-//               onClick={() => navigate("/messages")}
-//               src={message}
-//               alt="msg"
-//               style={styles.iconImg}
+//               src={backarrow}
+//               alt="back"
+//               style={{ width: 16, height: 16 }}
 //             />
-//             <img
-//               src={notification}
-//               alt="notif"
-//               style={styles.iconImg}
-//               onClick={() => setShowNotificationDialog(true)}
-//             />
-//             <img src={profile} alt="profile" style={styles.iconImg} />
 //           </div>
+//           <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
+//             Saved
+//           </h1>
 //         </div>
 
-//         {/* SEARCH BAR */}
-//         <div style={styles.searchBar}>
-//           <img src={search} style={styles.searchIcon} alt="search" />
-//           <input
-//             style={styles.searchInput}
-//             placeholder="Search"
-//             value={searchQuery}
-//             onChange={(e) => setSearchQuery(e.target.value)}
+//         <div className="top-right">
+//           <FiMessageSquare
+//             className="top-icon"
+//             onClick={() => {
+//               navigate("/client-dashbroad2/messages");
+//             }}
 //           />
-//         </div>
 
-//         {/* LIST / STATES */}
-//         {loadingSaved ? (
-//           <div style={styles.loader}>
-//             <div style={styles.loaderCircle} />
-//           </div>
-//         ) : filteredJobs.length === 0 ? (
-//           <div style={styles.emptyText}>No saved jobs found</div>
-//         ) : (
-//           <div>
-//             {filteredJobs.map((job) =>
-//               job.type === "services" ? (
-//                 <JobCardWorks
-//                   key={job.id}
-//                   job={job}
-//                   isSaved={savedJobIds.includes(job.id)}
-//                   onToggleSaved={() => toggleSavedJob(job.id)}
-//                   onOpen={() => incrementImpressionsAndNavigate(job)}
-//                 />
-//               ) : (
-//                 <JobCard24h
-//                   key={job.id}
-//                   job={job}
-//                   isSaved={savedJobIds.includes(job.id)}
-//                   onToggleSaved={() => toggleSavedJob(job.id)}
-//                   onOpen={() => incrementImpressionsAndNavigate(job)}
-//                 />
-//               )
+//           {/* NOTIFICATION BUTTON */}
+//           <div
+//             style={{ position: "relative" }}
+//             onClick={() => setNotifOpen(true)}
+//           >
+//             <FiBell className="top-icon" />
+
+//             {pending > 0 && (
+//               <span
+//                 style={{
+//                   position: "absolute",
+//                   top: -6,
+//                   right: -6,
+//                   background: "red",
+//                   color: "#fff",
+//                   fontSize: "10px",
+//                   borderRadius: "50%",
+//                   padding: "2px 6px",
+//                 }}
+//               >
+//                 {pending}
+//               </span>
 //             )}
 //           </div>
-//         )}
 
-//         {/* Floating + Button (same as UIFreelanceSaved) */}
-//         <button
-//           style={styles.fab}
-//           onClick={() => navigate("/client-dashbroad2/PostJob")}
-//           aria-label="Add"
-//         >
-//           <FiPlus />
-//         </button>
-
-//         {/* NOTIFICATION DIALOG (backend logic same, UI tailwind-based) */}
-//         {showNotificationDialog && (
-//           <NotificationDialog
-//             notifications={notifications}
-//             onClose={() => setShowNotificationDialog(false)}
-//             onClearAll={() => setNotifications([])}
-//           />
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- WORKS CARD (services) — UIFreelanceSaved style -------------------- //
-
-// function JobCardWorks({ job, isSaved, onToggleSaved, onOpen }) {
-//   const {
-//     title = "",
-//     description = "",
-//     deliveryDuration = "",
-//     price,
-//     budget_from,
-//     budget_to,
-//     impressions = 0,
-//     createdAt,
-//     skills = [],
-//     tools = [],
-//   } = job;
-
-//   const priceText =
-//     price != null
-//       ? `₹${price}`
-//       : budget_from != null && budget_to != null
-//       ? `₹${budget_from} - ₹${budget_to}`
-//       : "₹0";
-
-//   const createdDate =
-//     createdAt && typeof createdAt.toDate === "function"
-//       ? createdAt.toDate()
-//       : createdAt instanceof Date
-//       ? createdAt
-//       : null;
-//   const timeText = createdDate ? timeAgo(createdDate) : "";
-
-//   const chips = [...skills, ...tools];
-
-//   return (
-//     <div style={styles.jobCard} onClick={onOpen}>
-//       <div style={styles.cardTop}>
-//         <div style={{ flex: 1 }}>
-//           <div style={styles.title}>{title}</div>
-//         </div>
-
-//         <div
-//           style={{
-//             display: "flex",
-//             flexDirection: "column",
-//             alignItems: "flex-end",
-//           }}
-//         >
-//           <div style={styles.budgetTop}>{priceText}</div>
-
-//           <img
-//             src={isSaved ? saved : save}
-//             alt="save"
-//             style={styles.saveIcon}
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSaved();
-//             }}
-//           />
-//         </div>
-//       </div>
-
-//       <div style={styles.skillsrequired}>Skills Required</div>
-//       <div style={styles.chipsRow}>
-//         {chips.slice(0, 3).map((c) => (
-//           <span key={c} style={styles.chip}>
-//             {c}
-//           </span>
-//         ))}
-//         {chips.length > 3 && (
-//           <span style={styles.chip}>+{chips.length - 3}</span>
-//         )}
-//       </div>
-
-//       <div style={styles.desc}>{description}</div>
-
-//       <div style={styles.meta}>
-//         <FaEye size={14} /> {impressions ?? 0}
-//         <MdAccessTime size={14} style={styles.time} /> {timeText}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- 24H CARD (service_24h) — UIFreelanceSaved style -------------------- //
-
-// function JobCard24h({ job, isSaved, onToggleSaved, onOpen }) {
-//   const {
-//     title = "Untitled",
-//     description = "",
-//     timeline = "24 Hours",
-//     budget,
-//     createdAt,
-//     views = 0,
-//     skills = [],
-//     tools = [],
-//   } = job;
-
-//   const budgetText = `₹${formatAmount(budget ?? 0)}`;
-//   const createdDate =
-//     createdAt && typeof createdAt.toDate === "function"
-//       ? createdAt.toDate()
-//       : createdAt instanceof Date
-//       ? createdAt
-//       : null;
-//   const timeText = createdDate ? timeAgo(createdDate) : "Just now";
-
-//   const chips = [...skills, ...tools];
-
-//   return (
-//     <div style={styles.jobCard} onClick={onOpen}>
-//       <div style={styles.cardTop}>
-//         <div style={{ flex: 1 }}>
-//           <div style={styles.title}>{title}</div>
-//         </div>
-
-//         <div
-//           style={{
-//             display: "flex",
-//             flexDirection: "column",
-//             alignItems: "flex-end",
-//           }}
-//         >
-//           <div style={styles.budgetTop}>{budgetText}</div>
-
-//           <img
-//             src={isSaved ? saved : save}
-//             alt="save"
-//             style={styles.saveIcon}
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSaved();
-//             }}
-//           />
-//         </div>
-//       </div>
-
-//       <div style={styles.skillsrequired}>Skills Required</div>
-//       <div style={styles.chipsRow}>
-//         {chips.slice(0, 3).map((c) => (
-//           <span key={c} style={styles.chip}>
-//             {c}
-//           </span>
-//         ))}
-//         {chips.length > 3 && (
-//           <span style={styles.chip}>+{chips.length - 3}</span>
-//         )}
-//       </div>
-
-//       <div style={styles.desc}>{description}</div>
-
-//       <div style={styles.meta}>
-//         <FaEye size={14} /> {views ?? 0}
-//         <MdAccessTime size={14} style={styles.time} /> {timeText}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // -------------------- NOTIFICATION DIALOG (same backend logic, Tailwind UI) -------------------- //
-
-// function NotificationDialog({ notifications, onClose, onClearAll }) {
-//   return (
-//     <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50">
-//       <div className="mt-16 w-[90%] max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-//         {/* Header */}
-//         <div className="bg-[#FDFD96] px-4 py-3 flex items-center gap-3">
-//           <div className="p-2 bg-white/30 rounded-xl">
-//             <span className="material-icons text-gray-900 text-[20px]">
-//               notifications_active
-//             </span>
+//           <div className="fh-avatar">
+//             <Link to={"/client-dashbroad2/ClientProfile"}>
+//               <img
+//                 src={
+//                   userProfile?.profileImage ||
+//                   "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+//                 }
+//                 alt="Profile"
+//               />
+//             </Link>
 //           </div>
-//           <div className="flex-1">
-//             <p className="text-sm font-semibold text-gray-900">
-//               Notifications
-//             </p>
-//             <p className="text-xs text-gray-700">
-//               {notifications.length}{" "}
-//               {notifications.length === 1 ? "notification" : "notifications"}
-//             </p>
+//         </div>
+//       </div>
+
+//       {/* Search */}
+//       <div style={{ position: "relative" }}>
+//         <input
+//           type="text"
+//           className="search-input"
+//           placeholder="Search"
+//           value={searchText}
+//           onChange={(e) => setSearchText(e.target.value)}
+//         />
+
+//         {suggestions.length > 0 && (
+//           <div className="suggestion-box">
+//             {suggestions.map((s, i) => (
+//               <p
+//                 key={i}
+//                 onClick={() => {
+//                   setSearchText(s);
+//                   setSuggestions([]);
+//                 }}
+//                 className="suggestion-item"
+//               >
+//                 {s}
+//               </p>
+//             ))}
 //           </div>
-//           {notifications.length > 0 && (
+//         )}
+//       </div>
+
+//       {/* Categories */}
+//       {/* {categories.length > 0 ? (
+//         <div className="category-row">
+//           {categories.map((cat) => (
 //             <button
-//               className="text-xs font-semibold bg.white/40 px-2 py-1 rounded-lg mr-1"
-//               onClick={onClearAll}
+//               key={cat.id}
+//               className={
+//                 selectedCategory === cat.name
+//                   ? "category-active"
+//                   : "category-btn"
+//               }
+//               onClick={() =>
+//                 setSelectedCategory(
+//                   selectedCategory === cat.name ? "" : cat.name
+//                 )
+//               }
 //             >
-//               Clear All
+//               {cat.name}
 //             </button>
-//           )}
-//           <button className="p-2 bg-white/40 rounded-xl" onClick={onClose}>
-//             <span className="material-icons text-gray-900 text-[18px]">
-//               close
-//             </span>
-//           </button>
+//           ))}
 //         </div>
+//       ) : (
+//         <div style={{ padding: "10px 0", opacity: 0.5 }}>
+//           No categories found in database.
+//         </div>
+//       )} */}
 
-//         {/* Body */}
-//         <div className="max-h-80 overflow-y-auto py-3">
-//           {notifications.length === 0 ? (
-//             <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500 text-sm">
-//               <div className="p-4 rounded-full bg-gray-100 mb-3">
-//                 <span className="material-icons text-[32px] text-gray-400">
-//                   notifications_off
+//       {/* Tabs UI (same look – Saved active only) */}
+//       <div style={{marginLeft:"-10px"}} className="jobtabs-wrapper">
+
+//         <button  className="jobtab active-tab">Saved</button>
+//       </div>
+
+//       {/* Job List (SAVED ONLY) */}
+//       <div className="job-list">
+//         {filteredJobs.length === 0 && (
+//           <div style={{ padding: "20px 0", opacity: 0.6 }}>
+//             No saved services found.
+//           </div>
+//         )}
+
+//         {filteredJobs.map((job) => (
+//           <div
+//             key={job.id}
+//             className="job-card"
+//             onClick={() => onViewJob(job)}
+//           >
+//             <div className="job-top">
+//               <h3 className="job-title">{job.title}</h3>
+//               <FiBookmark
+//                 className={`bookmark-icon ${savedJobs.includes(job.id) ? "bookmarked" : ""
+//                   }`}
+//                 onClick={(e) => {
+//                   e.stopPropagation();
+//                   toggleSave(job.id);
+//                 }}
+//               />
+//             </div>
+
+//             <p className="job-desc">{job.description}</p>
+
+//             <div className="job-info-row">
+//               <span className="job-amount">
+//                 ₹{job.budget_from} - ₹{job.budget_to}
+//               </span>
+
+//               <div className="job-icon-group">
+//                 <span className="tag-icon">
+//                   <FiEye /> {job.views || "4+"}
+//                 </span>
+//                 <span className="tag-icon">
+//                   <FiClock /> {job.time || "1h ago"}
 //                 </span>
 //               </div>
-//               <p className="font-semibold text-gray-700 mb-1">
-//                 No notifications yet
-//               </p>
-//               <p className="text-xs leading-relaxed text-gray-500">
-//                 You're all caught up! New notifications will appear here when
-//                 available.
-//               </p>
 //             </div>
-//           ) : (
-//             notifications.map((n, idx) => (
-//               <div
-//                 key={idx}
-//                 className="mx-4 mb-2 p-3 rounded-xl border border-gray-200 bg-gray-50 flex items-start gap-3"
-//               >
-//                 <div className="p-2 rounded-xl bg-[#FDFD96]">
-//                   <span className="material-icons text-gray-900 text-[20px]">
-//                     notifications
-//                   </span>
-//                 </div>
-//                 <div className="flex-1">
-//                   {n.title && (
-//                     <p className="text-sm font-semibold text-gray-900">
-//                       {n.title}
-//                     </p>
-//                   )}
-//                   {n.body && (
-//                     <p className="mt-1 text-xs text-gray-700">{n.body}</p>
-//                   )}
-//                   <p className="mt-1 text-[10px] text-gray-500">Just now</p>
-//                 </div>
-//               </div>
-//             ))
-//           )}
-//         </div>
+//           </div>
+//         ))}
 //       </div>
+
+//       {/* Floating Add Button */}
+//       <button
+//         className="floating-plus"
+//         onClick={() => navigate("/client-dashbroad2/PostJob")}
+//       >
+//         <FiPlus size={22} />
+//       </button>
+
+//       {/* ================================================================= */}
+//       {/* ======================= NOTIFICATION POPUP ======================= */}
+//       {/* ================================================================= */}
+//       {notifOpen && (
+//         <div
+//           style={{
+//             position: "fixed",
+//             inset: 0,
+//             background: "rgba(0,0,0,0.4)",
+//             backdropFilter: "blur(2px)",
+//             display: "flex",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             zIndex: 9999,
+//           }}
+//           onClick={(e) => {
+//             if (e.target === e.currentTarget) setNotifOpen(false);
+//           }}
+//         >
+//           <div
+//             style={{
+//               width: "90%",
+//               maxWidth: 420,
+//               background: "#fff",
+//               padding: 20,
+//               borderRadius: 16,
+//               maxHeight: "80vh",
+//               overflowY: "auto",
+//             }}
+//           >
+//             <h3 style={{ marginBottom: 15 }}>Notifications</h3>
+
+//             {notifications.length === 0 && (
+//               <div style={{ padding: 20, textAlign: "center" }}>
+//                 No notifications
+//               </div>
+//             )}
+
+//             {notifications.map((item, i) => (
+//               <div
+//                 key={i}
+//                 style={{
+//                   display: "flex",
+//                   alignItems: "center",
+//                   marginBottom: 15,
+//                   background: "#f7f7f7",
+//                   padding: 10,
+//                   borderRadius: 10,
+//                 }}
+//               >
+//                 <img
+//                   src={
+//                     item.freelancerImage ||
+//                     "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+//                   }
+//                   width={48}
+//                   height={48}
+//                   style={{ borderRadius: "50%", marginRight: 10 }}
+//                 />
+
+//                 <div style={{ flex: 1 }}>
+//                   <div style={{ fontWeight: 600 }}>
+//                     {item.freelancerName}
+//                   </div>
+//                   <div>applied for {item.jobTitle}</div>
+//                 </div>
+
+//                 {!item.read ? (
+//                   <>
+//                     <button
+//                       onClick={() => acceptNotif(item)}
+//                       style={{ marginRight: 8 }}
+//                     >
+//                       ✅
+//                     </button>
+//                     <button onClick={() => declineNotif(item)}>❌</button>
+//                   </>
+//                 ) : (
+//                   <button onClick={() => acceptNotif(item)}>💬</button>
+//                 )}
+//               </div>
+//             ))}
+
+//             <button
+//               style={{
+//                 marginTop: 10,
+//                 width: "100%",
+//                 padding: 10,
+//                 borderRadius: 10,
+//                 background: "#000",
+//                 color: "#fff",
+//               }}
+//               onClick={() => setNotifOpen(false)}
+//             >
+//               Close
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ================================================================= */}
+//       {/* =============================== CSS =============================== */}
+//       {/* ================================================================= */}
+//       <style>{`
+//         * { font-family: 'Poppins', sans-serif; }
+//         .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+//         .top-left { display: flex; align-items: center; gap: 12px; }
+//         .back-btn { width: 44px; height: 44px; background: #efe9ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+//         .page-title { font-size: 21px; font-weight: 700; }
+//         .top-right { display: flex; gap: 16px; }
+//         .top-icon { font-size: 20px; cursor: pointer; }
+
+//         .fh-avatar img {
+//           width: 40px;
+//           height: 40px;
+//           border-radius: 50%;
+//           object-fit: cover;
+//         }
+
+//         .search-input {
+//           width: 100%; padding: 12px 14px;
+//           border-radius: 12px; background: #fff;
+//           border: 1px solid #e6e7ee; font-size: 15px;
+//         }
+//         .suggestion-box {
+//           background: #fff; border: 1px solid #ddd; position: absolute;
+//           top: 50px; width: 100%; border-radius: 12px;
+//           box-shadow: 0 4px 18px rgba(0,0,0,.1); z-index: 10; padding: 8px;
+//         }
+//         .suggestion-item { padding: 8px; cursor: pointer; }
+
+//         .category-row { display: flex; gap: 10px; margin: 14px 0; overflow-x: auto; }
+//         .category-btn, .category-active {
+//           padding: 8px 14px; white-space: nowrap;
+//           border-radius: 999px; cursor: pointer; font-weight: 600;
+//         }
+//         .category-btn { background: white; border: 1px solid #e2e8f0; color: #444; }
+//         .category-active { background: #7c3aed; color: #fff; }
+
+//         .jobtabs-wrapper {
+//           background: #fff; display: flex; gap: 10px;
+//           padding: 10px; border-radius: 14px; border: 1px solid #ececec;
+//           margin-top: 4px;
+//         }
+//         .jobtab {
+//           padding: 10px 14px; border-radius: 10px;
+//           font-weight: 700; cursor: default; opacity: .6; width: 100px; border: none;
+//         }
+//         .active-tab { background: #7c3aed; color: white; opacity: 1; }
+
+//         .job-list { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+//         .job-card {
+//           background: #fff; border-radius: 18px; padding: 18px;
+//           border: 1px solid #ececec; cursor: pointer;
+//           transition: .2s;
+//         }
+//         .job-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+
+//         .job-top { display: flex; justify-content: space-between; align-items: flex-start; }
+//         .job-title { font-size: 17px; font-weight: 700; margin: 0; }
+//         .job-desc { font-size: 14px; opacity: .85; margin: 0; margin-top: 4px; }
+
+//         .bookmark-icon { font-size: 20px; cursor: pointer; color: #777; }
+//         .bookmarked { color: #7c3aed !important; }
+
+//         .job-info-row {
+//           display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+//         }
+//         .job-amount { font-size: 17px; font-weight: 700; }
+//         .job-icon-group { display: flex; gap: 12px; }
+//         .tag-icon { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+
+//         .floating-plus {
+//           position: fixed; right: 22px; bottom: 22px;
+//           width: 56px; height: 56px; border-radius: 50%;
+//           background: #7c3aed; color: white;
+//           display: flex; align-items: center; justify-content: center;
+//           box-shadow: 0 8px 18px rgba(99,102,241,.2); border: none;
+//         }
+//       `}</style>
 //     </div>
 //   );
 // }
@@ -2281,673 +673,742 @@
 
 
 
-import React, { useEffect, useState } from "react";
+
+
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   collection,
   doc,
-  getDoc,
   onSnapshot,
+  runTransaction,
   updateDoc,
-  deleteDoc,
+  arrayUnion,
+  arrayRemove,
+  Timestamp,
+  query,
+  where,
+  getDoc,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../firbase/Firebase";
+import { useNavigate, Link } from "react-router-dom";
+import { FiEye, FiMessageCircle, FiBell } from "react-icons/fi";
+import FilterScreen, { JobFilter } from "../firebaseClientScreen/Postjob/Filter";
+import { Bookmark, Clock } from "lucide-react";
+import { BsBookmarkFill } from "react-icons/bs";
+// import "./clientsideCategorypage.css";
+import sortimg from "../assets/sort.png";
+import backarrow from "../assets/backarrow.png";
+import profile from "../assets/profile.png";
+import message from "../assets/message.png";
+import notifiaction from "../assets/notification.png";
+import filter1 from "../assets/Filter.png";
+import search1 from "../assets/search.png";
 
-import {
-  FiBell,
-  FiMessageSquare,
-  FiUser,
-  FiArrowLeft,
-  FiBookmark,
-  FiPlus,
-  FiEye,
-  FiClock,
-} from "react-icons/fi";
-import backarrow from '../assets/backarrow.png';
+const formatCurrency = (value = 0) => {
+  const v = Number(value) || 0;
+  if (v >= 100000) return (v / 100000).toFixed(1) + "L";
+  if (v >= 1000) return (v / 1000).toFixed(1) + "K";
+  return v.toString();
+};
 
-export default function SavedServicesOnly() {
+const skillColor = (skill) => {
+  const colors = [
+    "#FFC1B6",
+    "#BDF4FF",
+    "#E6C9FF",
+    "#C6F7D6",
+    "#FFF3B0",
+    "#FFD6E8",
+    "#D7E3FC",
+  ];
+  return colors[skill.length % colors.length];
+};
+
+export default function CategoryPage({ initialTab = "Saved" }) {
+
   const auth = getAuth();
   const user = auth.currentUser;
   const navigate = useNavigate();
 
-  // -------------------------
-  // Sidebar collapsed state
-  // -------------------------
-  const [collapsed, setCollapsed] = useState(
-    localStorage.getItem("sidebar-collapsed") === "true"
-  );
+  const [tab, setTab] = useState(initialTab);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("");
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebar-collapsed", collapsed ? "true" : "false");
-    } catch (e) {
-      // ignore storage errors
-    }
-  }, [collapsed]);
-
-  useEffect(() => {
-    function handleToggle(e) {
-      setCollapsed(e.detail);
-    }
-    window.addEventListener("sidebar-toggle", handleToggle);
-    return () => window.removeEventListener("sidebar-toggle", handleToggle);
-  }, []);
-
-  // -------------------------
-  // existing state
-  // -------------------------
-  const [jobs, setJobs] = useState([]);
-  const [savedJobs, setSavedJobs] = useState([]);
-
-  const [searchText, setSearchText] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [currentUserCategory, setCurrentUserCategory] = useState("");
-  const [userProfile, setUserProfile] = useState(null);
+  const [filter, setFilter] = useState(new JobFilter());
+  const [showFilter, setShowFilter] = useState(false);
   const isMobile = window.innerWidth <= 768;
 
-  /* =====================================================
-        FETCH USER PROFILE
-  ===================================================== */
-  const fetchUserProfile = async (uid) => {
-    try {
-      const snap = await getDoc(doc(db, "users", uid));
-      if (snap.exists()) {
-        setUserProfile(snap.data());
-      }
-    } catch (e) {
-      console.error("Profile fetch error:", e);
-    }
-  };
-
-  useEffect(() => {
-    const userCurrent = auth.currentUser;
-    if (!userCurrent) return;
-    fetchUserProfile(userCurrent.uid);
-  }, []);
-
-  /* =====================================================
-        NOTIFICATION STATE + BACKEND FETCH
-  ===================================================== */
+  const [services, setServices] = useState([]);
+  const [services24, setServices24] = useState([]);
+  const [savedIds, setSavedIds] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const unsub = onSnapshot(collection(db, "notifications"), (snap) => {
-      const userNots = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .filter((n) => n.clientUid === user.uid);
-
-      setNotifications(userNots);
-    });
-
-    return unsub;
-  }, [user]);
+  const [showSort, setShowSort] = useState(false);
+  const sortRef = useRef(null);
 
   const pending = notifications.filter((n) => !n.read).length;
 
-  async function acceptNotif(item) {
-    await updateDoc(doc(db, "notifications", item.id), { read: true });
+  const getJobDate = (date) => {
+    if (!date) return null;
+
+    if (date instanceof Timestamp) {
+      return date.toDate();
+    }
+
+    if (date?.seconds) {
+      return new Date(date.seconds * 1000);
+    }
+
+    if (date instanceof Date) return date;
+
+    const parsed = new Date(date);
+    if (!isNaN(parsed)) return parsed;
+
+    return null;
+  };
+
+  function timeAgo(ts) {
+    if (!ts) return "Just now";
+    const d = ts instanceof Timestamp ? ts.toDate() : new Date(ts);
+    const diff = (Date.now() - d.getTime()) / 1000;
+
+    if (diff < 60) return `${Math.floor(diff)}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
   }
 
-  async function declineNotif(item) {
-    await deleteDoc(doc(db, "notifications", item.id));
-  }
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (sortRef.current && !sortRef.current.contains(e.target)) {
+        setShowSort(false);
+      }
+    }
 
-  /* =====================================================
-        LOAD USER CATEGORY
-  ===================================================== */
+    if (showSort) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [showSort]);
+
   useEffect(() => {
     if (!user) return;
-    return onSnapshot(doc(db, "users", user.uid), (snap) => {
-      setCurrentUserCategory(snap.data()?.category || "");
-    });
-  }, [user]);
 
-  /* =====================================================
-        LOAD USER LIST CATEGORIES
-  ===================================================== */
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "users"), (snap) => {
-      const allCats = snap.docs
-        .map((d) => d.data().category)
-        .filter((cat) => cat && cat.trim() !== "");
-
-      const uniqueCats = [...new Set(allCats)];
-
-      const finalCats = uniqueCats.map((name, index) => ({
-        id: index + 1,
-        name,
-      }));
-
-      setCategories(finalCats);
-    });
-
-    return unsub;
-  }, []);
-
-  /* =====================================================
-        LOAD ALL JOBS (services + service_24h)
-  ===================================================== */
-  useEffect(() => {
     const unsub1 = onSnapshot(collection(db, "services"), (snap) => {
-      const normalJobs = snap.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-        jobtype: "services",
-      }));
-
-      setJobs((prev) => {
-        const only24h = prev.filter((j) => j.jobtype === "service_24h");
-        return [...only24h, ...normalJobs];
-      });
+      setServices(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
     const unsub2 = onSnapshot(collection(db, "service_24h"), (snap) => {
-      const fastJobs = snap.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-        jobtype: "service_24h",
-      }));
+      setServices24(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
 
-      setJobs((prev) => {
-        const onlyNormal = prev.filter((j) => j.jobtype === "services");
-        return [...onlyNormal, ...fastJobs];
-      });
+    const unsubUser = onSnapshot(doc(db, "users", user.uid), (snap) => {
+      setSavedIds(snap.data()?.savedJobs || []);
     });
 
     return () => {
       unsub1();
       unsub2();
+      unsubUser();
     };
-  }, []);
-
-  /* =====================================================
-        LOAD SAVED JOBS
-  ===================================================== */
-  useEffect(() => {
-    if (!user) return;
-
-    const unsub = onSnapshot(doc(db, "users", user.uid), (snap) => {
-      setSavedJobs(snap.data()?.favoriteJobs || []);
-    });
-
-    return unsub;
   }, [user]);
 
-  /* =====================================================
-        SAVE / UNSAVE JOB
-  ===================================================== */
-  async function toggleSave(jobId) {
-    if (!user) return;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) return;
 
-    const ref = doc(db, "users", user.uid);
-    const updated = savedJobs.includes(jobId)
-      ? savedJobs.filter((id) => id !== jobId)
-      : [...savedJobs, jobId];
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
 
-    setSavedJobs(updated);
-    await updateDoc(ref, { favoriteJobs: updated });
-  }
-
-  /* =====================================================
-        SEARCH AUTOSUGGEST
-  ===================================================== */
-  function updateSuggestions(text) {
-    const q = text.toLowerCase();
-    const s = new Set();
-
-    jobs.forEach((job) => {
-      if (job.title?.toLowerCase().includes(q)) s.add(job.title);
-      if (job.skills) {
-        job.skills.forEach((sk) => {
-          if (sk.toLowerCase().includes(q)) s.add(sk);
-        });
+      if (snap.exists()) {
+        setUserProfile(snap.data());
       }
     });
 
-    setSuggestions([...s].slice(0, 6));
-  }
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
-    if (!searchText.trim()) {
-      setSuggestions([]);
-      return;
-    }
-    updateSuggestions(searchText);
-  }, [searchText]);
+    const user = auth.currentUser;
+    if (!user) return;
 
-  /* =====================================================
-        FILTER JOBS (SAVED ONLY)
-  ===================================================== */
-  const filteredJobs = jobs.filter((job) => {
-    const matchSaved = savedJobs.includes(job.id);
+    const q = query(
+      collection(db, "notifications"),
+      where("clientUid", "==", user.uid)
+    );
 
-    const matchSearch =
-      job.title?.toLowerCase().includes(searchText.toLowerCase()) ||
-      job.description?.toLowerCase().includes(searchText.toLowerCase());
+    return onSnapshot(q, (snap) => {
+      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+  }, []);
 
-    const matchCategory =
-      selectedCategory === "" ||
-        selectedCategory === "No Category Assigned"
-        ? true
-        : job.category === selectedCategory;
+  async function acceptNotif(item) {
+    await updateDoc(doc(db, "notifications", item.id), { read: true });
 
-    return matchSaved && matchSearch && matchCategory;
-  });
-
-  /* =====================================================
-        OPEN JOB DETAILS
-  ===================================================== */
-  function onViewJob(job) {
-    if (job.jobtype === "service_24h") {
-      navigate(`/client-dashbroad2/service-24h/${job.id}`);
-    } else {
-      navigate(`/client-dashbroad2/service/${job.id}`);
-    }
+    navigate("/chat", {
+      state: {
+        currentUid: auth.currentUser.uid,
+        otherUid: item.freelancerId,
+        otherName: item.freelancerName,
+        otherImage: item.freelancerImage,
+        initialMessage: `Your application for ${item.jobTitle} accepted!`,
+      },
+    });
   }
 
-  /* =====================================================
-        PAGE UI (SAVED ONLY)
-  ===================================================== */
+  const incrementViewOnce = async (collectionName, jobId) => {
+    const ref = doc(db, collectionName, jobId);
+
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return;
+
+      const viewedBy = snap.data().viewedBy || [];
+      if (viewedBy.includes(user.uid)) return;
+
+      tx.update(ref, {
+        views: (snap.data().views || 0) + 1,
+        viewedBy: arrayUnion(user.uid),
+      });
+    });
+  };
+
+  const applyFilter = (jobs) => {
+    return jobs
+      .filter((j) => {
+        const title = (j.title || "").toLowerCase();
+        const category = (j.category || "").toLowerCase();
+        const skills = j.skills || [];
+
+        if (search) {
+          const q = search.toLowerCase();
+          if (
+            !title.includes(q) &&
+            !category.includes(q) &&
+            !skills.some((s) => s.toLowerCase().includes(q))
+          )
+            return false;
+        }
+
+        if (filter.categories.length && !filter.categories.includes(j.category))
+          return false;
+
+        if (
+          filter.skills.length &&
+          !skills.some((s) => filter.skills.includes(s))
+        )
+          return false;
+
+        const from = Number(j.budget_from ?? j.budget ?? 0);
+        const to = Number(j.budget_to ?? j.budget ?? from);
+
+        if (filter.minPrice !== null && to < filter.minPrice) return false;
+        if (filter.maxPrice !== null && from > filter.maxPrice) return false;
+
+        if (filter.deliveryTime) {
+          const createdDate = getJobDate(j.createdAt || j.postedAt);
+
+          if (!createdDate) return true;
+
+          const now = new Date();
+          const diffDays =
+            (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+
+          if (filter.deliveryTime === "today") {
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            return createdDate >= startOfToday;
+          }
+
+          if (filter.deliveryTime === "3d") return diffDays <= 3;
+          if (filter.deliveryTime === "7d") return diffDays <= 7;
+          if (filter.deliveryTime === "30d") return diffDays <= 30;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sort === "Newest")
+          return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        if (sort === "Oldest")
+          return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+        return 0;
+      });
+  };
+
+  const jobs = useMemo(() => {
+    if (tab === "Work") return applyFilter(services);
+    if (tab === "24 hour") return applyFilter(services24);
+    return [...services, ...services24].filter((j) => savedIds.includes(j.id));
+  }, [tab, services, services24, savedIds, search, filter, sort]);
+
+  const toggleSave = async (jobId, isSaved) => {
+    await updateDoc(doc(db, "users", user.uid), {
+      savedJobs: isSaved ? arrayRemove(jobId) : arrayUnion(jobId),
+    });
+  };
+
   return (
     <div
-      className="freelance-wrapper"
       style={{
-  marginLeft: isMobile
-    ? "12px"                     // 🔥 MOBILE → small left gap
-    : collapsed
-    ? "40px"
-    : "150px",
-
-  marginRight: isMobile ? "12px" : "0", // 🔥 MOBILE RIGHT SPACE
-
-  transition: "margin-left 0.25s ease",
-  marginTop: "40px",
-  padding: isMobile ? "16px" : "20px 22px",
-
-  width: isMobile ? "100%" : "80%",     // 🔥 MOBILE FULL WIDTH
-  boxSizing: "border-box",
-}}
-
+        padding: isMobile ? "16px" : 210,
+        marginTop: isMobile ? "0px" : "-160px",
+      }}
     >
-      {/* HEADER */}
-      <div className="topbar">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            onClick={() => navigate(-1)}
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div
+          onClick={() => navigate(-1)}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 14,
+            border: "0.8px solid #E0E0E0",
+            backgroundColor: "#FFFFFF",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+            flexShrink: 0,
+          }}
+        >
+          <img
+            src={backarrow}
+            alt="Back"
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 14,
-              border: "0.8px solid #E0E0E0",
-              backgroundColor: "#FFFFFF",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
-              flexShrink: 0,
+              width: 16,
+              height: 18,
+              objectFit: "contain",
             }}
-          >
-            <img
-              src={backarrow}
-              alt="back"
-              style={{ width: 16, height: 16 }}
-            />
-          </div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-            Saved
-          </h1>
+          />
         </div>
 
-        <div className="top-right">
-          <FiMessageSquare
-            className="top-icon"
-            onClick={() => {
-              navigate("/client-dashbroad2/messages");
+        <div>
+          <div style={{ fontSize: 32, fontWeight: 400 }}>
+            Explore Freelancer
+          </div>
+        </div>
+      </div>
+
+      <div id="fh-header-right" className="fh-header-right" style={{
+        marginTop: "1px",
+        marginRight: isMobile ? "0px" : "190px",
+      }}
+      >
+
+        <img onClick={() => navigate("/client-dashbroad2/messages")} style={{ width: "26px" }} src={message} alt="message" />
+
+
+
+
+        <img onClick={() => setNotifOpen(true)} src={notifiaction} style={{ width: "26px" }} alt="notifiaction" />
+        {pending > 0 && (
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "red",
+              position: "absolute",
+              top: 6,
+              right: 5,
+            }}
+          ></span>
+        )}
+
+
+        {/* <div className="fh-avatr">
+          <Link to={"/client-dashbroad2/companyprofileview"}>
+            <img style={{ width: "34px", padding: "3px", height: "34px" }} src={userProfile?.profileImage || profile} alt="Profile" />
+          </Link>
+        </div> */}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "12px",
+          width: "100%",
+        }}
+      >
+        {/* LEFT – SEARCH */}
+        <div
+          style={{
+            display: "flex",
+            marginTop: "34px",
+            alignItems: "center",
+            gap: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "10px",
+            width: "100%",
+            height: "44px"
+          }}
+        >
+          <img
+            src={search1}
+            alt="search"
+            style={{
+              width: 18,
+              height: 18,
+              opacity: 0.6,
+              marginLeft: '13px',
             }}
           />
 
-          {/* NOTIFICATION BUTTON */}
-          <div
-            style={{ position: "relative" }}
-            onClick={() => setNotifOpen(true)}
-          >
-            <FiBell className="top-icon" />
+          <input
+            id="job-search"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              flex: 1,
+              border: "none",
+              outline: "none",
+              fontSize: "14px",
+              marginLeft: '0px',
 
-            {pending > 0 && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: -6,
-                  right: -6,
-                  background: "red",
-                  color: "#fff",
-                  fontSize: "10px",
-                  borderRadius: "50%",
-                  padding: "2px 6px",
-                }}
-              >
-                {pending}
-              </span>
-            )}
-          </div>
+              height: "19px",        // ✅ INPUT HEIGHT SMALL
+              lineHeight: "21px",    // ✅ TEXT CENTER ALIGN
+              padding: "0",          // ✅ EXTRA SPACE REMOVE
+              marginTop: "12px"
+            }}
+          />
 
-          <div className="fh-avatar">
-            <Link to={"/client-dashbroad2/ClientProfile"}>
-              <img
-                src={
-                  userProfile?.profileImage ||
-                  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                }
-                alt="Profile"
-              />
-            </Link>
-          </div>
         </div>
+
       </div>
 
-      {/* Search */}
-      <div style={{ position: "relative" }}>
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-
-        {suggestions.length > 0 && (
-          <div className="suggestion-box">
-            {suggestions.map((s, i) => (
-              <p
-                key={i}
-                onClick={() => {
-                  setSearchText(s);
-                  setSuggestions([]);
-                }}
-                className="suggestion-item"
-              >
-                {s}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Categories */}
-      {/* {categories.length > 0 ? (
-        <div className="category-row">
-          {categories.map((cat) => (
+      {showSort && (
+        <div
+          ref={sortRef}        // ✅ IMPORTANT
+          id="sort-wrapper"
+          style={{
+            position: "absolute",
+            marginLeft: isMobile ? "0px" : "810px",
+            marginTop: isMobile ? "70px" : "130px",
+            background: "#fff",
+            borderRadius: "30px",
+            boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+            padding: "16px",
+            zIndex: 1000,
+            width: isMobile ? "90%" : "360px",
+            left: isMobile ? "5%" : "auto",
+          }}
+        >
+          {["Newest", "Oldest", "Availability"].map((s, i) => (
             <button
-              key={cat.id}
-              className={
-                selectedCategory === cat.name
-                  ? "category-active"
-                  : "category-btn"
-              }
-              onClick={() =>
-                setSelectedCategory(
-                  selectedCategory === cat.name ? "" : cat.name
-                )
-              }
+              key={s}
+              onClick={() => {
+                setSort(s);
+                setShowSort(false);
+              }}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                padding: "12px 14px",
+                marginBottom: "10px",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontWeight: 500,
+                background: sort === s ? "#7C3CFF" : "#f9f9f9",
+
+                /* 👇 animation magic */
+                opacity: showSort ? 1 : 0,
+                transform: showSort
+                  ? "translateY(0px)"
+                  : "translateY(10px)",
+                transition: "all 0.35s ease",
+                transitionDelay: `${i * 0.12}s`,
+              }}
             >
-              {cat.name}
+              {s}
             </button>
           ))}
         </div>
-      ) : (
-        <div style={{ padding: "10px 0", opacity: 0.5 }}>
-          No categories found in database.
-        </div>
-      )} */}
-
-      {/* Tabs UI (same look – Saved active only) */}
-      <div style={{marginLeft:"-10px"}} className="jobtabs-wrapper">
-
-        <button  className="jobtab active-tab">Saved</button>
-      </div>
-
-      {/* Job List (SAVED ONLY) */}
-      <div className="job-list">
-        {filteredJobs.length === 0 && (
-          <div style={{ padding: "20px 0", opacity: 0.6 }}>
-            No saved services found.
-          </div>
-        )}
-
-        {filteredJobs.map((job) => (
-          <div
-            key={job.id}
-            className="job-card"
-            onClick={() => onViewJob(job)}
-          >
-            <div className="job-top">
-              <h3 className="job-title">{job.title}</h3>
-              <FiBookmark
-                className={`bookmark-icon ${savedJobs.includes(job.id) ? "bookmarked" : ""
-                  }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleSave(job.id);
-                }}
-              />
-            </div>
-
-            <p className="job-desc">{job.description}</p>
-
-            <div className="job-info-row">
-              <span className="job-amount">
-                ₹{job.budget_from} - ₹{job.budget_to}
-              </span>
-
-              <div className="job-icon-group">
-                <span className="tag-icon">
-                  <FiEye /> {job.views || "4+"}
-                </span>
-                <span className="tag-icon">
-                  <FiClock /> {job.time || "1h ago"}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Floating Add Button */}
-      <button
-        className="floating-plus"
-        onClick={() => navigate("/client-dashbroad2/PostJob")}
-      >
-        <FiPlus size={22} />
-      </button>
-
-      {/* ================================================================= */}
-      {/* ======================= NOTIFICATION POPUP ======================= */}
-      {/* ================================================================= */}
-      {notifOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.4)",
-            backdropFilter: "blur(2px)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setNotifOpen(false);
-          }}
-        >
-          <div
-            style={{
-              width: "90%",
-              maxWidth: 420,
-              background: "#fff",
-              padding: 20,
-              borderRadius: 16,
-              maxHeight: "80vh",
-              overflowY: "auto",
-            }}
-          >
-            <h3 style={{ marginBottom: 15 }}>Notifications</h3>
-
-            {notifications.length === 0 && (
-              <div style={{ padding: 20, textAlign: "center" }}>
-                No notifications
-              </div>
-            )}
-
-            {notifications.map((item, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: 15,
-                  background: "#f7f7f7",
-                  padding: 10,
-                  borderRadius: 10,
-                }}
-              >
-                <img
-                  src={
-                    item.freelancerImage ||
-                    "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                  }
-                  width={48}
-                  height={48}
-                  style={{ borderRadius: "50%", marginRight: 10 }}
-                />
-
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600 }}>
-                    {item.freelancerName}
-                  </div>
-                  <div>applied for {item.jobTitle}</div>
-                </div>
-
-                {!item.read ? (
-                  <>
-                    <button
-                      onClick={() => acceptNotif(item)}
-                      style={{ marginRight: 8 }}
-                    >
-                      ✅
-                    </button>
-                    <button onClick={() => declineNotif(item)}>❌</button>
-                  </>
-                ) : (
-                  <button onClick={() => acceptNotif(item)}>💬</button>
-                )}
-              </div>
-            ))}
-
-            <button
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: 10,
-                borderRadius: 10,
-                background: "#000",
-                color: "#fff",
-              }}
-              onClick={() => setNotifOpen(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
       )}
 
-      {/* ================================================================= */}
-      {/* =============================== CSS =============================== */}
-      {/* ================================================================= */}
-      <style>{`
-        * { font-family: 'Poppins', sans-serif; }
-        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .top-left { display: flex; align-items: center; gap: 12px; }
-        .back-btn { width: 44px; height: 44px; background: #efe9ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .page-title { font-size: 21px; font-weight: 700; }
-        .top-right { display: flex; gap: 16px; }
-        .top-icon { font-size: 20px; cursor: pointer; }
 
-        .fh-avatar img {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          object-fit: cover;
-        }
+      <div
+        style={{
+          width: "100%",
+          padding: "12px 16px",
+          // background: "linear-gradient(90deg, #f6e9ff, #fff7d6)",
+          borderRadius: "18px",
+          boxShadow: "0 10px 22px rgba(0,0,0,0.12)",
+          marginTop: "30px"
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+          }}
+        >
+          {["Work", "24 Hours", "Saved"].map((t) => {
+            const isActive = tab === t;
 
-        .search-input {
-          width: 100%; padding: 12px 14px;
-          border-radius: 12px; background: #fff;
-          border: 1px solid #e6e7ee; font-size: 15px;
-        }
-        .suggestion-box {
-          background: #fff; border: 1px solid #ddd; position: absolute;
-          top: 50px; width: 100%; border-radius: 12px;
-          box-shadow: 0 4px 18px rgba(0,0,0,.1); z-index: 10; padding: 8px;
-        }
-        .suggestion-item { padding: 8px; cursor: pointer; }
+            return (
+              <span
+                key={t}
+                onClick={() => setTab(t)}
+                style={{
+                  padding: "7px 28px",
+                  borderRadius: "999px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: isActive ? 600 : 500,
 
-        .category-row { display: flex; gap: 10px; margin: 14px 0; overflow-x: auto; }
-        .category-btn, .category-active {
-          padding: 8px 14px; white-space: nowrap;
-          border-radius: 999px; cursor: pointer; font-weight: 600;
-        }
-        .category-btn { background: white; border: 1px solid #e2e8f0; color: #444; }
-        .category-active { background: #7c3aed; color: #fff; }
+                  // 🔥 CHANGE HERE
+                  color: isActive ? "#FFFFFF" : "#333",
 
-        .jobtabs-wrapper {
-          background: #fff; display: flex; gap: 10px;
-          padding: 10px; border-radius: 14px; border: 1px solid #ececec;
-          margin-top: 4px;
-        }
-        .jobtab {
-          padding: 10px 14px; border-radius: 10px;
-          font-weight: 700; cursor: default; opacity: .6; width: 100px; border: none;
-        }
-        .active-tab { background: #7c3aed; color: white; opacity: 1; }
+                  background: isActive ? "#7C3CFF" : "transparent",
+                  boxShadow: isActive
+                    ? "0 4px 10px rgba(0,0,0,0.15)"
+                    : "none",
+                  transition: "all 0.25s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {t}
+              </span>
 
-        .job-list { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
-        .job-card {
-          background: #fff; border-radius: 18px; padding: 18px;
-          border: 1px solid #ececec; cursor: pointer;
-          transition: .2s;
-        }
-        .job-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+            );
+          })}
+        </div>
+      </div>
 
-        .job-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .job-title { font-size: 17px; font-weight: 700; margin: 0; }
-        .job-desc { font-size: 14px; opacity: .85; margin: 0; margin-top: 4px; }
+      {/* FILTER + SORT BAR */}
+      <div
+        style={{
+          display: "flex",
+          // alignItems: "center",
+          justifyContent: isMobile ? "space-between" : "flex-end",
 
-        .bookmark-icon { font-size: 20px; cursor: pointer; color: #777; }
-        .bookmarked { color: #7c3aed !important; }
+          width: "100%",
+          padding: "10px 14px",
+          marginTop: "15px",
+          flexWrap: "wrap", // mobile safety
+          gap: "10px",
+          // marginLeft:
+        }}
+      >
+        {/* LEFT – FILTER */}
+        <div
+          onClick={() => setShowFilter(true)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            cursor: "pointer",
+            fontWeight: 500,
+          }}
+        >
+          <img
+            src={filter1}
+            alt="Filter"
+            style={{ width: 18, height: 18 }}
+          />
+          <span>Filter</span>
+        </div>
 
-        .job-info-row {
-          display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
-        }
-        .job-amount { font-size: 17px; font-weight: 700; }
-        .job-icon-group { display: flex; gap: 12px; }
-        .tag-icon { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+        {/* RIGHT – SORT */}
+        <div
+          onClick={() => setShowSort(!showSort)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            cursor: "pointer",
+            fontWeight: 500,
+          }}
+        >
+          <img
+            src={sortimg}
+            alt="Sort"
+            style={{ width: 18, height: 18 }}
+          />
+          <span>Sort</span>
+        </div>
+      </div>
 
-        .floating-plus {
-          position: fixed; right: 22px; bottom: 22px;
-          width: 56px; height: 56px; border-radius: 50%;
-          background: #7c3aed; color: white;
-          display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 8px 18px rgba(99,102,241,.2); border: none;
-        }
-      `}</style>
+
+
+      <div style={{ marginTop: 20 }}>
+        {jobs.length === 0 && <p>No jobs found</p>}
+
+        {jobs.map((job) => {
+          const isSaved = savedIds.includes(job.id);
+          return (
+            <div
+              key={job.id}
+              onClick={() => {
+                incrementViewOnce(
+                  tab === "24 hour" ? "service_24h" : "services",
+                  job.id
+                );
+                navigate(`/client-dashbroad2/service/${job.id}`);
+              }}
+              style={{
+                background: "#fff",
+                borderRadius: 20,
+                padding: "22px",
+                marginBottom: 22,
+                cursor: "pointer",
+                boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
+                position: "relative", // 🔥 MUST
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <h3 style={{ margin: 0, fontSize: 22, fontWeight: 600 }}>
+                  {job.title}
+                </h3>
+
+
+                <div id="job-budget" className="job-budget">₹{job.budget_from || job.budget} - {job.budget_to || job.budget}</div>
+              </div>
+              <div style={{ fontSize: "14", marginTop: "10px", color: "gray", fontWeight: "400" }}>Skills Required</div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  margin: "12px 0",
+                  flexWrap: "wrap", // 🔥 mobile la next line pogum
+                }}
+              >
+                {(job.skills || []).slice(0, 3).map((s) => (
+                  <span
+                    key={s}
+                    style={{
+                      background: "#FFF085B2",
+                      padding: isMobile ? "4px 10px" : "6px 14px", // mobile small
+                      borderRadius: 999,
+                      fontSize: isMobile ? 11 : 13, // mobile small text
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {s}
+                  </span>
+                ))}
+
+                {job.skills?.length > 3 && (
+                  <span
+                    style={{
+                      background: "#FFF085B2",
+                      padding: isMobile ? "4px 10px" : "6px 14px",
+                      borderRadius: 999,
+                      fontSize: isMobile ? 11 : 13,
+                      fontWeight: 500,
+                    }}
+                  >
+                    +{job.skills.length - 3}
+                  </span>
+                )}
+              </div>
+
+
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "#555",
+                  lineHeight: 1.6,
+                  marginBottom: 14,
+                }}
+              >
+                {job.description?.slice(0, 320)}
+                {job.description?.length > 200 ? "..." : ""}
+              </p>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 18,
+                    fontSize: 13,
+                    color: "#777",
+                  }}
+                >
+                  <span
+                    style={{ display: "flex", gap: 6, alignItems: "center" }}
+                  >
+                    <FiEye /> {job.views || 0} Impression
+                  </span>
+                  <span
+                    style={{ display: "flex", gap: 6, alignItems: "center" }}
+                  >
+                    <Clock size={14} />
+                    {timeAgo(job.createdAt)}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 60,
+                    right: 20,
+                    cursor: "pointer",
+                    zIndex: 10,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 🔥 card click stop
+                    toggleSave(job.id, savedIds.includes(job.id));
+                  }}
+                >
+                  {savedIds.includes(job.id) ? (
+                    <BsBookmarkFill size={20} />
+                  ) : (
+                    <Bookmark size={20} />
+                  )}
+                </div>
+
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {showFilter && (
+        <div style={modalStyle}>
+          <FilterScreen
+            initialFilter={filter}
+            onClose={() => setShowFilter(false)}
+            onApply={(appliedFilter) => {
+              setFilter(appliedFilter);
+              setShowFilter(false);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
+
+const modalStyle = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.35)",
+  zIndex: 999,
+  overflowY: "auto",
+};

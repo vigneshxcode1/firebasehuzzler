@@ -4036,12 +4036,13 @@ export default function FreelanceHome() {
           <section
             style={{
               display: "flex",
-              flexDirection: isMobile ? "column" : "row", // 🔥 key line
+              flexDirection: isMobile ? "column" : "row",
               justifyContent: "center",
               alignItems: "center",
-              gap: "20px",
+              gap: isMobile ? "6px" : "0px", // 🔥 mobile gap small
             }}
           >
+
             <img
               onClick={() =>
                 navigate("/freelance-dashboard/freelancebrowesproject")

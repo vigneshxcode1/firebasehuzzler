@@ -333,8 +333,9 @@ const styles = {
     padding: "0 12px",
     borderRadius: 12,
     border: "1px solid block",
-    boxShadow: "0 10px 50px rgba(0,0,0,0.08)",
+    border:"1px solid #0e02020e",
     background: "#fff",
+    marginTop:"40px"
   },
   input: {
     border: "none",
@@ -1089,7 +1090,10 @@ export default function Categories() {
 
     return (
       <div>
-        {/* HEADER */}
+
+
+        <div style={styles.container}>
+                  {/* HEADER */}
         <div style={styles.appBar}>
           <button style={styles.backBtn} onClick={pop}>
             <IconBack />
@@ -1116,14 +1120,16 @@ export default function Categories() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                // boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                border:"1px solid #0e02020e",
                 cursor: "pointer",
+                marginLeft:"-70px"
               }}
             >
               <img
                 src={backarrow}
                 alt="backarrow"
-                style={{ width: 20, height: 20 }}
+                style={{ width: 20, height: 20,marginLeft:"0px" }}
               />
             </div>
 
@@ -1133,8 +1139,6 @@ export default function Categories() {
 
           <div style={{ width: 36 }} />
         </div>
-
-        <div style={styles.container}>
           {/* SEARCH */}
           <div style={styles.searchBar}>
             <IconSearch />
@@ -1269,7 +1273,7 @@ export default function Categories() {
     <div
       className="freelance-wrapper"
       style={{
-        marginLeft: isMobile ? "0px" : collapsed ? "-110px" : "50px",
+        marginLeft: isMobile ? "0px" : collapsed ? "-210px" : "-100px",
         padding: isMobile ? "0 8px" : "0",
         transition: "all 0.25s ease",
       }}

@@ -2885,6 +2885,16 @@ export default function Client() {
     localStorage.getItem("sidebar-collapsed") === "true"
   );
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
   /* ---------- DEFAULT AUTO SELECT ---------- */
   useEffect(() => {
     if (screen === "SUB" && category) {
@@ -2934,20 +2944,34 @@ export default function Client() {
      UI
   ====================================================== */
   return (
-    <div id="fh-page" style={{
-      marginLeft: collapsed ? "50px" : "-70px",
-      transition: "margin-left 0.25s ease",
-    }} className="fh-page rubik-font">
-      <div id="fh-containers" className="fh-container" >
+    <div
+      id="fh-e"
+      style={{
+        marginLeft: collapsed ? "-0px" : "-0px",
+        transition: "margin-left 0.25s ease",
+        width: "100%",
+        minHeight: "100vh",
+        boxSizing: "border-box",
+        marginTop: isMobile ? "-20px" : "-70px",
+      }}
+    >
+
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1400px",   // 🔑 desktop & laptop perfect
+          margin: "0 auto",     // 🔑 center align
+          paddingLeft: "16px",
+          paddingRight: "16px",
+          boxSizing: "border-box",
+        }}
+      >
+
         <div style={styles.page}>
           {/* HEADER */}
           {/* HEADER */}
           <div style={styles.appBar}>
-            {screen === "SUB" && (
-              <div style={styles.backbtn} onClick={() => navigate(-1)} aria-label="Back">
-                <img src={backarrow} alt="back arrow" height={20} />
-              </div>
-            )}
+           
 
             <h3 style={styles.title1}>
               {screen === "CATEGORIES" ? "Welcome" : category}
@@ -3280,15 +3304,18 @@ const Empty = () => (
    STYLES
 ====================================================== */
 const styles = {
-  page: { 
-    fontFamily: "system-ui",
-     background: "#fff",
-      minHeight: "100dvh",
-       overflowY: "auto",
-     
+page: {
+  fontFamily: "system-ui",
+  background: "#fff",
+  padding:"10%",
+  minHeight: "100dvh",
+  width: "100%",
+  maxWidth: "1400px",     // 🔥 laptop + desktop
+  margin: "0 auto",      // 🔥 center
+  overflowY: "auto",
+  boxSizing: "border-box",
+},
 
-      
-      },
   appBar: {
     height: 56,
     display: "flex",

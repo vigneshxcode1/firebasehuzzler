@@ -706,6 +706,8 @@ import { useNavigate } from "react-router-dom";
 import backarrow from "../../assets/backarrow.png";
 import edit from "../../assets/edit.png";
 
+const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
 /* ------------------------------------------------------------
    GLOBAL FONT
 ------------------------------------------------------------ */
@@ -717,7 +719,7 @@ const globalFont = {
    STYLES (UI UNCHANGED)
 ------------------------------------------------------------ */
 const styles = {
-  screen: {
+screen: {
     width: "100%",
     minHeight: "100vh",
     overflowX: "hidden",
@@ -725,7 +727,7 @@ const styles = {
     ...globalFont,
   },
   formCard: {
-    width: "85%",
+    width:isMobile()? "90%":"50%",
     margin: "40px auto",
     background: "#fff",
     padding: "25px 20px 35px",

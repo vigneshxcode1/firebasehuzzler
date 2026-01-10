@@ -1732,7 +1732,7 @@ export default function AddJobScreen() {
                 ))}
 
               {job.skills?.length > 2 && (
-                <div className="more-chip" style={{ backgroundColor: "" }}>
+                <div className="more-chipp" style={{ fontSize: "11px", color: " #92400e", borderRadius: "20px", padding: " 6px 12px", background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)" }}>
                   +{job.skills.length - 2}
                 </div>
               )}

@@ -3076,7 +3076,7 @@ export default function ExploreFreelancer() {
                 />
               )}
             </div>
-
+{/* 
             <div
               className="top-icon"
               onClick={() => navigate("/freelance-dashboard/Profilebuilder")}
@@ -3086,7 +3086,7 @@ export default function ExploreFreelancer() {
                 src={userInfo.profileImage || profile}
                 alt="Profile"
               />
-            </div>
+            </div> */}
           </div>
         </div>
 

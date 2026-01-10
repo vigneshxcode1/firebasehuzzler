@@ -1592,7 +1592,7 @@ export default function MyWorksScreen() {
             style={{ width: 22, cursor: "pointer" }}
             onClick={() => navigate("/notifications")}
           />
-          <img
+          {/* <img
             src={
               profile?.profileImage ||
               "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
@@ -1607,7 +1607,7 @@ export default function MyWorksScreen() {
             onClick={() =>
               navigate("/freelance-dashboard/accountfreelancer")
             }
-          />
+          /> */}
         </div>
       </div>
 

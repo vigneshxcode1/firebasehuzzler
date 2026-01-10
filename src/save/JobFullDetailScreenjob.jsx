@@ -1199,6 +1199,500 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import { getAuth } from "firebase/auth";
+// import {
+//     doc,
+//     getDoc,
+//     onSnapshot,
+//     updateDoc,
+//     arrayUnion,
+//     increment,
+//     collection,
+//     addDoc,
+//     serverTimestamp,
+//     deleteDoc,
+// } from "firebase/firestore";
+// import { db } from "../firbase/Firebase";
+// import { color } from "framer-motion";
+// import { Calendar, MapPin } from "lucide-react";
+
+// function timeAgo(date) {
+//     const diff = Date.now() - date.getTime();
+//     const days = Math.floor(diff / 86400000);
+//     if (days < 1) return "Today";
+//     if (days === 1) return "1 day ago";
+//     return `${days} days ago`;
+// }
+
+// export default function JobFullDetailJobScreen() {
+//     const { id: jobId } = useParams();
+//     const auth = getAuth();
+//     const navigate = useNavigate();
+
+//     const [job, setJob] = useState(null);
+//     const [loading, setLoading] = useState(true);
+
+
+
+//     useEffect(() => {
+//         if (!jobId) return;
+//         const ref = doc(db, "jobs", jobId);
+
+//         const unsub = onSnapshot(ref, (snap) => {
+//             if (!snap.exists()) {
+//                 setJob(null);
+//                 setLoading(false);
+//                 return;
+//             }
+
+//             const d = snap.data();
+//             setJob({
+//                 id: snap.id,
+//                 title: d.title,
+//                 description: d.description,
+//                 budgetFrom: d.budget_from,
+//                 budgetTo: d.budget_to,
+//                 timeline: d.timeline,
+//                 skills: d.skills || [],
+//                 tools: d.tools || [],
+//                 applicantsCount: d.applicants_count || 0,
+//                 createdAt: d.created_at?.toDate() || new Date(),
+//                 userName: d.clientName || "no username",
+//                 role: d.category || "no category",
+//                 servicePosted: d.service_posted || 3,
+//                 completedProjects: d.completed_projects || 10,
+//             });
+
+//             setLoading(false);
+//         });
+
+//         return () => unsub();
+//     }, [jobId]);
+
+//     async function handleDeleteJob() {
+//         if (!window.confirm("Delete this job?")) return;
+//         await deleteDoc(doc(db, "jobs", jobId));
+//         navigate(-1);
+//     }
+
+//     const handleEditJob = () => {
+//         navigate("/client-dashbroad2/clienteditjob", {
+//             state: {
+//                 jobData: {
+//                     ...job,
+//                     budget_from: job.budgetFrom,
+//                     budget_to: job.budgetTo,
+//                     category: job.role,
+//                 },
+//             },
+//         });
+//     };
+
+//     if (loading)
+//         return (
+//             <div style={styles.loadingContainer}>
+//                 <div style={styles.spinner}></div>
+//                 Loading...
+//             </div>
+//         );
+
+//     if (!job)
+//         return (
+//             <div style={styles.loadingContainer}>Job not found</div>
+//         );
+
+//     return (
+//         <div style={styles.overlay}>
+//             <div style={styles.modal}>
+//                 {/* HEADER */}
+//                 <div style={styles.header}>
+//                     <h3 style={styles.headerTitle}>Project Details</h3>
+//                     <div style={styles.headerIcons}>
+//                         <button style={styles.iconBtn}>
+//                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+//                                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+//                             </svg>
+//                         </button>
+//                         <button style={styles.iconBtn}>
+//                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+//                                 <circle cx="18" cy="5" r="3"></circle>
+//                                 <circle cx="6" cy="12" r="3"></circle>
+//                                 <circle cx="18" cy="19" r="3"></circle>
+//                                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+//                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+//                             </svg>
+//                         </button>
+//                         <button style={styles.iconBtn} onClick={() => navigate(-1)}>
+//                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+//                                 <line x1="18" y1="6" x2="6" y2="18"></line>
+//                                 <line x1="6" y1="6" x2="18" y2="18"></line>
+//                             </svg>
+//                         </button>
+//                     </div>
+//                 </div>
+
+//                 {/* USER INFO */}
+//                 <div style={styles.userSection}>
+//                     <div style={styles.avatar}>
+//                         {job.userName?.slice(0, 2).toUpperCase() || "JA"}
+//                     </div>
+//                     <div style={styles.userInfo}>
+//                         <h2 style={styles.userName}>{job.title}</h2>
+//                         <p style={styles.userRole}>{job.role}</p>
+//                     </div>
+
+//                 </div>
+
+//                 {/* INFO ROW */}
+//                 <div style={styles.infoRow}>
+
+//                     <InfoBox label="Budget" icon="">
+//                         <span style={styles.budgetText}>₹{job.budgetFrom} - ₹{job.budgetTo}</span>
+//                     </InfoBox>
+//                     <Calendar />
+//                     <InfoBox label="Timeline" icon="">
+//                         <span style={styles.timelineText}>{job.timeline}</span>
+//                     </InfoBox>
+//                     <MapPin />
+//                     <InfoBox label="Location" icon="">
+//                         <span style={styles.locationText}>Remote</span>
+//                     </InfoBox>
+//                 </div>
+
+
+//                 <br />
+//                 <div style={styles.infoRow}>
+//                     <div style={styles.metaItem}>
+//                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+//                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+//                             <circle cx="9" cy="7" r="4"></circle>
+//                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+//                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+//                         </svg>
+//                         <span>{job.applicantsCount} Applicants</span>
+//                     </div>
+//                     <div style={styles.metaItem}>
+//                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+//                             <circle cx="12" cy="12" r="10"></circle>
+//                             <polyline points="12 6 12 12 16 14"></polyline>
+//                         </svg>
+//                         <span>{timeAgo(job.createdAt)}</span>
+//                     </div>
+//                 </div>
+
+
+
+//                 <div style={styles.divider}></div>
+
+//                 {/* SKILLS */}
+//                 {job.skills.length > 0 && (
+//                     <div style={styles.skillsSection}>
+//                         <h3 style={styles.sectionTitle}>Skills Required</h3>
+//                         <div style={styles.skillsContainer}>
+//                             {job.skills.map((s, i) => (
+//                                 <span key={i} style={styles.skillTag}>
+//                                     {s}
+//                                 </span>
+//                             ))}
+//                         </div>
+//                     </div>
+//                 )}
+
+//                 {/* DESCRIPTION */}
+//                 <div style={styles.descriptionSection}>
+//                     <h3 style={styles.sectionTitle}>Project Description</h3>
+
+//                     <div style={styles.descriptionScroll}>
+//                         <p style={styles.descriptionText}>{job.description}</p>
+//                     </div>
+//                 </div>
+
+
+//                 {/* FOOTER BUTTONS */}
+//                 <div style={styles.footer}>
+//                     <button onClick={handleEditJob} style={styles.cancelBtn}>
+//                         Edit services
+//                     </button>
+//                     <button onClick={handleDeleteJob} style={styles.hireBtn}>
+//                         Delete Service
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// }
+
+// /* SMALL COMPONENT */
+// function InfoBox({ label, icon, children }) {
+//     return (
+//         <div style={styles.infoBox}>
+//             <div style={styles.infoLabel}>{label}</div>
+//             <div style={styles.infoValue}>
+//                 {icon && <span style={styles.infoIcon}>{icon}</span>}
+//                 {children}
+//             </div>
+//         </div>
+//     );
+// }
+
+// /* STYLES */
+// const styles = {
+//     overlay: {
+
+
+//         minHeight: "130vh",
+//         padding: "40px 20px",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "flex-start",
+//     },
+//     modal: {
+//         maxWidth: 720,
+//         font: "",
+//         width: "100%",
+//         borderRadius: 20,
+//         boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
+//         padding: "32px 28px",
+//         position: "relative",
+//         fontFamily: "'Rubik', sans-serif",
+
+//     },
+
+//     loadingContainer: {
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         minHeight: "100vh",
+//         fontSize: 16,
+//         color: "#666",
+//         gap: 10,
+//     },
+//     header: {
+//         display: "flex",
+//         justifyContent: "space-between",
+//         alignItems: "center",
+//         marginBottom: 20,
+//     },
+//     headerTitle: {
+//         margin: 0,
+//         fontSize: 28,
+//         fontWeight: 400,
+//         color: "#1a1a1a",
+//     },
+//     headerIcons: {
+//         display: "flex",
+//         gap: 8,
+//     },
+//     iconBtn: {
+//         background: "transparent",
+//         border: "none",
+//         cursor: "pointer",
+//         padding: 8,
+//         borderRadius: 8,
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         transition: "background 0.2s",
+//     },
+//     userSection: {
+//         display: "flex",
+//         alignItems: "flex-start",
+//         gap: 14,
+//         marginBottom: 20,
+//     },
+//     avatar: {
+//         width: 56,
+//         height: 56,
+//         borderRadius: 14,
+//         background: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+//         color: "#fff",
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         fontWeight: 400,
+//         fontSize: 18,
+//         flexShrink: 0,
+//     },
+//     userInfo: {
+//         flex: 1,
+
+//     },
+//     userName: {
+//         margin: 0,
+//         fontSize: 26,
+//         fontWeight: 400,
+//         color: "#1a1a1a",
+//     },
+//     userRole: {
+//         margin: "4px 0 0 0",
+//         color: "#8B5CF6",
+//         fontSize: 14,
+//         fontWeight: 500,
+//     },
+//     metaInfo: {
+//         display: "flex",
+//         flexDirection: "column",
+//         gap: 6,
+//         alignItems: "flex-end",
+//     },
+//     metaItem: {
+//         display: "flex",
+//         alignItems: "center",
+//         gap: 6,
+//         fontSize: 13,
+//         color: "#666",
+//     },
+//     infoRow: {
+//         display: "flex",
+//         gap: 30,
+//         marginBottom: 16,
+//     },
+//     infoBox: {
+//         flex: 1,
+//     },
+//     infoLabel: {
+//         fontSize: 12,
+//         color: "#888",
+//         marginBottom: 4,
+//         fontWeight: 500,
+//     },
+//     infoValue: {
+//         display: "flex",
+//         alignItems: "center",
+//         gap: 6,
+//         fontWeight: 500,
+//         fontSize: 14,
+//         color: "#1a1a1a",
+//     },
+//     infoIcon: {
+//         fontSize: 14,
+//     },
+//     budgetText: {
+//         color: "#1a1a1a",
+//     },
+//     timelineText: {
+//         color: "#1a1a1a",
+//     },
+//     locationText: {
+//         color: "#1a1a1a",
+//     },
+//     statsRow: {
+//         display: "flex",
+//         alignItems: "center",
+//         gap: 24,
+//         marginBottom: 20,
+//     },
+//     statItem: {
+//         display: "flex",
+//         gap: 6,
+//         fontSize: 15,
+//     },
+//     statLabel: {
+//         color: "#666",
+//     },
+//     statValue: {
+//         fontWeight: 600,
+//         color: "#1a1a1a",
+//     },
+//     viewProfileBtn: {
+//         marginLeft: "auto",
+//         background: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)",
+//         color: "#fff",
+//         border: "none",
+//         padding: "10px 20px",
+//         borderRadius: 10,
+//         fontSize: 15,
+//         fontWeight: 600,
+//         cursor: "pointer",
+//         transition: "transform 0.2s, box-shadow 0.2s",
+//         boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+//     },
+//     divider: {
+//         height: 1,
+//         background: "#eee",
+//         margin: "10px 0 24px 0",
+//     },
+//     skillsSection: {
+//         marginBottom: 24,
+//     },
+//     sectionTitle: {
+//         fontSize: 16,
+//         fontWeight: 600,
+//         color: "#1a1a1a",
+//         margin: "0 0 14px 0",
+//     },
+//     skillsContainer: {
+//         display: "flex",
+//         flexWrap: "wrap",
+//         gap: 10,
+//     },
+//     skillTag: {
+//         background: "#FEF9C3",
+//         color: "#713F12",
+//         padding: "8px 16px",
+//         borderRadius: 20,
+//         fontSize: 13,
+//         fontWeight: 500,
+//         border: "1px solid #FDE047",
+//     },
+//     descriptionSection: {
+
+//         marginBottom: "70px"
+//     },
+//     descriptionScroll: {
+//         maxHeight: 180,
+//         overflowY: "auto",
+//         paddingRight: 6,
+//     },
+
+//     descriptionText: {
+//         color: "#444",
+//         lineHeight: 1.7,
+//         fontSize: 18,
+//         whiteSpace: "pre-line",
+//         margin: 0,
+//     },
+//     footer: {
+//         display: "flex",
+//         gap: 14,
+//     },
+//     cancelBtn: {
+//         flex: 1,
+//         padding: "14px 24px",
+//         borderRadius: 12,
+//         border: "2px solid #E5E7EB",
+//         background: "#fff",
+//         color: "#374151",
+//         fontSize: 15,
+//         fontWeight: 600,
+//         cursor: "pointer",
+//         transition: "all 0.2s",
+//     },
+//     hireBtn: {
+//         flex: 1,
+//         padding: "14px 24px",
+//         borderRadius: 12,
+//         border: "none",
+//         background: "linear-gradient(135deg, #f65c5cff 0%, #fa4848ff 100%)",
+
+//         color: "white",
+//         fontSize: 15,
+//         fontWeight: 700,
+//         cursor: "pointer",
+//         transition: "transform 0.2s, box-shadow 0.2s",
+//         boxShadow: "0 4px 12px rgba(77, 77, 77, 0.4)",
+//     },
+// };
+
+// export { JobFullDetailJobScreen };
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
@@ -1346,18 +1840,18 @@ export default function JobFullDetailJobScreen() {
                 </div>
 
                 {/* INFO ROW */}
-                <div style={styles.infoRow}>
+                <div style={styles.infoRoww}>
 
                     <InfoBox label="Budget" icon="">
                         <span style={styles.budgetText}>₹{job.budgetFrom} - ₹{job.budgetTo}</span>
                     </InfoBox>
-                    <Calendar />
+                 
                     <InfoBox label="Timeline" icon="">
-                        <span style={styles.timelineText}>{job.timeline}</span>
+                        <span style={styles.timelineText}>   <Calendar size={16} style={{marginBottom:-2}}/>{job.timeline}</span>
                     </InfoBox>
-                    <MapPin />
+                  
                     <InfoBox label="Location" icon="">
-                        <span style={styles.locationText}>Remote</span>
+                        <span style={styles.locationText}>  <MapPin size={16}  style={{marginBottom:-2}} />Remote</span>
                     </InfoBox>
                 </div>
 
@@ -1544,9 +2038,16 @@ const styles = {
         fontSize: 13,
         color: "#666",
     },
+     infoRoww: {
+        display: "flex",
+       
+      justifyContent:"space-between",
+      
+    },
     infoRow: {
         display: "flex",
         gap: 30,
+      
         marginBottom: 16,
     },
     infoBox: {
@@ -1618,8 +2119,8 @@ const styles = {
         marginBottom: 24,
     },
     sectionTitle: {
-        fontSize: 16,
-        fontWeight: 600,
+        fontSize: 20,
+        fontWeight: 400,
         color: "#1a1a1a",
         margin: "0 0 14px 0",
     },
@@ -1662,9 +2163,9 @@ const styles = {
         flex: 1,
         padding: "14px 24px",
         borderRadius: 12,
-        border: "2px solid #E5E7EB",
+        border: "2px solid #9810FAE5",
         background: "#fff",
-        color: "#374151",
+        color: "#9810FAE5",
         fontSize: 15,
         fontWeight: 600,
         cursor: "pointer",
@@ -1675,14 +2176,14 @@ const styles = {
         padding: "14px 24px",
         borderRadius: 12,
         border: "none",
-        background: "linear-gradient(135deg, #f65c5cff 0%, #fa4848ff 100%)",
+        background: "#9810FAE5",
 
         color: "white",
         fontSize: 15,
         fontWeight: 700,
         cursor: "pointer",
         transition: "transform 0.2s, box-shadow 0.2s",
-        boxShadow: "0 4px 12px rgba(77, 77, 77, 0.4)",
+       
     },
 };
 
