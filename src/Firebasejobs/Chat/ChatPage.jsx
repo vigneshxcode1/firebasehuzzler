@@ -2146,6 +2146,641 @@
 
 
 
+// import React, { useEffect, useState, useRef } from "react";
+// import {
+//   getDatabase,
+//   ref,
+//   onValue,
+//   push,
+//   set,
+//   update,
+// } from "firebase/database";
+
+// import { IoSend } from "react-icons/io5";
+// import Picker from "emoji-picker-react";
+// import { useLocation } from "react-router-dom";
+// import { FaMicrophone, FaStop } from "react-icons/fa";
+
+
+// import {
+//   getStorage,
+//   ref as storageRef,
+//   uploadBytes,
+//   getDownloadURL,
+// } from "firebase/storage";
+
+// import "./initial.css"
+
+
+
+
+// export default function ChatPage() {
+//   const { state } = useLocation();
+
+//   const currentUid = state?.currentUid;
+//   const otherUid = state?.otherUid;
+//   const otherName = state?.otherName || "User";
+//   const otherImage = state?.otherImage || "";
+//   const initialMessage = state?.initialMessage || "";
+//   const [recording, setRecording] = useState(false);
+//   const mediaRecorderRef = useRef(null);
+//   const audioChunksRef = useRef([]);
+
+//   const db = getDatabase();       // RTDB
+//   const storage = getStorage();   // Storage
+
+//   const [messages, setMessages] = useState([]);
+//   const [inputText, setInputText] = useState(initialMessage || "");
+//   const [showEmoji, setShowEmoji] = useState(false);
+
+//   const scrollRef = useRef(null);
+
+//   if (!currentUid || !otherUid) {
+//     return (
+//       <div style={{ textAlign: "center", padding: 30, fontSize: 18, color: "red" }}>
+//         ⚠ Chat cannot open. Missing UID values.
+//       </div>
+//     );
+//   }
+
+//   const chatId =
+//     currentUid < otherUid
+//       ? `${currentUid}_${otherUid}`
+//       : `${otherUid}_${currentUid}`;
+
+
+
+
+//   const sendInitialMessage = async (messageText) => {
+//     if (!messageText.trim()) return;
+
+//     const msgRef = ref(db, `chats/${chatId}/messages`);
+//     const newMsgRef = push(msgRef);
+
+//     const payload = {
+//       id: newMsgRef.key,
+//       text: messageText,
+//       senderId: currentUid,
+//       receiverId: otherUid,
+//       type: "text",
+//       timestamp: Date.now(),
+//       status: "sent",
+//       reactions: {},
+//     };
+
+//     await set(newMsgRef, payload);
+
+//     const now = Date.now();
+
+//     await update(ref(db, `userChats/${currentUid}/${chatId}`), {
+//       withUid: otherUid,
+//       otherName,
+//       otherImage,
+//       lastMessage: messageText,
+//       lastMessageTime: now,
+//     });
+
+//     await update(ref(db, `userChats/${otherUid}/${chatId}`), {
+//       withUid: currentUid,
+//       otherName: "You",
+//       lastMessage: messageText,
+//       lastMessageTime: now,
+//     });
+
+//     setInputText("");
+//   };
+
+//   useEffect(() => {
+//     if (initialMessage && initialMessage.startsWith('HUZZLER_JOB_DATA:')) {
+//       const timer = setTimeout(() => {
+//         sendInitialMessage(initialMessage);
+//       }, 500);
+
+//       return () => clearTimeout(timer);
+//     }
+//   }, []);
+
+
+//   const startRecording = async () => {
+//     try {
+//       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+//       const mediaRecorder = new MediaRecorder(stream);
+
+//       audioChunksRef.current = [];
+//       mediaRecorderRef.current = mediaRecorder;
+
+//       mediaRecorder.ondataavailable = (e) => {
+//         audioChunksRef.current.push(e.data);
+//       };
+
+//       mediaRecorder.onstop = async () => {
+//         const audioBlob = new Blob(audioChunksRef.current, {
+//           type: "audio/webm",
+//         });
+
+//         await uploadVoiceMessage(audioBlob);
+//         stream.getTracks().forEach((t) => t.stop());
+//       };
+
+//       mediaRecorder.start();
+//       setRecording(true);
+//     } catch (err) {
+//       console.error("Mic permission error", err);
+//     }
+//   };
+
+//   const stopRecording = () => {
+//     mediaRecorderRef.current?.stop();
+//     setRecording(false);
+//   };
+
+
+//   const uploadVoiceMessage = async (audioBlob) => {
+//     try {
+//       const filePath = `chatAudio/${chatId}/${Date.now()}.webm`;
+//       const fileRef = storageRef(storage, filePath);
+
+//       await uploadBytes(fileRef, audioBlob);
+//       const audioURL = await getDownloadURL(fileRef);
+
+//       const msgRef = ref(db, `chats/${chatId}/messages`);
+//       const newMsgRef = push(msgRef);
+
+//       const payload = {
+//         id: newMsgRef.key,
+//         senderId: currentUid,
+//         receiverId: otherUid,
+//         type: "audio",
+//         url: audioURL,
+//         timestamp: Date.now(),
+//         status: "sent",
+//       };
+
+//       await set(newMsgRef, payload);
+
+//       const now = Date.now();
+
+//       await update(ref(db, `userChats/${currentUid}/${chatId}`), {
+//         lastMessage: "🎤 Voice message",
+//         lastMessageTime: now,
+//       });
+
+//       await update(ref(db, `userChats/${otherUid}/${chatId}`), {
+//         lastMessage: "🎤 Voice message",
+//         lastMessageTime: now,
+//       });
+//     } catch (err) {
+//       console.error("Voice upload error", err);
+//     }
+//   };
+
+
+//   // sendmessage
+
+//   const sendMessage = async () => {
+//     if (!inputText.trim()) return;
+
+//     const msgRef = ref(db, `chats/${chatId}/messages`);
+//     const newMsgRef = push(msgRef);
+
+//     const payload = {
+//       id: newMsgRef.key,
+//       text: inputText,
+//       senderId: currentUid,
+//       receiverId: otherUid,
+//       type: "text",
+//       timestamp: Date.now(),
+//       status: "sent",
+//       reactions: {},
+//     };
+
+//     await set(newMsgRef, payload);
+
+//     const now = Date.now();
+
+//     await update(ref(db, `userChats/${currentUid}/${chatId}`), {
+//       withUid: otherUid,
+//       otherName,
+//       otherImage,
+//       lastMessage: inputText,
+//       lastMessageTime: now,
+//     });
+
+//     await update(ref(db, `userChats/${otherUid}/${chatId}`), {
+//       withUid: currentUid,
+//       otherName: "You",
+//       lastMessage: inputText,
+//       lastMessageTime: now,
+//     });
+
+//     setInputText("");
+//   };
+
+//   // FETCH MESSAGES (keep this separate)
+//   useEffect(() => {
+//     const msgRef = ref(db, `chats/${chatId}/messages`);
+
+//     return onValue(msgRef, (snapshot) => {
+//       const data = snapshot.val() || {};
+//       const list = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+//       setMessages(list);
+
+//       scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+//     });
+//   }, [chatId, db]);
+
+
+
+//   // FILE UPLOAD
+//   const handleFileUpload = async (file) => {
+//     if (!file) return;
+
+//     try {
+//       const safeName = file.name.replace(/\s+/g, "_");
+//       const filePath = `chatFiles/${chatId}/${Date.now()}_${safeName}`;
+//       const fileRef = storageRef(storage, filePath);
+
+//       await uploadBytes(fileRef, file);
+//       const downloadURL = await getDownloadURL(fileRef);
+
+//       const msgRef = ref(db, `chats/${chatId}/messages`);
+//       const newMsgRef = push(msgRef);
+
+//       const payload = {
+//         id: newMsgRef.key,
+//         senderId: currentUid,
+//         receiverId: otherUid,
+//         type: file.type.startsWith("image/") ? "image" : "file",
+//         url: downloadURL,
+//         fileName: safeName,
+//         timestamp: Date.now(),
+//         status: "sent",
+//         reactions: {},
+//       };
+
+//       await set(newMsgRef, payload);
+
+//       const now = Date.now();
+
+//       await update(ref(db, `userChats/${currentUid}/${chatId}`), {
+//         withUid: otherUid,
+//         otherName,
+//         otherImage,
+//         lastMessage: safeName,
+//         lastMessageTime: now,
+//       });
+
+//       await update(ref(db, `userChats/${otherUid}/${chatId}`), {
+//         withUid: currentUid,
+//         otherName: "You",
+//         lastMessage: safeName,
+//         lastMessageTime: now,
+//       });
+//     } catch (err) {
+//       console.error("FILE UPLOAD ERROR:", err);
+//     }
+//   };
+
+//   // EMOJI
+//   const onEmojiClick = (emojiObj) => {
+//     setInputText((prev) => prev + emojiObj.emoji);
+//   };
+
+//   return (
+//     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#f5f5f5" }}>
+
+//       {/* HEADER */}
+//       <div
+//         style={{
+//           padding: 15,
+//           display: "flex",
+//           alignItems: "center",
+//           gap: 15,
+//           background: "white",
+//           boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+//         }}
+//       >
+//         <img
+//           src={otherImage || "https://i.ibb.co/sqsJwP0/user.png"}
+//           style={{
+//             width: 50,
+//             height: 50,
+//             borderRadius: "50%",
+//             objectFit: "cover",
+//           }}
+//         />
+//         <div>
+//           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{otherName}</h3>
+//           <p style={{ margin: 0, fontSize: 12, color: "gray" }}>Online</p>
+//         </div>
+//       </div>
+
+//       {/* MESSAGES */}
+//       <div style={{ flex: 1, overflowY: "auto", padding: 15 }}>
+
+//         {messages.map((msg, i) => {
+//           let jobData = null;
+
+//           // Parse jobData if message contains it
+//           if (msg.text?.startsWith("HUZZLER_JOB_DATA:")) {
+//             try {
+//               jobData = JSON.parse(msg.text.replace("HUZZLER_JOB_DATA:", ""));
+//             } catch (err) {
+//               console.error("Invalid jobData JSON", err);
+//             }
+//           }
+
+//           return (
+//             <div
+//               key={i}
+//               style={{
+//                 display: "flex",
+//                 justifyContent: msg.senderId === currentUid ? "flex-end" : "flex-start",
+//                 marginBottom: 8,
+//               }}
+//             >
+//               <div
+//                 className="initialcss"
+//                 style={{
+//                   padding: jobData ? "0" : "10px 14px",
+//                   maxWidth: "65%",
+//                   borderRadius: 16,
+//                   // background: msg.senderId === currentUid ? "rgb(255, 255, 255)" : "#e0e0e0",
+//                   color: msg.senderId === currentUid ? "white" : "black",
+//                   fontSize: 14,
+//                   wordBreak: "break-word",
+//                 }}
+//               >
+//                 {/* RENDER JOB CARD */}
+//                 {jobData ? (
+//                   <div
+//                     style={{
+//                       borderRadius: 12,
+//                       padding: 16,
+//                       background: "#FFF9C4", // Light yellow
+//                       color: "#000",
+//                       border: "1px solid #E0E0E0",
+//                       width: "100%",
+//                       boxSizing: "border-box",
+//                       fontFamily: "Arial, sans-serif",
+//                     }}
+//                   >
+//                     {/* Top section: icon + Document label */}
+//                     <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+//                       <div
+//                         style={{
+//                           width: 24,
+//                           height: 24,
+//                           borderRadius: 6,
+//                           background: "#F5F5F5",
+//                           display: "flex",
+//                           justifyContent: "center",
+//                           alignItems: "center",
+//                           fontSize: 14,
+//                           marginRight: 8,
+//                         }}
+//                       >
+//                         📄
+//                       </div>
+//                       <div style={{ fontSize: 12, color: "#555" }}>
+//                         Document <span style={{ color: "#888" }}>Sent as attachment</span>
+//                       </div>
+//                     </div>
+
+//                     {/* Title */}
+//                     <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>
+//                       {jobData.title}
+//                     </div>
+
+//                     {/* Tags */}
+//                     {jobData.tags?.length > 0 && (
+//                       <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+//                         {jobData.tags.map((tag, idx) => (
+//                           <span
+//                             key={idx}
+//                             style={{
+//                               background: "#E1BEE7",
+//                               padding: "2px 6px",
+//                               borderRadius: 6,
+//                               fontSize: 12,
+//                               color: "#4A148C",
+//                             }}
+//                           >
+//                             {tag}
+//                           </span>
+//                         ))}
+//                       </div>
+//                     )}
+
+//                     {jobData.description && (
+//                       <p style={{ fontSize: 13, marginBottom: 12 }}>
+//                         {jobData.description.length > 100
+//                           ? jobData.description.slice(0, 100) + "..."
+//                           : jobData.description}
+//                       </p>
+//                     )}
+
+//                     {/* Buttons */}
+//                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+//                       <button
+//                         style={{
+//                           flex: 1,
+//                           background: "#9C27B0",
+//                           color: "#fff",
+//                           border: "none",
+//                           borderRadius: 8,
+//                           padding: "8px 12px",
+//                           cursor: "pointer",
+//                           fontWeight: 600,
+//                         }}
+//                       >
+//                         View details
+//                       </button>
+//                       <button
+//                         style={{
+//                           width: 40,
+//                           background: "#fff",
+//                           border: "1px solid #ccc",
+//                           borderRadius: 8,
+//                           cursor: "pointer",
+//                         }}
+//                       >
+//                         ⬇️
+//                       </button>
+//                     </div>
+
+//                     {/* <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+//                       <button
+//                         style={{
+//                           flex: 1,
+//                           background: "#4CAF50",
+//                           color: "#fff",
+//                           border: "none",
+//                           borderRadius: 8,
+//                           padding: "8px 12px",
+//                           cursor: "pointer",
+//                           fontWeight: 600,
+//                         }}
+//                       >
+//                         Accept
+//                       </button>
+//                       <button
+//                         style={{
+//                           flex: 1,
+//                           background: "#F44336",
+//                           color: "#fff",
+//                           border: "none",
+//                           borderRadius: 8,
+//                           padding: "8px 12px",
+//                           cursor: "pointer",
+//                           fontWeight: 600,
+//                         }}
+//                       >
+//                         Decline
+//                       </button>
+//                     </div> */}
+//                   </div>
+//                 ) : msg.type === "image" ? (
+//                   <img
+//                     src={msg.url}
+//                     alt="img"
+//                     style={{ maxWidth: "200px", borderRadius: 10, marginTop: 5 }}
+//                   />
+//                 ) : msg.type === "file" ? (
+//                   <a
+//                     href={msg.url}
+//                     target="_blank"
+//                     rel="noopener noreferrer"
+//                     style={{
+//                       color: msg.senderId === currentUid ? "white" : "blue",
+//                       textDecoration: "underline",
+//                     }}
+//                   >
+//                     📄 {msg.fileName}
+//                   </a>
+//                 ) : msg.type === "audio" ? (
+//                   <audio controls style={{ width: "220px" }}>
+//                     <source src={msg.url} type="audio/webm" />
+//                     Your browser does not support audio playback
+//                   </audio>
+//                 ) : (
+//                   msg.text
+//                 )}
+
+//               </div>
+//             </div>
+//           );
+//         })}
+
+
+//         <div ref={scrollRef}></div>
+//       </div>
+
+//       {/* EMOJI PICKER */}
+//       {showEmoji && (
+//         <div style={{ position: "absolute", bottom: 70, left: 10, zIndex: 100 }}>
+//           <Picker onEmojiClick={onEmojiClick} />
+
+//         </div>
+
+//       )}
+
+
+
+
+//       {/* INPUT BAR */}
+//       <div
+//         style={{
+//           padding: 10,
+//           background: "white",
+//           display: "flex",
+//           alignItems: "center",
+//           gap: 10,
+//           borderTop: "1px solid #ddd",
+//           position: "relative",
+//         }}
+//       >
+//         <button
+//           onClick={() => setShowEmoji(!showEmoji)}
+//           style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer" }}
+//         >
+//           😊
+//         </button>
+//         <button
+//           onMouseDown={startRecording}
+//           onMouseUp={stopRecording}
+//           onTouchStart={startRecording}
+//           onTouchEnd={stopRecording}
+//           style={{
+//             background: recording ? "#ff1744" : "#eee",
+//             border: "none",
+//             padding: 10,
+//             borderRadius: "50%",
+//             cursor: "pointer",
+//           }}
+//         >
+//           {recording ? <FaStop size={18} color="white" /> : <FaMicrophone size={18} />}
+//         </button>
+
+
+//         <input
+//           type="file"
+//           id="fileInput"
+//           accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+//           style={{ display: "none" }}
+//           onChange={(e) => handleFileUpload(e.target.files[0])}
+//         />
+//         {recording && (
+//           <div style={{ fontSize: 12, color: "red", marginTop: 4 }}>
+//             🎙 Recording...
+//           </div>
+//         )}
+
+
+//         <button
+//           onClick={() => document.getElementById("fileInput").click()}
+//           style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer" }}
+//         >
+//           📎
+//         </button>
+
+//         <input
+//           type="text"
+//           value={inputText}
+//           onChange={(e) => setInputText(e.target.value)}
+//           placeholder="Type a message…"
+//           style={{
+//             flex: 1,
+//             padding: 12,
+//             borderRadius: 20,
+//             border: "1px solid #ccc",
+//             fontSize: 14,
+//           }}
+//         />
+
+//         <button
+//           onClick={sendMessage}
+//           style={{
+//             background: "red",
+//             border: "none",
+//             color: "white",
+//             padding: "12px 15px",
+//             borderRadius: 20,
+//             cursor: "pointer",
+//           }}
+//         >
+//           <IoSend size={22} />
+//         </button>
+
+
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   getDatabase,
@@ -2171,18 +2806,33 @@ import {
 
 import "./initial.css"
 
+import imageCompression from "browser-image-compression";
 
 
 
 export default function ChatPage() {
+  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+
   const { state } = useLocation();
+  const compressImage = async (file) => {
+    const options = {
+      maxSizeMB: 0.4,            // final image ~400KB
+      maxWidthOrHeight: 1280,    // resize
+      useWebWorker: true,
+    };
+
+    return await imageCompression(file, options);
+  };
+
 
   const currentUid = state?.currentUid;
   const otherUid = state?.otherUid;
   const otherName = state?.otherName || "User";
   const otherImage = state?.otherImage || "";
   const initialMessage = state?.initialMessage || "";
+
   const [recording, setRecording] = useState(false);
+
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
@@ -2263,29 +2913,40 @@ export default function ChatPage() {
 
   const startRecording = async () => {
     try {
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        alert("Voice recording not supported on this device");
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+
+      const mimeType = MediaRecorder.isTypeSupported("audio/mp4")
+        ? "audio/mp4"
+        : "audio/webm";
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType, audioBitsPerSecond: 32000, });
 
       audioChunksRef.current = [];
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
-        audioChunksRef.current.push(e.data);
+        if (e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
-        });
-
-        await uploadVoiceMessage(audioBlob);
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        await uploadVoiceMessage(audioBlob, mimeType);
         stream.getTracks().forEach((t) => t.stop());
       };
 
       mediaRecorder.start();
       setRecording(true);
+
     } catch (err) {
-      console.error("Mic permission error", err);
+      console.error("Mic error:", err);
+      alert("Microphone permission denied");
     }
   };
 
@@ -2321,12 +2982,12 @@ export default function ChatPage() {
       const now = Date.now();
 
       await update(ref(db, `userChats/${currentUid}/${chatId}`), {
-        lastMessage: "🎤 Voice message",
+        lastMessage: " Voice message",
         lastMessageTime: now,
       });
 
       await update(ref(db, `userChats/${otherUid}/${chatId}`), {
-        lastMessage: "🎤 Voice message",
+        lastMessage: " Voice message",
         lastMessageTime: now,
       });
     } catch (err) {
@@ -2376,7 +3037,7 @@ export default function ChatPage() {
     setInputText("");
   };
 
-  // FETCH MESSAGES (keep this separate)
+
   useEffect(() => {
     const msgRef = ref(db, `chats/${chatId}/messages`);
 
@@ -2391,22 +3052,36 @@ export default function ChatPage() {
 
 
 
-  // FILE UPLOAD
   const handleFileUpload = async (file) => {
     if (!file) return;
 
     try {
-      const safeName = file.name.replace(/\s+/g, "_");
+      let uploadFile = file;
+
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File too large. Max 5MB allowed.");
+        return;
+      }
+
+      // 🔥 COMPRESS IMAGE ONLY
+      if (file.type.startsWith("image/")) {
+        uploadFile = await compressImage(file);
+      }
+
+      const safeName = uploadFile.name.replace(/\s+/g, "_");
       const filePath = `chatFiles/${chatId}/${Date.now()}_${safeName}`;
       const fileRef = storageRef(storage, filePath);
 
-      await uploadBytes(fileRef, file);
+      await uploadBytes(fileRef, uploadFile);
       const downloadURL = await getDownloadURL(fileRef);
 
+      // send message
       const msgRef = ref(db, `chats/${chatId}/messages`);
       const newMsgRef = push(msgRef);
 
-      const payload = {
+      await set(newMsgRef, {
         id: newMsgRef.key,
         senderId: currentUid,
         receiverId: otherUid,
@@ -2415,27 +3090,8 @@ export default function ChatPage() {
         fileName: safeName,
         timestamp: Date.now(),
         status: "sent",
-        reactions: {},
-      };
-
-      await set(newMsgRef, payload);
-
-      const now = Date.now();
-
-      await update(ref(db, `userChats/${currentUid}/${chatId}`), {
-        withUid: otherUid,
-        otherName,
-        otherImage,
-        lastMessage: safeName,
-        lastMessageTime: now,
       });
 
-      await update(ref(db, `userChats/${otherUid}/${chatId}`), {
-        withUid: currentUid,
-        otherName: "You",
-        lastMessage: safeName,
-        lastMessageTime: now,
-      });
     } catch (err) {
       console.error("FILE UPLOAD ERROR:", err);
     }
@@ -2502,10 +3158,10 @@ export default function ChatPage() {
               <div
                 className="initialcss"
                 style={{
-                  padding: jobData ? "0" : "10px 14px",
-                  maxWidth: "65%",
+                  padding: jobData ? "0" : "10px 18px",
+                  maxWidth: "75%",
                   borderRadius: 16,
-                  // background: msg.senderId === currentUid ? "rgb(255, 255, 255)" : "#e0e0e0",
+                  // background: msg.senderId === currentUid ? "rgb(198, 211, 179)" : "#e0e0e0",
                   color: msg.senderId === currentUid ? "white" : "black",
                   fontSize: 14,
                   wordBreak: "break-word",
@@ -2644,7 +3300,8 @@ export default function ChatPage() {
                   <img
                     src={msg.url}
                     alt="img"
-                    style={{ maxWidth: "200px", borderRadius: 10, marginTop: 5 }}
+                    className="imginchat"
+                    style={{ maxWidth: "300px", borderRadius: 10, marginTop: 5 }}
                   />
                 ) : msg.type === "file" ? (
                   <a
@@ -2652,19 +3309,29 @@ export default function ChatPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      color: msg.senderId === currentUid ? "white" : "blue",
-                      textDecoration: "underline",
+                      background: msg.senderId === currentUid ? "rgb(198, 211, 179)" : "#e0e0e0",
+                      color: msg.senderId === currentUid ? "white" : "black",
+
+                      textDecoration: "none",
                     }}
                   >
                     📄 {msg.fileName}
                   </a>
                 ) : msg.type === "audio" ? (
-                  <audio controls style={{ width: "220px" }}>
+                  <audio controls className="mobilevoicechat" style={{ padding: "10px" }}>
                     <source src={msg.url} type="audio/webm" />
-                    Your browser does not support audio playback
+                    iso saffari or browser does not support audio playback
                   </audio>
                 ) : (
-                  msg.text
+                  <div className="text"
+                    style={{
+                      padding: jobData ? "0" : "10px 18px",
+                      borderRadius: "10px",
+                     
+                      color: msg.senderId === currentUid ? "blue" : "black",
+                      fontSize: 14,
+                      wordBreak: "break-word",
+                    }}>{msg.text}</div>
                 )}
 
               </div>
@@ -2706,21 +3373,24 @@ export default function ChatPage() {
         >
           😊
         </button>
+
+
         <button
-          onMouseDown={startRecording}
-          onMouseUp={stopRecording}
-          onTouchStart={startRecording}
-          onTouchEnd={stopRecording}
+          onMouseDown={!isMobile ? startRecording : undefined}
+          onMouseUp={!isMobile ? stopRecording : undefined}
+          onTouchStart={isMobile ? startRecording : undefined}
+          onTouchEnd={isMobile ? stopRecording : undefined}
           style={{
             background: recording ? "#ff1744" : "#eee",
             border: "none",
             padding: 10,
             borderRadius: "50%",
-            cursor: "pointer",
           }}
         >
-          {recording ? <FaStop size={18} color="white" /> : <FaMicrophone size={18} />}
+          {recording ? <FaStop color="white" /> : <FaMicrophone />}
         </button>
+
+
 
 
         <input
