@@ -1306,7 +1306,7 @@ export default function ClientFullDetailScreen() {
               {/* Header */}
               <div style={styles.sectionHeader}>
                 <h3 style={styles.sectionTitle}>Posted Jobs</h3>
-                <span style={styles.viewAllLink}>View All</span>
+                <span style={styles.viewAllLink}></span>
               </div>
 
               {/* Tabs */}
@@ -2010,6 +2010,7 @@ postedJobsWrapper: {
   maxWidth: 1100,     // 👈 CONTROLS WIDTH
   margin: "0 auto",   // 👈 CENTERS IT
   width: "100%",
+  marginTop:"40px"
 },
 
 

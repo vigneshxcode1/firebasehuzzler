@@ -1221,6 +1221,7 @@ import { useNavigate } from "react-router-dom";
 
 import AddPortfolioPopup from "../Firebaseaddporfoilo/AddPortfolioPopup.jsx";
 import { Pencil } from "lucide-react";
+import company from "../assets/comany.jpg"
 
 // -----------------------------------------------------------------------------
 // Single file contains:
@@ -1250,7 +1251,7 @@ const useSidebar = () => {
 // ---------------------------- STYLES (in-file) ----------------------------
 const pageStyles = {
   pageWrapper: {
-    width: "100%",
+    width: "80%",
     minHeight: "100vh",
     // background: "#F5F6FA",
     marginTop: '60px',
@@ -1273,7 +1274,7 @@ const pageStyles = {
     borderRadius: 16,
     padding: 18,
     boxShadow: "0 8px 20px rgba(12,20,31,0.06)",
-    border:"1px solid #c9c5c5",
+    border: "1px solid #c9c5c5",
   },
 
   toggleBarWrapper: {
@@ -1286,7 +1287,7 @@ const pageStyles = {
     justifyContent: "flex-start", // 👈 LEFT aligned
     backgroundColor: "#FFF8E1",
     boxShadow: "0 2px 8px rgba(16,24,40,0.04)",
-    
+
   },
   toggleGroup: {
     display: "flex",
@@ -1436,7 +1437,7 @@ export default function BuildProfileScreenWithEdit() {
 
   // Profile state
   const [user, setUser] = useState(null);
-  
+
   const [profileData, setProfileData] = useState({
     firstName: "",
     lastName: "",
@@ -1446,7 +1447,7 @@ export default function BuildProfileScreenWithEdit() {
     tools: [],
     profileImage: "",
     location: "",
-    
+
   });
 
   console.log(profileData.professional_title)
@@ -1728,23 +1729,23 @@ export default function BuildProfileScreenWithEdit() {
             </div>
 
             <div className="skill-scroll">
-  {(job.skills || [])
-    .slice(0, window.innerWidth >= 769 ? 3 : job.skills.length)
-    .map((s, i) => (
-      <div key={i} style={pageStyles.skillChip}>
-        {s}
-      </div>
-    ))}
+              {(job.skills || [])
+                .slice(0, window.innerWidth >= 769 ? 3 : job.skills.length)
+                .map((s, i) => (
+                  <div key={i} style={pageStyles.skillChip}>
+                    {s}
+                  </div>
+                ))}
 
-  {/* +X only on desktop */}
-  {window.innerWidth >= 769 &&
-    job.skills &&
-    job.skills.length > 3 && (
-      <div style={pageStyles.moreChip}>
-        +{job.skills.length - 3}
-      </div>
-    )}
-</div>
+              {/* +X only on desktop */}
+              {window.innerWidth >= 769 &&
+                job.skills &&
+                job.skills.length > 3 && (
+                  <div style={pageStyles.moreChip}>
+                    +{job.skills.length - 3}
+                  </div>
+                )}
+            </div>
 
           </div>
         </div>
@@ -1753,7 +1754,7 @@ export default function BuildProfileScreenWithEdit() {
           <div>
             <div style={pageStyles.label}>Budget</div>
             <div style={{ ...pageStyles.value, ...pageStyles.valueHighlight }}>
-              ₹{formatBudget(job.budget_from || job.budget)}
+              ₹{formatBudget(job.budget_from || job.budget_to)}
             </div>
           </div>
 
@@ -1924,7 +1925,7 @@ export default function BuildProfileScreenWithEdit() {
     return (
       <Box sx={{ mt: 4 }}>
         <div >
-        <p style={{marginLeft:isMobile?"80%":"90%",opacity:"70%",fontSize: 14, fontWeight: 400,cursor:"pointer"}}  onClick={() => navigate("/freelance-dashboard/freelancermyworks")}>View All</p>
+          <p style={{ marginLeft: isMobile ? "80%" : "90%", opacity: "70%", fontSize: 14, fontWeight: 400, cursor: "pointer" }} onClick={() => navigate("/freelance-dashboard/sidebarsaved")}>View All</p>
         </div>
         <Box style={pageStyles.jobsContainer}>
           {/* HEADER ROW */}
@@ -2070,7 +2071,7 @@ export default function BuildProfileScreenWithEdit() {
 
   // ------------------ JSX return ------------------
   return (
-    <Box sx={{ ...pageStyles.pageWrapper, marginLeft: collapsed ? "-190px" : "0px", transition: "margin-left 0.25s ease" }}>
+    <Box sx={{ ...pageStyles.pageWrapper, marginLeft: collapsed ? "30px" : "140px", transition: "margin-left 0.25s ease" }}>
       <Box sx={pageStyles.content}>
 
         <Box
@@ -2083,7 +2084,7 @@ export default function BuildProfileScreenWithEdit() {
             alignItems: "center",
             gap: 3,
             position: "relative",
-                border:"1px solid #c9c5c5",
+            border: "1px solid #c9c5c5",
 
           }}
         >
@@ -2098,7 +2099,7 @@ export default function BuildProfileScreenWithEdit() {
               objectFit: "cover",
             }}
           />
-          <img src={editimg} width={50} style={{marginLeft:"-55px",paddingTop:"10px",marginTop:"50px"}}/>
+          <img src={editimg} width={50} style={{ marginLeft: "-55px", paddingTop: "10px", marginTop: "50px" }} />
 
           <Box>
             <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
@@ -2110,7 +2111,7 @@ export default function BuildProfileScreenWithEdit() {
                 mt: 1,
                 display: "inline-block",
                 bgcolor: "#7C3CFF",
-                color:"#fff",
+                color: "#fff",
                 px: 2,
                 py: 0.5,
                 borderRadius: 1,
@@ -2120,7 +2121,7 @@ export default function BuildProfileScreenWithEdit() {
             >{profileData.professional_title}
 
 
-             {profileData.title}
+              {profileData.title}
             </Typography>
           </Box>
 
@@ -2144,11 +2145,11 @@ export default function BuildProfileScreenWithEdit() {
               minWidth: 300,
               boxShadow: "0 8px 20px rgba(12,20,31,0.06)",
               position: "relative",
-                  border:"1px solid #c9c5c5",
+              border: "1px solid #c9c5c5",
 
             }}
           >
-            <Typography sx={{ fontSize: 24, fontWeight: 400, mb: 1 ,}}>About</Typography>
+            <Typography sx={{ fontSize: 24, fontWeight: 400, mb: 1, }}>About</Typography>
             <IconButton
               sx={{ position: "absolute", right: 12, top: 12 }}
               onClick={startEditAbout}
@@ -2157,19 +2158,19 @@ export default function BuildProfileScreenWithEdit() {
               <FiEdit2 />
             </IconButton>
 
-          <Box
-  sx={{
-    height:165,
-    maxHeight: 165,            // 👈 adjust height as needed
-    overflowY: "auto",
-    pr: 1,                     // space so text doesn’t touch scrollbar
-  }}
->
-  <Typography sx={{ color: "#444", lineHeight: 1.6 }}>
-    {profileData.about ||
-      "Add a short description about yourself to let people know what you do."}
-  </Typography>
-</Box>
+            <Box
+              sx={{
+                height: 165,
+                maxHeight: 165,            // 👈 adjust height as needed
+                overflowY: "auto",
+                pr: 1,                     // space so text doesn’t touch scrollbar
+              }}
+            >
+              <Typography sx={{ color: "#444", lineHeight: 1.6 }}>
+                {profileData.about ||
+                  "Add a short description about yourself to let people know what you do."}
+              </Typography>
+            </Box>
 
 
             {editingAbout && (
@@ -2196,9 +2197,11 @@ export default function BuildProfileScreenWithEdit() {
 
           {/* SKILLS & TOOLS */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, flex: "1 1 320px", minWidth: 300 }}>
-            <Box sx={{     border:"1px solid #c9c5c5",
-background: "#fff", borderRadius: "14px", p: 2.5, boxShadow: "0 8px 20px rgba(12,20,31,0.06)", position: "relative" }}>
-              <Typography sx={{ fontSize: 24, fontWeight: 400,}}>Skills & Tools</Typography>
+            <Box sx={{
+              border: "1px solid #c9c5c5",
+              background: "#fff", borderRadius: "14px", p: 2.5, boxShadow: "0 8px 20px rgba(12,20,31,0.06)", position: "relative"
+            }}>
+              <Typography sx={{ fontSize: 24, fontWeight: 400, }}>Skills & Tools</Typography>
 
               <IconButton
                 sx={{ position: "absolute", right: 12, top: 12 }}
@@ -2273,10 +2276,12 @@ background: "#fff", borderRadius: "14px", p: 2.5, boxShadow: "0 8px 20px rgba(12
         </Box>
 
         {/* PORTFOLIO SECTION */}
-        <Box sx={{ bgcolor: "#fff", borderRadius: 3, p: 3,    border:"1px solid #c9c5c5",
- boxShadow: "0 8px 20px rgba(12,20,31,0.04)" }}>
+        <Box sx={{
+          bgcolor: "#fff", borderRadius: 3, p: 3, border: "1px solid #c9c5c5",
+          boxShadow: "0 8px 20px rgba(12,20,31,0.04)"
+        }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography sx={{ fontSize: 24, fontWeight: 400,}}>Portfolio</Typography>
+            <Typography sx={{ fontSize: 24, fontWeight: 400, }}>Portfolio</Typography>
             <Button variant="contained" size="small" sx={{ borderRadius: 4, textTransform: "none" }} onClick={() => setIsPortfolioPopupOpen(true)}>
               Add Portfolio
             </Button>
@@ -2303,7 +2308,7 @@ background: "#fff", borderRadius: "14px", p: 2.5, boxShadow: "0 8px 20px rgba(12
                 onClick={() => LaunchURL(p.projectUrl)}
               >
                 <Box sx={{ height: 140, bgcolor: "#00b7db" }}>
-                  <img src={p.imageUrl || "/placeholder-portfolio.jpg"} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={company} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </Box>
 
                 <Box sx={{ bgcolor: "#fff", p: 2, height: "100%", position: "relative" }}>
@@ -2405,7 +2410,6 @@ function EditPortfolioPopup({ open, onClose, portfolio, onSave }) {
           <TextField label="Project Title" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }} />
           <TextField label="Project description" fullWidth multiline rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your project briefly" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }} />
           <TextField label="Project url" fullWidth value={projectUrl} onChange={(e) => setProjectUrl(e.target.value)} placeholder="https://" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }} />
-          <TextField label="Image url" fullWidth value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https:// (optional)" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }} />
           <TextField label="Skills (comma separated)" fullWidth value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="React, Node, Figma" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }} />
           <TextField label="Tools (comma separated)" fullWidth value={toolsText} onChange={(e) => setToolsText(e.target.value)} placeholder="VSCode, Git" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }} />
         </Box>

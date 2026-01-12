@@ -1515,7 +1515,7 @@ export default function ClientProfileMenuScreen() {
                 ["My Services", MyServices, "/freelance-dashboard/sidebarsaved"],
                 ["My Jobs", MyJobs, "/freelance-dashboard/freelancermyworks"],
                 ["Invite friends", invite],
-                ["Notifications", notification],
+                // ["Notifications", notification],
                 ["Account Settings", settings, "/freelance-dashboard/settings"],
                 ["Blocked", blocked, "/freelance-dashboard/blocked"],
               ],

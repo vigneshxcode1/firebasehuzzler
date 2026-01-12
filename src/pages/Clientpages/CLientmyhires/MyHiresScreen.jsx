@@ -2239,6 +2239,8 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../../firbase/Firebase";
+import message from "../../../assets/message.png"
+import notification from "../../../assets/notification.png"
 
 export default function HireFreelancer() {
   const auth = getAuth();
@@ -2393,22 +2395,9 @@ export default function HireFreelancer() {
             </h1>
           </div>
           <div style={{ display: "flex", gap: 16 }}>
-            <IoChatbubbleEllipsesOutline
-              size={24}
-              style={{ cursor: "pointer" }}
-            />
-            <IoNotificationsOutline size={24} style={{ cursor: "pointer" }} />
-            <img
-              src={profileImg}
-              alt="profile"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "2px solid #E5E7EB",
-              }}
-            />
+              <img onClick={() => navigate("/client-dashbroad2/messages")} style={{ width: "26px",cursor: "pointer" }} src={message} alt="message" />
+              <img onClick={() => navigate("")} style={{ width: "26px",cursor: "pointer" }} src={notification} alt="notification" />
+            
           </div>
         </div>
       </div>

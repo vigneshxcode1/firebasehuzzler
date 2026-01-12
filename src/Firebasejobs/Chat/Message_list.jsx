@@ -3091,7 +3091,6 @@ const css = `
   align-items: flex-start;
   padding: 32px 16px;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #fff4b8 0%, #ffffff 45%, #f7f0ff 100%);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -3162,7 +3161,6 @@ const css = `
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fffef2;
   border-radius: 20px;
   padding: 11px 16px;
   box-shadow: 0 10px 26px rgba(0,0,0,0.14);
@@ -3718,7 +3716,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
     return (
       <div
         style={{
-          marginLeft: collapsed ? "-110px" : "-10px",
+          marginLeft: collapsed ? "-120px" : "-110px",
           transition: "margin-left 0.25s ease",
         }}
       >
@@ -3834,7 +3832,7 @@ export default function ChatListScreen({ currentUid: propUid, sharedJob = null }
             </div>
 
             <div className="chatlist-title-wrapper">
-              <div className="chatlist-title">Message...</div>
+              <div className="chatlist-title">Message</div>
             </div>
           </div>
 

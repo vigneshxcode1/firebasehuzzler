@@ -475,11 +475,12 @@ const overlay = {
   left: 0,
   width: "100vw",
   height: "100vh",
-  background: "rgba(0,0,0,0.4)",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   zIndex: 99999, // VERY IMPORTANT
+  marginTop:"-480px",
+  marginLeft:"-480px"
 };
 
 const modal = {

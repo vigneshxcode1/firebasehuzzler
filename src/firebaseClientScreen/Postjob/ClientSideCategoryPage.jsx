@@ -3199,7 +3199,7 @@ export default function CategoryPage({ initialTab = "Work" }) {
           id="sort-wrapper"
           style={{
             position: "absolute",
-            marginLeft: isMobile ? "0px" : "810px",
+            marginLeft: isMobile ? "0px" : "470px",
             marginTop: isMobile ? "70px" : "130px",
             background: "#fff",
             borderRadius: "30px",

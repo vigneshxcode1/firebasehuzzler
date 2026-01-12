@@ -117,12 +117,12 @@ export default function Service24hFullDetailScreen() {
   const db = getFirestore();
   const navigate = useNavigate();
 
-   const getInitials = (title) => {
+  const getInitials = (title) => {
     if (!title) return "";
     const w = title.split(" ");
     return (w[0][0] + (w[1]?.[0] || "")).toUpperCase();
   };
-  
+
 
   const handleDelete = async () => {
     if (!window.confirm("Delete this service?")) return;
@@ -167,23 +167,49 @@ export default function Service24hFullDetailScreen() {
 
   const isOwner = auth.currentUser?.uid === service.userId;
 
+  
+
   console.log(service)
+
+
+const handleShare = async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "Check this job",
+        text: "Super job opportunity da macha 😎",
+        url: window.location.href, // current page link
+      });
+      console.log("Shared successfully");
+    } catch (err) {
+      console.log("Share cancelled", err);
+    }
+  } else {
+    alert("Share not supported in this browser");
+  }
+};
+
+
   return (
-   <div style={overlay}>
+    <div style={overlay}>
       <div style={card}>
         {/* HEADER */}
         <div style={topBar}>
           <span style={heading}>Project Details</span>
 
           <div style={iconRow}>
-            <div style={iconBtn}><Bookmark size={16} /></div>
-            <div style={iconBtn}><Share2 size={16} /></div>
+            <div
+              style={iconBtn}
+              onClick={() => handleShare()}
+            >
+              <Share2 size={16} />
+            </div>
             <div style={iconBtn} onClick={() => navigate(-1)}>✕</div>
           </div>
         </div>
 
         {/* TITLE */}
-         <div
+        <div
           style={{
             width: 56,
             height: 56,
@@ -198,10 +224,10 @@ export default function Service24hFullDetailScreen() {
           }}
         >
           {getInitials(service.title)}
-        
-       
-</div>
- <h1 style={title}>{service.title}</h1>
+
+
+        </div>
+        <h1 style={title}>{service.title}</h1>
         {/* META */}
         <div style={metaRow}>
           <div>
@@ -210,11 +236,11 @@ export default function Service24hFullDetailScreen() {
           </div>
           <div>
             <span style={metaLabel}>Timeline</span>
-            <p style={metaValue}><Calendar size={16}/>2 - 3 weeks</p>
+            <p style={metaValue}><Calendar size={16} />2 - 3 weeks</p>
           </div>
           <div>
             <span style={metaLabel}>Location</span>
-            <p style={metaValue}><MapPin size={16}/>Remote</p>
+            <p style={metaValue}><MapPin size={16} />Remote</p>
           </div>
         </div>
 
@@ -316,7 +342,7 @@ const iconBtn = {
 const title = {
   fontSize: 24,
   fontWeight: 400,
- 
+
 };
 
 const metaRow = {
@@ -357,14 +383,14 @@ const skills = {
   display: "flex",
   flexWrap: "wrap",
   gap: 8,
-   fontSize: 20,
+  fontSize: 20,
   fontWeight: 400,
 };
 
 const skillChip = {
   background: "rgba(255, 240, 133, 0.7)",
   padding: "6px 12px",
-  borderRadius:"8px",
+  borderRadius: "8px",
   fontSize: 13,
   fontWeight: 500,
 };

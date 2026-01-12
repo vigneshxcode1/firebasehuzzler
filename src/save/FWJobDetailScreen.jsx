@@ -901,7 +901,7 @@ export default function FreelancerviewJobDetailScreen() {
             marginTop: 30,
             width: "100%",
             height: 48,
-            background: "#EF4444",
+            background: "#7C3AED",
             border: "none",
             borderRadius: 16,
             color: "#fff",

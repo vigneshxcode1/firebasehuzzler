@@ -707,7 +707,38 @@ export default function ProfileSummary() {
 
             {/* ================= JOBS ================= */}
             <div style={{ marginTop: 40 }}>
-              <h2 style={{ color: "#000" }}>Jobs</h2>
+              <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "14px 6px",
+  }}
+>
+  <h2
+    style={{
+      color: "#000",
+      fontSize: "20px",
+      fontWeight: 600,
+      margin: 0,
+    }}
+  >
+    Posted Jobs
+  </h2>
+
+  <span
+    style={{
+      fontSize: "14px",
+      color: "#7E7E7E",
+      cursor: "pointer",
+      fontWeight: 500,
+    }}
+    onClick={() => navigate("/client-dashbroad2/AddJobScreen")}
+  >
+    View All
+  </span>
+</div>
+
 
               <div style={styles.toggleGroup}>
                 <div

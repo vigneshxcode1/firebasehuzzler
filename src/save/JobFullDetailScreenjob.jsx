@@ -356,7 +356,7 @@
 
 //                 {/* INFO ROW */}
 //                 <div style={styles.infoRow}>
-                    
+
 //                     <InfoBox label="Budget" icon="">
 //                         <span style={styles.budgetText}>₹{job.budgetFrom} - ₹{job.budgetTo}</span>
 //                     </InfoBox>
@@ -402,7 +402,7 @@
 //                         <span style={styles.statLabel}>Completed Projects:</span>
 //                         <span style={styles.statValue}>{job.completedProjects || 10}</span>
 //                     </div>
-                  
+
 //                 </div>
 
 //                 <div style={styles.divider}></div>
@@ -847,7 +847,7 @@
 
 //                 {/* INFO ROW */}
 //                 <div style={styles.infoRow}>
-                    
+
 //                     <InfoBox label="Budget" icon="">
 //                         <span style={styles.budgetText}>₹{job.budgetFrom} - ₹{job.budgetTo}</span>
 //                     </InfoBox>
@@ -893,7 +893,7 @@
 //                         <span style={styles.statLabel}>Completed Projects:</span>
 //                         <span style={styles.statValue}>{job.completedProjects || 10}</span>
 //                     </div>
-                  
+
 //                 </div>
 
 //                 <div style={styles.divider}></div>
@@ -1771,6 +1771,24 @@ export default function JobFullDetailJobScreen() {
         navigate(-1);
     }
 
+    const handleShare = async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "Check this job",
+        text: "Super job opportunity da macha 😎",
+        url: window.location.href, // current page link
+      });
+      console.log("Shared successfully");
+    } catch (err) {
+      console.log("Share cancelled", err);
+    }
+  } else {
+    alert("Share not supported in this browser");
+  }
+};
+
+
     const handleEditJob = () => {
         navigate("/client-dashbroad2/clienteditjob", {
             state: {
@@ -1804,13 +1822,23 @@ export default function JobFullDetailJobScreen() {
                 <div style={styles.header}>
                     <h3 style={styles.headerTitle}>Project Details</h3>
                     <div style={styles.headerIcons}>
-                        <button style={styles.iconBtn}>
+                        {/* <button style={styles.iconBtn}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
                                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                             </svg>
-                        </button>
-                        <button style={styles.iconBtn}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
+                        </button> */}
+                        <button
+                            style={styles.iconBtn}
+                            onClick={handleShare}
+                        >
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#666"
+                                strokeWidth="2"
+                            >
                                 <circle cx="18" cy="5" r="3"></circle>
                                 <circle cx="6" cy="12" r="3"></circle>
                                 <circle cx="18" cy="19" r="3"></circle>
@@ -1818,6 +1846,7 @@ export default function JobFullDetailJobScreen() {
                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                             </svg>
                         </button>
+
                         <button style={styles.iconBtn} onClick={() => navigate(-1)}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1845,13 +1874,13 @@ export default function JobFullDetailJobScreen() {
                     <InfoBox label="Budget" icon="">
                         <span style={styles.budgetText}>₹{job.budgetFrom} - ₹{job.budgetTo}</span>
                     </InfoBox>
-                 
+
                     <InfoBox label="Timeline" icon="">
-                        <span style={styles.timelineText}>   <Calendar size={16} style={{marginBottom:-2}}/>{job.timeline}</span>
+                        <span style={styles.timelineText}>   <Calendar size={16} style={{ marginBottom: -2 }} />{job.timeline}</span>
                     </InfoBox>
-                  
+
                     <InfoBox label="Location" icon="">
-                        <span style={styles.locationText}>  <MapPin size={16}  style={{marginBottom:-2}} />Remote</span>
+                        <span style={styles.locationText}>  <MapPin size={16} style={{ marginBottom: -2 }} />Remote</span>
                     </InfoBox>
                 </div>
 
@@ -2038,16 +2067,16 @@ const styles = {
         fontSize: 13,
         color: "#666",
     },
-     infoRoww: {
+    infoRoww: {
         display: "flex",
-       
-      justifyContent:"space-between",
-      
+
+        justifyContent: "space-between",
+
     },
     infoRow: {
         display: "flex",
         gap: 30,
-      
+
         marginBottom: 16,
     },
     infoBox: {
@@ -2183,7 +2212,7 @@ const styles = {
         fontWeight: 700,
         cursor: "pointer",
         transition: "transform 0.2s, box-shadow 0.2s",
-       
+
     },
 };
 

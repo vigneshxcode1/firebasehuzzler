@@ -2679,7 +2679,8 @@ import profile from "../../assets/profile.png"; // ✅ ADD THIS
 import Filter from "../../assets/Filter.png"; // ✅ ADD THIS
 import sort from "../../assets/sort.png"; // ✅ ADD THIS
 import { useNavigate } from "react-router-dom";
-import "./ExploreFreelancer.responsive.css";
+import "../../pages/Freelancerpage/ExploreFreelancer.responsive.css";
+// import "./ExploreFreelancer.responsive.css";
 
 
 const JobSortOption = {
@@ -2731,7 +2732,7 @@ export default function ExploreFreelancer() {
   const [userInfo, setUserInfo] = useState({}); // ✅ FIXED
 
   const [filters, setFilters] = useState(defaultFilters);
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(3);
   const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
   const [showSort, setShowSort] = useState(false);

@@ -1299,7 +1299,7 @@
 // }
 
 // .jobarrow{
-  
+
 
 //   margin-top: 20px;
 //   margin-right: 20px;
@@ -1320,7 +1320,7 @@
 
 // /* MOBILE ADJUSTMENT */
 // @media (max-width: 768px) {
- 
+
 //   .cardstyles {
 //     min-height: auto;
 //     padding: 12px;
@@ -1542,44 +1542,44 @@ export default function MyWorksScreen() {
       >
 
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-           {/* HEADER */}
-           <div style={{ display: "flex", alignItems: "center", gap: 12, }}>
-           <div
-           onClick={() => navigate(-1)}
-           style={{
-           width: 36,
-           height: 36,
-           borderRadius: 14,
-           border: "0.8px solid #E0E0E0",
-           backgroundColor: "#FFFFFF",
-           display: "flex",
-           alignItems: "center",
-           justifyContent: "center",
-           cursor: "pointer",
-          //  boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
-           flexShrink: 0,
-           marginLeft: isMobile ? 0 : "40px ",
-           }}
-           >
-           <img
-           src={backarrow}
-           alt="Back"
-           style={{
-           width: 16,
-           height: 18,
-           objectFit: "contain",
-          
-           }}
-           />
-           </div>
-          
-           <div>
-           <div style={{ fontSize: 32, fontWeight: 400 }}>My Job</div>
-           </div>
-           </div>
+          {/* HEADER */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, }}>
+            <div
+              onClick={() => navigate(-1)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 14,
+                border: "0.8px solid #E0E0E0",
+                backgroundColor: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                //  boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+                flexShrink: 0,
+                marginLeft: isMobile ? 0 : "40px ",
+              }}
+            >
+              <img
+                src={backarrow}
+                alt="Back"
+                style={{
+                  width: 16,
+                  height: 18,
+                  objectFit: "contain",
+
+                }}
+              />
+            </div>
+
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 400 }}>My Job</div>
+            </div>
+          </div>
 
         </div>
-        
+
 
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <img
@@ -1590,7 +1590,7 @@ export default function MyWorksScreen() {
           <img
             src={notification}
             style={{ width: 22, cursor: "pointer" }}
-            onClick={() => navigate("/notifications")}
+            onClick={() => navigate("")}
           />
           {/* <img
             src={
@@ -1632,7 +1632,7 @@ export default function MyWorksScreen() {
               padding: "0 18px",
               // boxShadow:
               //   "0 4px 8px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.19)",
-              border:"1px solid #0e02020e",
+              border: "1px solid #0e02020e",
               margin: "0 auto",
             }}
           >
@@ -1721,24 +1721,27 @@ export default function MyWorksScreen() {
                     key={label}
                     onClick={() => setActiveTab(i)}
                     style={{
-
                       height: 36,
-                      borderRadius: 10,
+                      borderRadius: 999, // pill shape
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      // marginLeft: i === 0 ? 8 : 12,
                       cursor: "pointer",
-                      background: active ? "#fff" : "transparent",
-                      boxShadow: active ? "0 6px 18px rgba(0,0,0,0.06)" : "none",
+
+                      background: active
+                        ? "linear-gradient(180deg, #8B5CF6, #6D28D9)"   // 💜 purple gradient
+                        : "transparent",
+
+                      color: active ? "#fff" : "#111",                // white text when active
+                      boxShadow: active ? "0 6px 18px rgba(139,92,246,0.35)" : "none",
                       fontWeight: 600,
                       width: 150,
-
-
+                      transition: "all 0.25s ease",
                     }}
                   >
                     {label}
                   </div>
+
 
                 );
               })}
@@ -1993,7 +1996,7 @@ function JobCard({ job, selectedTab, onViewDetails, onStartChat }) {
           )}
         </div>
       </div>
-      
+
       <style>
         {`
 .freelancerjobcard{

@@ -526,7 +526,8 @@ const useSidebar = () => {
 };
 
 /* ---------------- MAIN ---------------- */
-export default function ServiceScreenOne() {
+export default function 
+ServiceScreenOne() {
  const navigate = useNavigate();
  const auth = getAuth();
  const collapsed = useSidebar();

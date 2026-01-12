@@ -4032,7 +4032,7 @@ useEffect(() => {
 
 <div id="fh-p" style={{ marginLeft: isMobile ? 0 : "-10px" }}>
       <div id="fh-contars" className="fh-container" >
-        <div style={{ background: "#F6F6F6", minHeight: "100vh", paddingBottom: 40 }}>
+        <div style={{ background: "#F6F6F6", minHeight: "100vh", paddingBottom: 40, }}>
           {/* Toast Message */}
           {toastMessage && (
             <div style={styles.toast}>
@@ -4213,7 +4213,7 @@ useEffect(() => {
             {/* Header */}
             <div style={styles.postedJobsHeader}>
               <h3 style={styles.postedJobsTitle}>Posted Jobs</h3>
-              <span style={styles.viewAllLink}>View All</span>
+              <span style={styles.viewAllLink}></span>
             </div>
 
 {/* Tabs */}
