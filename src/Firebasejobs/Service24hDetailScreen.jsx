@@ -979,390 +979,48 @@
 
 
 
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import {
-//   doc,
-//   getDoc,
-//   updateDoc,
-//   arrayUnion,
-//   collection,
-//   query,
-//   where,
-//   getDocs,
-//   onSnapshot,
-// } from "firebase/firestore";
-
-// import { db, auth } from "../firbase/Firebase";
-
-// import { FiBookmark, FiX } from "react-icons/fi";
-// import share from "../assets/share.png";
-// import ConnectPopup from "../Firebasejobs/Connectpop/Connectpop";
-// import { onAuthStateChanged } from "firebase/auth";
-
-
-
-
-
-// const css = `
-// *{font-family:'Inter', sans-serif;}
-// .page-wrap{
-//   width:100%;
-//   max-width:1100px;
-//   margin:30px auto;
-//   background:#fff;
-//   border-radius:18px;
-//   overflow:hidden;
-//   box-shadow:0 8px 26px rgba(0,0,0,0.08);
-// }
-// .top-header{
-//   padding:20px 24px;
-//   display:flex;
-//   justify-content:space-between;
-//   align-items:center;
-// }
-// .top-left-title{font-size:22px;font-weight:700;}
-// .top-icons{display:flex;gap:16px;font-size:20px;opacity:0.7;}
-// .profile-box{padding:20px 24px;display:flex;gap:18px;}
-// .profile-circle{
-//   width:58px;height:58px;border-radius:16px;
-//   background:linear-gradient(180deg,#9A70FF,#7A4DFF);
-//   display:flex;align-items:center;justify-content:center;
-//   font-size:20px;color:#fff;
-// }
-// .profile-info .name{font-size:36px;}
-// .profile-info .role{font-size:20px;color:#7C3CFF;}
-// .meta-row{padding:10px 24px;font-size:14px;color:#555;}
-// .money-box{padding:20px 24px;display:flex;justify-content:space-between;}
-// .range{font-size:22px;font-weight:700;}
-// .sub-text{font-size:14px;color:#555;}
-// .view-btn{
-//   background:#7A4DFF;padding:12px 28px;border-radius:12px;
-//   color:#fff;border:none;font-weight:600;
-// }
-// .skill-title,.desc-title{padding:10px 24px;font-size:20px;font-weight:700;}
-// .skills-box{padding:8px 24px 20px;display:flex;flex-wrap:wrap;gap:10px;}
-// .skill-chip{padding:8px 14px;background:#FFEB99;border-radius:10px;font-weight:600;}
-// .desc-text{padding:10px 24px 20px;font-size:15px;color:#444;}
-// .footer-actions{
-//   display:flex;justify-content:space-between;
-//   padding:18px 24px;border-top:1px solid #eee;
-// }
-// .cancel-btn{
-//   width:48%;padding:14px;border-radius:12px;
-//   border:2px solid #A58BFF;background:#fff;color:#7A4DFF;font-weight:700;
-// }
-// .connect-btn{
-//   width:48%;padding:14px;border-radius:12px;
-//   border:none;background:#A258FF;color:#fff;font-weight:700;
-// }
-// `;
-
-// export default function Service24hPage() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-
-//   const [job, setJob] = useState(null);
-//   const [clientServices, setClientServices] = useState([]);
-//   const [connectOpen, setConnectOpen] = useState(false);
-//   const [isFavorite, setIsFavorite] = useState(false);
-
-
-//   const [isAccepted, setIsAccepted] = useState(false);
-
-//   // null | "hire" | "chat"
-//   const [requestStatus, setRequestStatus] = useState("hire");
-//   const [chatFreelancerId, setChatFreelancerId] = useState(null);
-
-//   const [notification, setNotification] = useState(null);
-
-
-
-// useEffect(() => {
-//   if (!id) return;
-
-//   let unsubscribeSnap = null;
-
-//   const fetchNotifications = async () => {
-//     const user = auth.currentUser;
-//     if (!user) return;
-
-//     const q = query(
-//       collection(db, "notifications"),
-//       where("jobId", "==", id),
-//       where("clientUid", "==", user.uid),
-//       // where("type", "==", "application")
-//     );
-
-//     console.log()
-
-//     unsubscribeSnap = onSnapshot(q, (snap) => {
-//       if (snap.empty) {
-//         setNotification([]);
-//         setRequestStatus("hire");
-//         setChatFreelancerId(null);
-//         setIsAccepted(false);
-//         return;
-//       }
-
-//       const allNotifications = snap.docs.map(doc => ({
-//         id: doc.id,
-//         ...doc.data(),
-//       }));
-
-//       setNotification(allNotifications);
-
-//       // Decide requestStatus based on **any unread notification**
-//       const unreadNotification = allNotifications.find(n => n.read === false);
-//       if (unreadNotification) {
-//         setRequestStatus("chat");
-//         setChatFreelancerId(unreadNotification.freelancerId);
-//       } else {
-//         setRequestStatus("hire");
-//         setChatFreelancerId(null);
-//       }
-
-//       // Check if any notification is accepted
-//       setIsAccepted(allNotifications.some(n => n.status === "accepted"));
-//     });
-//   };
-
-//   const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-//     if (user) fetchNotifications();
-//   });
-
-//   // If user is already logged in
-//   if (auth.currentUser) fetchNotifications();
-
-//   return () => {
-//     unsubscribeAuth();
-//     if (unsubscribeSnap) unsubscribeSnap();
-//   };
-// }, [id]);
-
-
-
-//   console.log("notifiaction :", notification)
-
-//   console.log(id)
-
-//   console.log()
-
-//   useEffect(() => {
-//     const s = document.createElement("style");
-//     s.innerHTML = css;
-//     document.head.appendChild(s);
-//     return () => s.remove();
-//   }, []);
-
-
-//   useEffect(() => {
-//     if (!id) return;
-
-//     const ref = doc(db, "service_24h", id);
-
-//     const unsubscribe = onSnapshot(ref, (snap) => {
-//       if (snap.exists()) {
-//         setJob({ ...snap.data(), _id: snap.id });
-//       }
-//     });
-
-//     return () => unsubscribe();
-//   }, [id]);
-
-
-
-//   useEffect(() => {
-//     const loadClientServices = async () => {
-//       if (!auth.currentUser) return;
-
-//       const q = query(
-//         collection(db, "services"),
-//         where("userId", "==", auth.currentUser.uid)
-//       );
-
-//       const snap = await getDocs(q);
-//       setClientServices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-//     };
-
-//     loadClientServices();
-//   }, []);
-
-//   if (!job) return <div style={{ padding: 40, textAlign: "center" }}>Loading…</div>;
-
-//   /* actions */
-//   const handleSave = async () => {
-//     if (!auth.currentUser) {
-//       navigate("/firelogin");
-//       return;
-//     }
-//     await updateDoc(doc(db, "users", auth.currentUser.uid), {
-//       savedJobs: arrayUnion(id),
-//     });
-//     setIsFavorite(true);
-//   };
-
-
-
-//   const handleConnect = async () => {
-//     setConnectOpen(true);
-
-//     if (!notification) return;
-
-//     await updateDoc(doc(db, "notifications", notification.id), { read: true });
-//   };
-
-
-
-//   const handleShare = () => {
-//     navigator.share
-//       ? navigator.share({
-//         title: job.title,
-//         text: "Check this project",
-//         url: window.location.href,
-//       })
-//       : alert("Share not supported");
-//   };
-
-//   return (
-//     <div className="page-wrap">
-//       {/* HEADER */}
-//       <div className="top-header">
-//         <div className="top-left-title">Project Details</div>
-//         <div className="top-icons">
-//           <FiBookmark
-//             onClick={handleSave}
-//             style={{
-//               cursor: "pointer",
-//               color: isFavorite ? "#7B2BFF" : "inherit",
-//               fill: isFavorite ? "#7B2BFF" : "none",
-//             }}
-//           />
-//           <img src={share} width={18} onClick={handleShare} />
-//           <FiX onClick={() => navigate(-1)} />
-//         </div>
-//       </div>
-
-//       {/* PROFILE */}
-//       <div className="profile-box">
-//         <div className="profile-circle">
-//           {job.title?.substring(0, 2).toUpperCase()}
-//         </div>
-//         <div className="profile-info">
-//           <div className="name">{job.title}</div>
-//           <div className="role">{job.category}</div>
-//         </div>
-//       </div>
-
-//       {/* META */}
-//       <div className="meta-row">
-//         🕒 {job.createdAt ? job.createdAt.toDate().toLocaleString() : "—"}
-//       </div>
-
-//       {/* MONEY */}
-//       <div className="money-box">
-//         <div>
-//           <div className="range">₹{job.budget_from} - ₹{job.budget_to}</div>
-//           <div className="sub-text">Timeline: {job.timeline || "24 Hours"}</div>
-//           <div className="sub-text">Location: Remote</div>
-//         </div>
-//         <button
-//           className="view-btn"
-//           onClick={() => navigate(`/connect/${job.userId}`)}
-//         >
-//           View Profile
-//         </button>
-//       </div>
-
-//       {/* SKILLS */}
-//       <div className="skill-title">Skills Required</div>
-//       <div className="skills-box">
-//         {(job.skills || []).map((s, i) => (
-//           <div key={i} className="skill-chip">{s}</div>
-//         ))}
-//       </div>
-
-//       {/* DESCRIPTION */}
-//       <div className="desc-title">Project Description</div>
-//       <div className="desc-text">{job.description}</div>
-
-//       {/* FOOTER */}
-//       <div className="footer-actions">
-//         <button className="cancel-btn" onClick={() => navigate(-1)}>
-//           Cancel
-//         </button>
-
-
-//         <button
-//           className="connect-btn"
-//           style={{
-//             background: requestStatus === "chat" ? "#4CAF50" : "#A258FF",
-//           }}
-//           onClick={() => {
-//             if (requestStatus === "chat") {
-//               navigate(`/chat/${chatFreelancerId}`);
-//             } else {
-//               handleConnect();
-//             }
-//           }}
-//         >
-//           {requestStatus === "chat" ? "Start Message" : "Hire Me"}
-//         </button>
-
-
-//         <ConnectPopup
-//           open={connectOpen}
-//           onClose={() => setConnectOpen(false)}
-//           freelancerId={job.userId}
-//           freelancerName={job.title}
-//           services={clientServices}
-//         />
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   doc,
-  getDocs,
+  getDoc,
   updateDoc,
   arrayUnion,
   collection,
   query,
   where,
+  getDocs,
   onSnapshot,
-  orderBy,
 } from "firebase/firestore";
+
 import { db, auth } from "../firbase/Firebase";
-import clock from "../assets/clock.png"
 
 import { FiBookmark, FiX } from "react-icons/fi";
 import share from "../assets/share.png";
 import ConnectPopup from "../Firebasejobs/Connectpop/Connectpop";
+import { onAuthStateChanged } from "firebase/auth";
 
-/* ======================= STYLES ======================= */
+
+
+
+
 const css = `
 *{font-family:'Inter', sans-serif;}
 .page-wrap{
+  width:100%;
   max-width:1100px;
   margin:30px auto;
   background:#fff;
   border-radius:18px;
+  overflow:hidden;
   box-shadow:0 8px 26px rgba(0,0,0,0.08);
 }
-.top-header{padding:20px 24px;display:flex;justify-content:space-between;}
+.top-header{
+  padding:20px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 .top-left-title{font-size:22px;font-weight:700;}
 .top-icons{display:flex;gap:16px;font-size:20px;opacity:0.7;}
 .profile-box{padding:20px 24px;display:flex;gap:18px;}
@@ -1370,26 +1028,29 @@ const css = `
   width:58px;height:58px;border-radius:16px;
   background:linear-gradient(180deg,#9A70FF,#7A4DFF);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:20px;
+  font-size:20px;color:#fff;
 }
 .profile-info .name{font-size:36px;}
 .profile-info .role{font-size:20px;color:#7C3CFF;}
-.meta-row{padding:10px 24px;color:#555;}
+.meta-row{padding:10px 24px;font-size:14px;color:#555;}
 .money-box{padding:20px 24px;display:flex;justify-content:space-between;}
 .range{font-size:22px;font-weight:700;}
 .sub-text{font-size:14px;color:#555;}
-.view-btn{background:#7A4DFF;color:#fff;border:none;padding:12px 28px;border-radius:12px;}
+.view-btn{
+  background:#7A4DFF;padding:12px 28px;border-radius:12px;
+  color:#fff;border:none;font-weight:600;
+}
 .skill-title,.desc-title{padding:10px 24px;font-size:20px;font-weight:700;}
 .skills-box{padding:8px 24px 20px;display:flex;flex-wrap:wrap;gap:10px;}
-.skill-chip{background:#FFEB99;padding:8px 14px;border-radius:10px;}
-.desc-text{padding:10px 24px 20px;color:#444;}
+.skill-chip{padding:8px 14px;background:#FFEB99;border-radius:10px;font-weight:600;}
+.desc-text{padding:10px 24px 20px;font-size:15px;color:#444;}
 .footer-actions{
   display:flex;justify-content:space-between;
   padding:18px 24px;border-top:1px solid #eee;
 }
 .cancel-btn{
   width:48%;padding:14px;border-radius:12px;
-  border:2px solid #A58BFF;background:#fff;color:#7A4DFF;
+  border:2px solid #A58BFF;background:#fff;color:#7A4DFF;font-weight:700;
 }
 .connect-btn{
   width:48%;padding:14px;border-radius:12px;
@@ -1397,7 +1058,6 @@ const css = `
 }
 `;
 
-/* ======================= COMPONENT ======================= */
 export default function Service24hPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -1406,183 +1066,249 @@ export default function Service24hPage() {
   const [clientServices, setClientServices] = useState([]);
   const [connectOpen, setConnectOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [notifications, setNotifications] = useState([]);
 
-  /* ======================= LOAD CSS ======================= */
+
+  const [isAccepted, setIsAccepted] = useState(false);
+
+  // null | "hire" | "chat"
+  const [requestStatus, setRequestStatus] = useState("hire");
+  const [chatFreelancerId, setChatFreelancerId] = useState(null);
+
+  const [notification, setNotification] = useState(null);
+
+
+
+useEffect(() => {
+  if (!id) return;
+
+  let unsubscribeSnap = null;
+
+  const fetchNotifications = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const q = query(
+      collection(db, "notifications"),
+      where("jobId", "==", id),
+      where("clientUid", "==", user.uid),
+      // where("type", "==", "application")
+    );
+
+    console.log()
+
+    unsubscribeSnap = onSnapshot(q, (snap) => {
+      if (snap.empty) {
+        setNotification([]);
+        setRequestStatus("hire");
+        setChatFreelancerId(null);
+        setIsAccepted(false);
+        return;
+      }
+
+      const allNotifications = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setNotification(allNotifications);
+
+      // Decide requestStatus based on **any unread notification**
+      const unreadNotification = allNotifications.find(n => n.read === false);
+      if (unreadNotification) {
+        setRequestStatus("chat");
+        setChatFreelancerId(unreadNotification.freelancerId);
+      } else {
+        setRequestStatus("hire");
+        setChatFreelancerId(null);
+      }
+
+      // Check if any notification is accepted
+      setIsAccepted(allNotifications.some(n => n.status === "accepted"));
+    });
+  };
+
+  const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    if (user) fetchNotifications();
+  });
+
+  // If user is already logged in
+  if (auth.currentUser) fetchNotifications();
+
+  return () => {
+    unsubscribeAuth();
+    if (unsubscribeSnap) unsubscribeSnap();
+  };
+}, [id]);
+
+
+
+  console.log("notifiaction :", notification)
+
+  console.log(id)
+
+  console.log()
+
   useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = css;
-    document.head.appendChild(style);
-    return () => style.remove();
+    const s = document.createElement("style");
+    s.innerHTML = css;
+    document.head.appendChild(s);
+    return () => s.remove();
   }, []);
 
-  /* ======================= LOAD JOB ======================= */
+
   useEffect(() => {
     if (!id) return;
 
-    const unsub = onSnapshot(doc(db, "service_24h", id), snap => {
+    const ref = doc(db, "service_24h", id);
+
+    const unsubscribe = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
         setJob({ ...snap.data(), _id: snap.id });
       }
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, [id]);
 
-  /* ======================= LOAD SERVICES ======================= */
+
+
   useEffect(() => {
-    if (!auth.currentUser) return;
+    const loadClientServices = async () => {
+      if (!auth.currentUser) return;
 
-    getDocs(
-      query(collection(db, "services"), where("userId", "==", auth.currentUser.uid))
-    ).then(snap =>
-      setClientServices(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    );
-  }, []);
+      const q = query(
+        collection(db, "services"),
+        where("userId", "==", auth.currentUser.uid)
+      );
 
-  /* ======================= LOAD NOTIFICATIONS ======================= */
-  useEffect(() => {
-    if (!auth.currentUser) return;
-    const uid = auth.currentUser.uid;
-
-    const q1 = query(
-      collection(db, "notifications"),
-      where("clientUid", "==", uid),
-      orderBy("timestamp", "desc")
-    );
-
-    const q2 = query(
-      collection(db, "notifications"),
-      where("freelancerId", "==", uid),
-      orderBy("timestamp", "desc")
-    );
-
-    let a = [], b = [];
-
-    const merge = () => {
-      const map = new Map();
-      [...clientData, ...freelancerData].forEach(n => map.set(n.id, n));
-      setNotifications([...map.values()]);
+      const snap = await getDocs(q);
+      setClientServices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     };
 
-    const u1 = onSnapshot(q1, s => {
-      clientData = s.docs.map(d => ({ id: d.id, ...d.data() }));
-      merge();
-    });
-
-    const u2 = onSnapshot(q2, s => {
-      freelancerData = s.docs.map(d => ({ id: d.id, ...d.data() }));
-      merge();
-    });
-
-    return () => {
-      u1();
-      u2();
-    };
+    loadClientServices();
   }, []);
 
-  if (!job) return <div style={{ padding: 40 }}>Loading…</div>;
+  if (!job) return <div style={{ padding: 40, textAlign: "center" }}>Loading…</div>;
 
-  /* ======================= CURRENT NOTIFICATION ======================= */
-  const currentNotification = notifications.find(
-    n =>
-      n.serviceId === id &&
-      (n.clientUid === auth.currentUser?.uid ||
-        n.freelancerId === auth.currentUser?.uid)
-  );
-
-  /* ======================= ACTIONS ======================= */
+  /* actions */
   const handleSave = async () => {
+    if (!auth.currentUser) {
+      navigate("/firelogin");
+      return;
+    }
     await updateDoc(doc(db, "users", auth.currentUser.uid), {
       savedJobs: arrayUnion(id),
     });
     setIsFavorite(true);
   };
 
-  const handleHire = async () => {
+
+
+  const handleConnect = async () => {
     setConnectOpen(true);
+
+    if (!notification) return;
+
+    await updateDoc(doc(db, "notifications", notification.id), { read: true });
   };
 
-  const handleStartChat = () => {
-    navigate("/chat", {
-      state: {
-        currentUid: auth.currentUser.uid,
-        otherUid:
-          auth.currentUser.uid === currentNotification.clientUid
-            ? currentNotification.freelancerId
-            : currentNotification.clientUid,
-        otherName: job.title,
-        otherImage: job.profileImage || "",
-        initialMessage: "Hi, I would like to discuss this project",
-      },
-    });
+
+
+  const handleShare = () => {
+    navigator.share
+      ? navigator.share({
+        title: job.title,
+        text: "Check this project",
+        url: window.location.href,
+      })
+      : alert("Share not supported");
   };
 
-  /* ======================= RENDER ======================= */
   return (
     <div className="page-wrap">
       {/* HEADER */}
       <div className="top-header">
         <div className="top-left-title">Project Details</div>
         <div className="top-icons">
-          <FiBookmark onClick={handleSave} style={{ color: isFavorite ? "#7B2BFF" : "" }} />
-          <img src={share} width={18} onClick={() => navigator.share?.({ url: window.location.href })} />
+          <FiBookmark
+            onClick={handleSave}
+            style={{
+              cursor: "pointer",
+              color: isFavorite ? "#7B2BFF" : "inherit",
+              fill: isFavorite ? "#7B2BFF" : "none",
+            }}
+          />
+          <img src={share} width={18} onClick={handleShare} />
           <FiX onClick={() => navigate(-1)} />
         </div>
       </div>
 
       {/* PROFILE */}
       <div className="profile-box">
-        <div className="profile-circle">{job.title?.slice(0, 2).toUpperCase()}</div>
+        <div className="profile-circle">
+          {job.title?.substring(0, 2).toUpperCase()}
+        </div>
         <div className="profile-info">
           <div className="name">{job.title}</div>
           <div className="role">{job.category}</div>
         </div>
       </div>
 
-      <div className="meta-row"><img style={{width:"15px",marginTop:"10px"}} src={clock} alt="clock" /> {job.createdAt?.toDate().toLocaleString()}</div>
+      {/* META */}
+      <div className="meta-row">
+        🕒 {job.createdAt ? job.createdAt.toDate().toLocaleString() : "—"}
+      </div>
 
+      {/* MONEY */}
       <div className="money-box">
         <div>
           <div className="range">₹{job.budget_from} - ₹{job.budget_to}</div>
-          <div className="sub-text">Timeline: 24 Hours</div>
+          <div className="sub-text">Timeline: {job.timeline || "24 Hours"}</div>
+          <div className="sub-text">Location: Remote</div>
         </div>
         <button
           className="view-btn"
-          onClick={() =>
-            navigate(`/client-dashbroad2/freelancerblockSreen/${job.freelancerId || job.userId}`)
-          }
-        >          View Profile.
+          onClick={() => navigate(`/connect/${job.userId}`)}
+        >
+          View Profile
         </button>
       </div>
 
+      {/* SKILLS */}
       <div className="skill-title">Skills Required</div>
       <div className="skills-box">
-        {(job.skills || []).map((s, i) => <div key={i} className="skill-chip">{s}</div>)}
+        {(job.skills || []).map((s, i) => (
+          <div key={i} className="skill-chip">{s}</div>
+        ))}
       </div>
 
+      {/* DESCRIPTION */}
       <div className="desc-title">Project Description</div>
       <div className="desc-text">{job.description}</div>
 
       {/* FOOTER */}
       <div className="footer-actions">
-        <button className="cancel-btn" onClick={() => navigate(-1)}>Cancel</button>
+        <button className="cancel-btn" onClick={() => navigate(-1)}>
+          Cancel
+        </button>
 
-        {currentNotification ? (
-          currentNotification.read ? (
-            <button className="connect-btn" style={{ background: "#4CAF50" }} onClick={handleStartChat}>
-              Start Message
-            </button>
-          ) : (
-            <button className="connect-btn" disabled style={{ background: "#BDBDBD" }}>
-              Request Sent
-            </button>
-          )
-        ) : (
-          <button className="connect-btn" onClick={handleHire}>
-            Hire now
-          </button>
-        )}
+
+        <button
+          className="connect-btn"
+          style={{
+            background: requestStatus === "chat" ? "#4CAF50" : "#A258FF",
+          }}
+          onClick={() => {
+            if (requestStatus === "chat") {
+              navigate(`/chat/${chatFreelancerId}`);
+            } else {
+              handleConnect();
+            }
+          }}
+        >
+          {requestStatus === "chat" ? "Start Message" : "Hire Me"}
+        </button>
+
 
         <ConnectPopup
           open={connectOpen}
@@ -1595,3 +1321,278 @@ export default function Service24hPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import {
+//   doc,
+//   getDocs,
+//   updateDoc,
+//   arrayUnion,
+//   collection,
+//   query,
+//   where,
+//   onSnapshot,
+//   orderBy,
+// } from "firebase/firestore";
+// import { db, auth } from "../firbase/Firebase";
+// import clock from "../assets/clock.png"
+
+// import { FiBookmark, FiX } from "react-icons/fi";
+// import share from "../assets/share.png";
+// import ConnectPopup from "../Firebasejobs/Connectpop/Connectpop";
+
+// /* ======================= STYLES ======================= */
+// const css = `
+// *{font-family:'Inter', sans-serif;}
+// .page-wrap{
+//   max-width:1100px;
+//   margin:30px auto;
+//   background:#fff;
+//   border-radius:18px;
+//   box-shadow:0 8px 26px rgba(0,0,0,0.08);
+// }
+// .top-header{padding:20px 24px;display:flex;justify-content:space-between;}
+// .top-left-title{font-size:22px;font-weight:700;}
+// .top-icons{display:flex;gap:16px;font-size:20px;opacity:0.7;}
+// .profile-box{padding:20px 24px;display:flex;gap:18px;}
+// .profile-circle{
+//   width:58px;height:58px;border-radius:16px;
+//   background:linear-gradient(180deg,#9A70FF,#7A4DFF);
+//   display:flex;align-items:center;justify-content:center;
+//   color:#fff;font-size:20px;
+// }
+// .profile-info .name{font-size:36px;}
+// .profile-info .role{font-size:20px;color:#7C3CFF;}
+// .meta-row{padding:10px 24px;color:#555;}
+// .money-box{padding:20px 24px;display:flex;justify-content:space-between;}
+// .range{font-size:22px;font-weight:700;}
+// .sub-text{font-size:14px;color:#555;}
+// .view-btn{background:#7A4DFF;color:#fff;border:none;padding:12px 28px;border-radius:12px;}
+// .skill-title,.desc-title{padding:10px 24px;font-size:20px;font-weight:700;}
+// .skills-box{padding:8px 24px 20px;display:flex;flex-wrap:wrap;gap:10px;}
+// .skill-chip{background:#FFEB99;padding:8px 14px;border-radius:10px;}
+// .desc-text{padding:10px 24px 20px;color:#444;}
+// .footer-actions{
+//   display:flex;justify-content:space-between;
+//   padding:18px 24px;border-top:1px solid #eee;
+// }
+// .cancel-btn{
+//   width:48%;padding:14px;border-radius:12px;
+//   border:2px solid #A58BFF;background:#fff;color:#7A4DFF;
+// }
+// .connect-btn{
+//   width:48%;padding:14px;border-radius:12px;
+//   border:none;background:#A258FF;color:#fff;font-weight:700;
+// }
+// `;
+
+// /* ======================= COMPONENT ======================= */
+// export default function Service24hPage() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [job, setJob] = useState(null);
+//   const [clientServices, setClientServices] = useState([]);
+//   const [connectOpen, setConnectOpen] = useState(false);
+//   const [isFavorite, setIsFavorite] = useState(false);
+//   const [notifications, setNotifications] = useState([]);
+
+//   /* ======================= LOAD CSS ======================= */
+//   useEffect(() => {
+//     const style = document.createElement("style");
+//     style.innerHTML = css;
+//     document.head.appendChild(style);
+//     return () => style.remove();
+//   }, []);
+
+//   /* ======================= LOAD JOB ======================= */
+//   useEffect(() => {
+//     if (!id) return;
+
+//     const unsub = onSnapshot(doc(db, "service_24h", id), snap => {
+//       if (snap.exists()) {
+//         setJob({ ...snap.data(), _id: snap.id });
+//       }
+//     });
+
+//     return () => unsub();
+//   }, [id]);
+
+//   /* ======================= LOAD SERVICES ======================= */
+//   useEffect(() => {
+//     if (!auth.currentUser) return;
+
+//     getDocs(
+//       query(collection(db, "services"), where("userId", "==", auth.currentUser.uid))
+//     ).then(snap =>
+//       setClientServices(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+//     );
+//   }, []);
+
+//   /* ======================= LOAD NOTIFICATIONS ======================= */
+//   useEffect(() => {
+//     if (!auth.currentUser) return;
+//     const uid = auth.currentUser.uid;
+
+//     const q1 = query(
+//       collection(db, "notifications"),
+//       where("clientUid", "==", uid),
+//       orderBy("timestamp", "desc")
+//     );
+
+//     const q2 = query(
+//       collection(db, "notifications"),
+//       where("freelancerId", "==", uid),
+//       orderBy("timestamp", "desc")
+//     );
+
+//     let a = [], b = [];
+
+//     const merge = () => {
+//       const map = new Map();
+//       [...clientData, ...freelancerData].forEach(n => map.set(n.id, n));
+//       setNotifications([...map.values()]);
+//     };
+
+//     const u1 = onSnapshot(q1, s => {
+//       clientData = s.docs.map(d => ({ id: d.id, ...d.data() }));
+//       merge();
+//     });
+
+//     const u2 = onSnapshot(q2, s => {
+//       freelancerData = s.docs.map(d => ({ id: d.id, ...d.data() }));
+//       merge();
+//     });
+
+//     return () => {
+//       u1();
+//       u2();
+//     };
+//   }, []);
+
+//   if (!job) return <div style={{ padding: 40 }}>Loading…</div>;
+
+//   /* ======================= CURRENT NOTIFICATION ======================= */
+//   const currentNotification = notifications.find(
+//     n =>
+//       n.serviceId === id &&
+//       (n.clientUid === auth.currentUser?.uid ||
+//         n.freelancerId === auth.currentUser?.uid)
+//   );
+
+//   /* ======================= ACTIONS ======================= */
+//   const handleSave = async () => {
+//     await updateDoc(doc(db, "users", auth.currentUser.uid), {
+//       savedJobs: arrayUnion(id),
+//     });
+//     setIsFavorite(true);
+//   };
+
+//   const handleHire = async () => {
+//     setConnectOpen(true);
+//   };
+
+//   const handleStartChat = () => {
+//     navigate("/chat", {
+//       state: {
+//         currentUid: auth.currentUser.uid,
+//         otherUid:
+//           auth.currentUser.uid === currentNotification.clientUid
+//             ? currentNotification.freelancerId
+//             : currentNotification.clientUid,
+//         otherName: job.title,
+//         otherImage: job.profileImage || "",
+//         initialMessage: "Hi, I would like to discuss this project",
+//       },
+//     });
+//   };
+
+//   /* ======================= RENDER ======================= */
+//   return (
+//     <div className="page-wrap">
+//       {/* HEADER */}
+//       <div className="top-header">
+//         <div className="top-left-title">Project Details</div>
+//         <div className="top-icons">
+//           <FiBookmark onClick={handleSave} style={{ color: isFavorite ? "#7B2BFF" : "" }} />
+//           <img src={share} width={18} onClick={() => navigator.share?.({ url: window.location.href })} />
+//           <FiX onClick={() => navigate(-1)} />
+//         </div>
+//       </div>
+
+//       {/* PROFILE */}
+//       <div className="profile-box">
+//         <div className="profile-circle">{job.title?.slice(0, 2).toUpperCase()}</div>
+//         <div className="profile-info">
+//           <div className="name">{job.title}</div>
+//           <div className="role">{job.category}</div>
+//         </div>
+//       </div>
+
+//       <div className="meta-row"><img style={{width:"15px",marginTop:"10px"}} src={clock} alt="clock" /> {job.createdAt?.toDate().toLocaleString()}</div>
+
+//       <div className="money-box">
+//         <div>
+//           <div className="range">₹{job.budget_from} - ₹{job.budget_to}</div>
+//           <div className="sub-text">Timeline: 24 Hours</div>
+//         </div>
+//         <button
+//           className="view-btn"
+//           onClick={() =>
+//             navigate(`/client-dashbroad2/freelancerblockSreen/${job.freelancerId || job.userId}`)
+//           }
+//         >          View Profile.
+//         </button>
+//       </div>
+
+//       <div className="skill-title">Skills Required</div>
+//       <div className="skills-box">
+//         {(job.skills || []).map((s, i) => <div key={i} className="skill-chip">{s}</div>)}
+//       </div>
+
+//       <div className="desc-title">Project Description</div>
+//       <div className="desc-text">{job.description}</div>
+
+//       {/* FOOTER */}
+//       <div className="footer-actions">
+//         <button className="cancel-btn" onClick={() => navigate(-1)}>Cancel</button>
+
+//         {currentNotification ? (
+//           currentNotification.read ? (
+//             <button className="connect-btn" style={{ background: "#4CAF50" }} onClick={handleStartChat}>
+//               Start Message
+//             </button>
+//           ) : (
+//             <button className="connect-btn" disabled style={{ background: "#BDBDBD" }}>
+//               Request Sent
+//             </button>
+//           )
+//         ) : (
+//           <button className="connect-btn" onClick={handleHire}>
+//             Hire now
+//           </button>
+//         )}
+
+//         <ConnectPopup
+//           open={connectOpen}
+//           onClose={() => setConnectOpen(false)}
+//           freelancerId={job.userId}
+//           freelancerName={job.title}
+//           services={clientServices}
+//         />
+//       </div>
+//     </div>
+//   );
+// }

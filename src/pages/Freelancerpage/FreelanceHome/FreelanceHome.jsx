@@ -3803,6 +3803,7 @@ export default function FreelanceHome() {
       style={{
         marginLeft: collapsed ? "-180px" : "-60px",
         transition: "margin-left 0.25s ease",
+        marginTop:"10px"
       }}
     >
 
@@ -3860,8 +3861,9 @@ export default function FreelanceHome() {
                 alignItems: "center",
                 gap: "12px",
                 flexShrink: 0,
-                marginTop: isMobile ? "-60px" : "",
-                marginLeft: '-53px',
+                marginTop: isMobile ? "-20px" : "",
+                // marginLeft: isMobile ? '23px':"10px",
+                // marginLeft:'53px',
 
                 // 🔥 mobile la konjam left move
                 transform: isMobile ? "translateX(-20px)" : "none",
@@ -3874,7 +3876,7 @@ export default function FreelanceHome() {
                   alt="message"
                   style={{
                     width: isMobile ? "20px" : "24px",
-
+                    // marginLeft: isMobile ? '-13px':"",
 
                   }}
                 />
@@ -3887,6 +3889,7 @@ export default function FreelanceHome() {
                   background: "transparent",
                   border: "none",
                   position: "relative",
+                  // marginLeft: isMobile ? '-13px':"",
 
                 }}
               >
@@ -3895,7 +3898,7 @@ export default function FreelanceHome() {
                   alt="notification"
                   style={{
                     width: isMobile ? "20px" : "24px",
-                    marginTop: isMobile ? "11" : "",
+                    // marginTop: isMobile ? "11" : "",
 
                   }}
                 />

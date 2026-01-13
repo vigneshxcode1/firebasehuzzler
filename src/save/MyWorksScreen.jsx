@@ -1514,13 +1514,13 @@ export default function MyWorksScreen() {
   if (!user) return <div style={{ padding: 20 }}>Please log in</div>;
 
   const containerStyle = {
-    marginLeft: isMobile ? "0px" : collapsed ? "-20px" : "10px",
+    marginLeft: isMobile ? "0px" : collapsed ? "-90px" : "10px",
     transition: "margin-left 0.25s ease",
     minHeight: "100vh",
     paddingBottom: 120,
     background: "#fff",
     overflowX: "visible",
-    marginTop: "10px",
+    marginTop: "-10px",
 
   };
 
@@ -1703,8 +1703,9 @@ export default function MyWorksScreen() {
                 height: 48,
                 borderRadius: 12,
                 background: "#FFFFFF80",
-                boxShadow:
-                  "0 4px 8px rgba(0,0,0,0.2), 0 px 20px rgba(0,0,0,0.19)",
+                // boxShadow:
+                //   "0 4px 8px rgba(0,0,0,0.2), 0 px 20px rgba(0,0,0,0.19)",
+                border: "0.8px solid #E0E0E0",
                 display: "flex",
                 alignItems: "center",
                 paddingLeft: 16,
@@ -1733,7 +1734,6 @@ export default function MyWorksScreen() {
                         : "transparent",
 
                       color: active ? "#fff" : "#111",                // white text when active
-                      boxShadow: active ? "0 6px 18px rgba(139,92,246,0.35)" : "none",
                       fontWeight: 600,
                       width: 150,
                       transition: "all 0.25s ease",
@@ -2002,7 +2002,6 @@ function JobCard({ job, selectedTab, onViewDetails, onStartChat }) {
 .freelancerjobcard{
    padding: 20px;
    border-radius: 16px;
-    // box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .jobarrow{
@@ -2013,17 +2012,20 @@ function JobCard({ job, selectedTab, onViewDetails, onStartChat }) {
 }
 .cardstyles {
   background: #fff;
+  border: 1px solid #00000040; /* or #000 if needed */
   border-radius: 20px;
-  box-shadow: 0 12px 38px rgba(0,0,0,0.12);
   cursor: pointer;
   position: relative;
+
   min-height: 220px;
   display: flex;
   flex-direction: column;
+
   width: 100%; /* important */
-  padding: 16px; /* reduce padding for small screens */
-  box-sizing: border-box; /* ensures padding does not overflow */
+  padding: 16px; /* mobile friendly */
+  box-sizing: border-box; /* prevents overflow */
 }
+
 
 /* MOBILE ADJUSTMENT */
 @media (max-width: 768px) {
@@ -2031,8 +2033,7 @@ function JobCard({ job, selectedTab, onViewDetails, onStartChat }) {
   .cardstyles {
     min-height: auto;
     padding: 12px;
-     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
+    borde:1px solid #0000
     margin: 4px; /* space for shadow */
   }
 

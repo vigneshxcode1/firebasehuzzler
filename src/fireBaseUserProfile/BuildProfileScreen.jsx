@@ -1248,6 +1248,7 @@ const useSidebar = () => {
   return collapsed;
 };
 
+const isMobile = window.innerWidth <= 768;
 // ---------------------------- STYLES (in-file) ----------------------------
 const pageStyles = {
   pageWrapper: {
@@ -2071,7 +2072,21 @@ export default function BuildProfileScreenWithEdit() {
 
   // ------------------ JSX return ------------------
   return (
-    <Box sx={{ ...pageStyles.pageWrapper, marginLeft: collapsed ? "30px" : "140px", transition: "margin-left 0.25s ease" }}>
+    <Box
+      sx={{
+        ...pageStyles.pageWrapper,
+
+        marginLeft: isMobile
+          ? "10px"          // 👈 mobile left gap
+          : collapsed
+            ? "30px"
+            : "140px",
+
+        marginRight: isMobile ? "10px" : "0px", // 👈 mobile right also neat
+        width: isMobile ? "95%" : "80%",        // 👈 mobile full width
+        transition: "all 0.25s ease",
+      }}
+    >
       <Box sx={pageStyles.content}>
 
         <Box
@@ -2097,9 +2112,10 @@ export default function BuildProfileScreenWithEdit() {
               borderRadius: "50%",
               border: "4px solid white",
               objectFit: "cover",
+
             }}
           />
-          <img src={editimg} width={50} style={{ marginLeft: "-55px", paddingTop: "10px", marginTop: "50px" }} />
+          <img src={editimg} width={50} style={{ cursor: "pointer", marginLeft: "-55px", paddingTop: "10px", marginTop: "50px" }} />
 
           <Box>
             <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
@@ -2143,7 +2159,7 @@ export default function BuildProfileScreenWithEdit() {
               p: 3,
               flex: "2 1 600px",
               minWidth: 300,
-              boxShadow: "0 8px 20px rgba(12,20,31,0.06)",
+              // boxShadow: "0 8px 20px rgba(12,20,31,0.06)",
               position: "relative",
               border: "1px solid #c9c5c5",
 
@@ -2199,7 +2215,7 @@ export default function BuildProfileScreenWithEdit() {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, flex: "1 1 320px", minWidth: 300 }}>
             <Box sx={{
               border: "1px solid #c9c5c5",
-              background: "#fff", borderRadius: "14px", p: 2.5, boxShadow: "0 8px 20px rgba(12,20,31,0.06)", position: "relative"
+              background: "#fff", borderRadius: "14px", p: 2.5, border: "1px solid #BDBDBD", position: "relative"
             }}>
               <Typography sx={{ fontSize: 24, fontWeight: 400, }}>Skills & Tools</Typography>
 
@@ -2278,7 +2294,8 @@ export default function BuildProfileScreenWithEdit() {
         {/* PORTFOLIO SECTION */}
         <Box sx={{
           bgcolor: "#fff", borderRadius: 3, p: 3, border: "1px solid #c9c5c5",
-          boxShadow: "0 8px 20px rgba(12,20,31,0.04)"
+          // boxShadow: "0 8px 20px rgba(12,20,31,0.04)"
+          border: "1px solid #BDBDBD",
         }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
             <Typography sx={{ fontSize: 24, fontWeight: 400, }}>Portfolio</Typography>
@@ -2287,7 +2304,7 @@ export default function BuildProfileScreenWithEdit() {
             </Button>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, overflowX: "auto", overflowY: "hidden", pb: 2, pl: 0, width: "100%", maxWidth: "100%", '&::-webkit-scrollbar': { height: 8 }, '&::-webkit-scrollbar-thumb': { background: "#ddd", borderRadius: 10 } }}>
+          <Box sx={{ display: "flex", gap: 2, overflowX: "auto", overflowY: "hidden", pb: 2, pl: 0, width: "100%", maxWidth: "100%", '&::-webkit-scrollbar': { height: 8 }, '&::-webkit-scrollbar-thumb': { background: "#ddd", borderRadius: 10 }, cursor: "pointer" }}>
             {portfolio.map((p) => (
               <Box
                 key={p.id}
@@ -2297,7 +2314,8 @@ export default function BuildProfileScreenWithEdit() {
                   bgcolor: "#00c2e8",
                   borderRadius: 2,
                   p: 0,
-                  boxShadow: "0 8px 20px rgba(12,20,31,0.06)",
+                  // boxShadow: "0 8px 20px rgba(12,20,31,0.06)",
+                  border: "1px solid #BDBDBD",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
@@ -2403,7 +2421,7 @@ function EditPortfolioPopup({ open, onClose, portfolio, onSave }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { bgcolor: "#ffffff", borderRadius: "20px", p: 1, boxShadow: "0px 10px 40px rgba(0,0,0,0.12)" } }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { bgcolor: "#ffffff", borderRadius: "20px", p: 1, border: "1px solid #BDBDBD", } }}>
       <DialogTitle sx={{ textAlign: "center", fontWeight: 700 }}>Edit Portfolio</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>

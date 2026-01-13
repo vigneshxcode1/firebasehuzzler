@@ -169,6 +169,8 @@ import MenuBlock from "./pages/Clientpages/ClientBlock/MenuBlock.jsx";
 import ServiceFullDetailScreen from "./save/Servicedetailfullscreen.jsx";
 import Service24hFullDetailScreen from "./save/Service24hFullDetailScreen.jsx";
 import FreelancerBlockSreen from "./pages/FreelancerBlockSreen.jsx";
+import ForgotOtp from "./Firebaselogin/Forget-otp.jsx";
+import ChangePassword from "./Firebaselogin/Changepassword.jsx";
 
 
 export default function App() {
@@ -391,7 +393,8 @@ export default function App() {
       <Route path="/firelogin" element={<Firelogin />} />
       <Route path="/fireregister" element={<Firebaseregister />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-
+      <Route path="/forgetotp" element={<ForgotOtp/>} />
+      <Route path="/changepassword" element={<ChangePassword />} />
 
       {/* ========== freelance reg ========== */}
       <Route path="/freelancer-signup" element={<FreelancerSignup />} />

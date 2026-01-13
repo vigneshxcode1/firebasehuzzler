@@ -379,6 +379,8 @@
 
 
 
+
+
 // import React, { useEffect, useState } from "react";
 // import { onAuthStateChanged, getAuth } from "firebase/auth";
 // import {
@@ -388,110 +390,35 @@
 //   updateDoc,
 //   serverTimestamp,
 // } from "firebase/firestore";
-// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { getStorage } from "firebase/storage";
 // import { useNavigate } from "react-router-dom";
 
 // import backarrow from "../../assets/backarrow.png";
 // import edit from "../../assets/edit.png";
 
+// const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
 // /* ------------------------------------------------------------
-//    GLOBAL RUBIK FONT
+//    GLOBAL FONT
 // ------------------------------------------------------------ */
 // const globalFont = {
 //   fontFamily: "Rubik, sans-serif",
 // };
 
 // /* ------------------------------------------------------------
-//    UI STYLES (UNCHANGED)
+//    STYLES (UI UNCHANGED)
 // ------------------------------------------------------------ */
 // const styles = {
-//   screen: {
+// screen: {
 //     width: "100%",
 //     minHeight: "100vh",
 //     overflowX: "hidden",
-//     overflowY: "auto",   // 👈🔥 THIS LINE ONLY
+//     overflowY: "auto",
 //     ...globalFont,
 //   },
-
-//   topHeader: {
-//     width: "100%",
-//     padding: "25px 25px 60px 25px",
-//     borderBottomLeftRadius: 40,
-//     borderBottomRightRadius: 40,
-//     position: "relative",
-//     marginLeft: 50,
-//   },
-//   headerRow: {
-//     display: "flex",
-//     alignItems: "center",
-//     gap: 15,
-//   },
-//   backbtn: {
-//     width: 36,
-//     height: 36,
-//     borderRadius: 14,
-//     border: "0.8px solid #ccc",
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     cursor: "pointer",
-//   },
-//   headerTitle: {
-//     fontSize: 36,
-//     fontWeight: 400,
-//   },
-//   headerSubtitle: {
-//     marginTop: 6,
-//     fontWeight: 400,
-//     fontSize: 16,
-//     opacity: "70%",
-//   },
-//   companyCard: {
-//     marginTop: 35,
-//     display: "flex",
-//     alignItems: "center",
-//     position: "relative",
-//     marginLeft: 10,
-//     background: "#fff",
-//     padding: 22,
-//     width: "85%",
-//     borderRadius: 20,
-//     boxShadow: "0 4px 25px rgba(0,0,0,0.07)",
-//   },
-//   avatarWrap: {
-//     position: "relative",
-//     width: 75,
-//     height: 75,
-//   },
-//   companyAvatar: {
-//     width: 75,
-//     height: 75,
-//     borderRadius: "50%",
-//     objectFit: "cover",
-//   },
-//   editIcon: {
-//     width: 33,
-//     height: 33,
-//     position: "absolute",
-//     right: -10,
-//     bottom: -10,
-//     cursor: "pointer",
-//   },
-//   companyRightText: {
-//     marginLeft: 28,
-//   },
-//   companyName: {
-//     fontSize: 30,
-//     fontWeight: 400,
-//   },
-//   companyEmail: {
-//     opacity: "70%",
-//     marginTop: 5,
-//   },
 //   formCard: {
-//     width: "85%",
-//     margin: "0 90px",
-//     marginTop: -15,
+//     width:isMobile()? "90%":"50%",
+//     margin: "40px auto",
 //     background: "#fff",
 //     padding: "25px 20px 35px",
 //     borderRadius: 20,
@@ -504,6 +431,7 @@
 //     fontSize: 20,
 //     marginBottom: 6,
 //     display: "block",
+//     fontWeight: 400,
 //   },
 //   input: {
 //     width: "98%",
@@ -511,6 +439,7 @@
 //     borderRadius: 8,
 //     background: "rgba(254,254,215,1)",
 //     border: "1px solid #ddd",
+//     fontSize: 14,
 //   },
 //   textarea: {
 //     width: "98%",
@@ -518,6 +447,7 @@
 //     borderRadius: 10,
 //     border: "1px solid #ddd",
 //     height: 90,
+//     fontSize: 14,
 //     background: "rgba(254,254,215,1)",
 //   },
 //   actionRow: {
@@ -553,14 +483,17 @@
 //   const storage = getStorage();
 //   const navigate = useNavigate();
 
+//   /* SIDEBAR STATE */
 //   const [collapsed, setCollapsed] = useState(
 //     localStorage.getItem("sidebar-collapsed") === "true"
 //   );
 
+//   /* AUTH + LOADING */
 //   const [user, setUser] = useState(null);
 //   const [isLoading, setIsLoading] = useState(true);
 //   const [isSaving, setIsSaving] = useState(false);
 
+//   /* FORM STATES */
 //   const [profileImageUrl, setProfileImageUrl] = useState("");
 //   const [companyName, setCompanyName] = useState("");
 //   const [industry, setIndustry] = useState("");
@@ -569,14 +502,14 @@
 //   const [email, setEmail] = useState("");
 //   const [location, setLocation] = useState("");
 
-//   /* -------- SIDEBAR TOGGLE -------- */
+//   /* SIDEBAR LISTENER */
 //   useEffect(() => {
 //     const fn = (e) => setCollapsed(e.detail);
 //     window.addEventListener("sidebar-toggle", fn);
 //     return () => window.removeEventListener("sidebar-toggle", fn);
 //   }, []);
 
-//   /* -------- LOAD PROFILE DATA -------- */
+//   /* LOAD EXISTING DATA FIRST */
 //   useEffect(() => {
 //     const unsub = onAuthStateChanged(auth, async (u) => {
 //       if (!u) {
@@ -586,45 +519,65 @@
 
 //       setUser(u);
 
-//       const snap = await getDoc(doc(db, "users", u.uid));
-//       if (snap.exists()) {
-//         const d = snap.data();
-//         setCompanyName(d.company_name || "");
-//         setIndustry(d.industry || "");
-//         setSize(d.team_size || "");
-//         setDescription(d.business_description || "");
-//         setEmail(d.email || u.email);
-//         setLocation(d.location || "");
-//         setProfileImageUrl(d.profileImage || "");
+//       try {
+//         const snap = await getDoc(doc(db, "users", u.uid));
+//         if (snap.exists()) {
+//           const d = snap.data();
+
+//           setCompanyName(d.company_name || "");
+//           setIndustry(d.industry || "");
+//           setSize(d.team_size || "");
+//           setDescription(d.business_description || "");
+//           setEmail(d.email || u.email || "");
+//           setLocation(d.location || "");
+//           setProfileImageUrl(d.profileImage || "");
+//         }
+//       } catch (err) {
+//         console.error(err);
+//       } finally {
+//         setIsLoading(false);
 //       }
-//       setIsLoading(false);
 //     });
 
 //     return () => unsub();
 //   }, []);
 
-//   /* -------- SAVE -------- */
+//   /* SAVE */
 //   const handleSave = async () => {
 //     if (!user) return;
+
 //     setIsSaving(true);
 
-//     await updateDoc(doc(db, "users", user.uid), {
-//       company_name: companyName,
-//       industry,
-//       team_size: size,
-//       business_description: description,
-//       email,
-//       location,
-//       profileImage: profileImageUrl,
-//       updatedAt: serverTimestamp(),
-//     });
+//     try {
+//       await updateDoc(doc(db, "users", user.uid), {
+//         company_name: companyName,
+//         industry,
+//         team_size: size,
+//         business_description: description,
+//         email,
+//         location,
+//         profileImage: profileImageUrl,
+//         updatedAt: serverTimestamp(),
+//       });
 
-//     setIsSaving(false);
-//     navigate(-1); // 🔥 back to view page
+//       navigate(-1); // back to view page
+//     } catch (e) {
+//       console.error("Save failed", e);
+//     } finally {
+//       setIsSaving(false);
+//     }
 //   };
 
-//   if (isLoading) return <h3 style={{ textAlign: "center" }}>Loading…</h3>;
+//   /* LOADING SCREEN */
+//   if (isLoading) {
+//     return (
+//       <div style={{ textAlign: "center", marginTop: 50 }}>
+//         Loading profile…
+//       </div>
+//     );
+//   }
 
+//   /* UI */
 //   return (
 //     <div
 //       className="freelance-wrapper"
@@ -640,18 +593,18 @@
 //           <Input label="Company Size" value={size} onChange={setSize} />
 //           <Input label="Location" value={location} onChange={setLocation} />
 //           <Input label="Email" value={email} onChange={setEmail} />
-//           <Input
-//             label="About Company"
-//             value={description}
-//             onChange={setDescription}
-//             multiline
-//           />
+//           <Input label="About Company" value={description} onChange={setDescription} multiline />
+
 
 //           <div style={styles.actionRow}>
 //             <button style={styles.cancelBtn} onClick={() => navigate(-1)}>
 //               Cancel
 //             </button>
-//             <button style={styles.saveBtn} onClick={handleSave} disabled={isSaving}>
+//             <button
+//               style={styles.saveBtn}
+//               onClick={handleSave}
+//               disabled={isSaving}
+//             >
 //               {isSaving ? "Saving..." : "Save"}
 //             </button>
 //           </div>
@@ -688,9 +641,6 @@
 
 
 
-
-
-
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import {
@@ -708,18 +658,14 @@ import edit from "../../assets/edit.png";
 
 const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
 
-/* ------------------------------------------------------------
-   GLOBAL FONT
------------------------------------------------------------- */
+
 const globalFont = {
   fontFamily: "Rubik, sans-serif",
 };
 
-/* ------------------------------------------------------------
-   STYLES (UI UNCHANGED)
------------------------------------------------------------- */
+
 const styles = {
-screen: {
+  screen: {
     width: "100%",
     minHeight: "100vh",
     overflowX: "hidden",
@@ -727,7 +673,7 @@ screen: {
     ...globalFont,
   },
   formCard: {
-    width:isMobile()? "90%":"50%",
+    width: isMobile() ? "90%" : "50%",
     margin: "40px auto",
     background: "#fff",
     padding: "25px 20px 35px",
@@ -784,26 +730,23 @@ screen: {
   },
 };
 
-/* ------------------------------------------------------------
-   MAIN COMPONENT
------------------------------------------------------------- */
 export default function CompanyProfileEdit() {
   const auth = getAuth();
   const db = getFirestore();
   const storage = getStorage();
   const navigate = useNavigate();
 
-  /* SIDEBAR STATE */
+
   const [collapsed, setCollapsed] = useState(
     localStorage.getItem("sidebar-collapsed") === "true"
   );
 
-  /* AUTH + LOADING */
+
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  /* FORM STATES */
+
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
@@ -812,14 +755,13 @@ export default function CompanyProfileEdit() {
   const [email, setEmail] = useState("");
   const [location, setLocation] = useState("");
 
-  /* SIDEBAR LISTENER */
+
   useEffect(() => {
     const fn = (e) => setCollapsed(e.detail);
     window.addEventListener("sidebar-toggle", fn);
     return () => window.removeEventListener("sidebar-toggle", fn);
   }, []);
 
-  /* LOAD EXISTING DATA FIRST */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) {
@@ -833,14 +775,14 @@ export default function CompanyProfileEdit() {
         const snap = await getDoc(doc(db, "users", u.uid));
         if (snap.exists()) {
           const d = snap.data();
-
-          setCompanyName(d.company_name || "");
-          setIndustry(d.industry || "");
-          setSize(d.team_size || "");
-          setDescription(d.business_description || "");
+          setCompanyName(d.companyName || "");
+          setIndustry(d.category || "");
+          setSize(d.teamSize || "");
+          setDescription(d.businessInfo || "");
           setEmail(d.email || u.email || "");
           setLocation(d.location || "");
           setProfileImageUrl(d.profileImage || "");
+
         }
       } catch (err) {
         console.error(err);
@@ -860,15 +802,16 @@ export default function CompanyProfileEdit() {
 
     try {
       await updateDoc(doc(db, "users", user.uid), {
-        company_name: companyName,
-        industry,
-        team_size: size,
-        business_description: description,
+        companyName: companyName,
+        category: industry,
+        teamSize: size,
+        businessInfo: description,
         email,
         location,
         profileImage: profileImageUrl,
-        updatedAt: serverTimestamp(),
-      });
+        updated_at: serverTimestamp(),
+      });a
+
 
       navigate(-1); // back to view page
     } catch (e) {

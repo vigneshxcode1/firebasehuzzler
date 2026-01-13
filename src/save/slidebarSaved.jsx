@@ -701,8 +701,9 @@ const renderEmptyState = (btnText, onClick) => (
  borderRadius: 24,
  backgroundColor: "#FFFFFF",
  padding: 16,
- boxShadow:
- "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+//  boxShadow:
+//  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+border:"1px solid #00000030",
  cursor: "pointer",
  display: "flex",
  flexDirection: "column",
@@ -894,8 +895,9 @@ const renderEmptyState = (btnText, onClick) => (
  gap: 12,
  justifyContent: "flex-start", // 👈 LEFT aligned
  background: "#FFF8E1",
- boxShadow:
- "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+//  boxShadow:
+//  "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+ border: "1px solid #BDBDBD",
  }}
  >
  {["Works", "24 Hours"].map((tab) => (

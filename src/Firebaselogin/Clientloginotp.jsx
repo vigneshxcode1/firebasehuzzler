@@ -282,6 +282,313 @@
 
 
 
+// import React, { useState, useEffect } from "react";
+// import axios from "axios";
+// import { signInWithCustomToken } from "firebase/auth";
+// import { auth, db } from "../firbase/Firebase";
+// import { doc, getDoc } from "firebase/firestore";
+// import { useNavigate, useLocation } from "react-router-dom";
+// import { ArrowLeft } from "lucide-react";
+
+// export default function OtpVerify() {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const localData = JSON.parse(localStorage.getItem("otpUser") || "{}");
+//   const stateData = location.state || {};
+//   const email = stateData.email || localData.email;
+
+//   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+//   const [timer, setTimer] = useState(30);
+//   const [isResendDisabled, setIsResendDisabled] = useState(true);
+
+//   // Disable page scroll
+//   useEffect(() => {
+//     document.body.style.overflow = "hidden";
+//     document.documentElement.style.overflow = "hidden";
+//     return () => {
+//       document.body.style.overflow = "";
+//       document.documentElement.style.overflow = "";
+//     };
+//   }, []);
+
+//   useEffect(() => {
+//     if (!email) {
+//       alert("Signup data missing. Please start again.");
+//       navigate("/signup-client");
+//     }
+//   }, [email, navigate]);
+
+//   useEffect(() => {
+//     if (timer === 0) return setIsResendDisabled(false);
+//     const t = setTimeout(() => setTimer((prev) => prev - 1), 1000);
+//     return () => clearTimeout(t);
+//   }, [timer]);
+
+//   const handleOtpChange = (value, index) => {
+//     if (isNaN(value)) return;
+//     const temp = [...otp];
+//     temp[index] = value;
+//     setOtp(temp);
+//     if (value && index < 5) {
+//       document.getElementById(`otp-${index + 1}`)?.focus();
+//     }
+//   };
+
+//   const handleOtpKeyDown = (e, index) => {
+//     if (e.key === "Backspace") {
+//       e.preventDefault();
+//       const temp = [...otp];
+//       if (temp[index] !== "") {
+//         temp[index] = "";
+//         setOtp(temp);
+//       } else if (index > 0) {
+//         document.getElementById(`otp-${index - 1}`)?.focus();
+//         const tempPrev = [...otp];
+//         tempPrev[index - 1] = "";
+//         setOtp(tempPrev);
+//       }
+//     }
+//   };
+
+//   const verifyOtp = async () => {
+//     const code = otp.join("");
+//     if (code.length !== 6) return alert("Enter valid 6-digit OTP");
+
+//     try {
+//       const res = await axios.post(
+//         "https://huzzler.onrender.com/api/auth/verify-otp",
+//         { email: email.toLowerCase(), otp: code }
+//       );
+
+//       if (!res.data?.token) return alert("Invalid OTP");
+
+//       const userCred = await signInWithCustomToken(auth, res.data.token);
+//       const uid = userCred.user.uid;
+
+//       const snap = await getDoc(doc(db, "users", uid));
+//       if (!snap.exists()) return alert("User data not found!");
+
+//       const role = snap.data().role;
+//       localStorage.removeItem("otpUser");
+
+//       if (role === "client")
+//         navigate("/client-dashbroad2/clientserachbar");
+//       else if (role === "freelancer")
+//         navigate("/freelance-dashboard");
+//       else alert("Unknown role");
+//     } catch (err) {
+//       alert("OTP verification failed");
+//       console.error(err);
+//     }
+//   };
+
+//   const resendOtp = async () => {
+//     try {
+//       setIsResendDisabled(true);
+//       setTimer(30);
+//       await axios.post("https://huzzler.onrender.com/api/auth/resend-otp", {
+//         email: email.toLowerCase(),
+//         action: "resend",
+//       });
+//       alert("OTP resent!");
+//     } catch {
+//       alert("Failed to resend OTP");
+//     }
+//   };
+
+//   return (
+//     <div
+//       className="otp-wrapper"
+//       style={{
+//         minHeight: "100vh",
+//         display: "flex",
+//         justifyContent: "center",
+//         alignItems: "center",
+//         background:
+//           "linear-gradient(to bottom left, #f7f4ff, #fff, #fffde9, #fffce6)",
+//         padding: 20,
+//         overflow: "hidden",
+//         position: "relative",
+//       }}
+//     >
+//       {/* CARD */}
+//       <div
+//         className="otp-card"
+//         style={{
+//           width: "460px",
+//           padding: "40px",
+//           borderRadius: 20,
+//           background: "#ffffff",
+//           boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+//           textAlign: "center",
+//           position: "relative",
+//         }}
+//       >
+//         {/* BACK ARROW ON TOP OF CARD */}
+//         <div
+//           className="otp-back"
+//           onClick={() => navigate(-1)}
+//           style={{
+//             position: "absolute",
+//             top:-30,
+            
+//             left: 20,
+//             cursor: "pointer",
+//             display: "flex",
+//             alignItems: "center",
+//             gap: 6,
+//             fontWeight: 600,
+//             fontSize: 16,
+//             color: "#444",
+//           }}
+//         >
+//           <ArrowLeft size={20} />
+//           Back
+//         </div>
+
+//         <h2 style={{ fontSize: 22, fontWeight: 600 }}>
+//           You're almost there! We just need to verify your email
+//         </h2>
+
+//         <p style={{ fontSize: 16, color: "#777", marginTop: 10 }}>
+//           Great! Almost done!
+//         </p>
+
+//         <h3 style={{ fontWeight: 600, fontSize: 20, marginTop: 10 }}>
+//           Please verify your email
+//         </h3>
+
+//         <p style={{ fontSize: 15, color: "#777", marginTop: 20 }}>
+//           Enter the verification code sent to:
+//         </p>
+
+//         <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 20 }}>
+//           {email}
+//         </p>
+
+//         {/* OTP INPUTS */}
+//         <div className="otp-inputs">
+//           {otp.map((val, i) => (
+//             <input
+//               key={i}
+//               id={`otp-${i}`}
+//               maxLength="1"
+//               inputMode="numeric"
+//               value={val}
+//               onChange={(e) => handleOtpChange(e.target.value, i)}
+//               onKeyDown={(e) => handleOtpKeyDown(e, i)}
+//               style={{
+//                 width: "100%",
+//                 height: 48,
+//                 borderRadius: 10,
+//                 border: "2px solid #e5e6eb",
+//                 fontSize: 16,
+//                 fontWeight: 600,
+//                 lineHeight: "48px",
+//                 padding: 0,
+//                 textAlign: "center",
+//                 boxSizing: "border-box",
+//                 flex: 1,
+//                 minWidth: 0,
+//               }}
+//             />
+//           ))}
+//         </div>
+
+//         <p style={{ fontSize: 14, color: "#666", marginTop: 20 }}>
+//           Didn't receive OTP?{" "}
+//           {isResendDisabled ? (
+//             <span style={{ color: "#999" }}>Resend in {timer}s</span>
+//           ) : (
+//             <span
+//               onClick={resendOtp}
+//               style={{ color: "#7A4DFF", cursor: "pointer", fontWeight: 600 }}
+//             >
+//               Resend OTP
+//             </span>
+//           )}
+//         </p>
+
+//         <button
+//           onClick={verifyOtp}
+//           style={{
+//             marginTop: 25,
+//             width: "100%",
+//             padding: "14px",
+//             background: "#7A4DFF",
+//             color: "#fff",
+//             border: "none",
+//             borderRadius: 12,
+//             fontSize: 17,
+//             fontWeight: 600,
+//             cursor: "pointer",
+//           }}
+//         >
+//           Get Started
+//         </button>
+//       </div>
+
+//       {/* STYLES */}
+//       <style>{`
+//         input {
+//           -webkit-appearance: none;
+//           appearance: none;
+//         }
+
+//         .otp-inputs {
+//           display: flex;
+//           justify-content: center;
+//           gap: 12px;
+//           margin-top: 10px;
+//         }
+
+//         @media (max-width: 768px) {
+//           .otp-wrapper {
+//             align-items: flex-start !important;
+//             padding-top: 150px !important;
+//           }
+
+//           .otp-card {
+//             width: 100% !important;
+//             max-width: 420px !important;
+//             padding: 32px 24px !important;
+//           }
+
+//           .otp-inputs {
+//             width: 100%;
+//             gap: 8px;
+//           }
+
+//           .otp-inputs input {
+//             height: 48px;
+//             font-size: 16px;
+//             line-height: 48px;
+//             padding: 0 !important;
+//           }
+
+//           .otp-back {
+//             position: fixed !important;
+//             top: 100px !important;
+//             left: 16px !important;
+//             z-index: 1000;
+//             font-size: 15px;
+//           }
+//         }
+
+//         @media (max-width: 480px) {
+//           .otp-card {
+//             padding: 28px 18px !important;
+//           }
+//         }
+//       `}</style>
+//     </div>
+//   );
+// }
+
+
+
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { signInWithCustomToken } from "firebase/auth";
@@ -396,6 +703,11 @@ export default function OtpVerify() {
       alert("Failed to resend OTP");
     }
   };
+  const handleSubmit = (e) => {
+  e.preventDefault();   // prevent page refresh
+  verifyOtp();          // same as clicking Get Started
+};
+
 
   return (
     <div
@@ -466,7 +778,7 @@ export default function OtpVerify() {
         <p style={{ fontSize: 17, fontWeight: 600, marginBottom: 20 }}>
           {email}
         </p>
-
+<form onSubmit={handleSubmit}>
         {/* OTP INPUTS */}
         <div className="otp-inputs">
           {otp.map((val, i) => (
@@ -527,6 +839,7 @@ export default function OtpVerify() {
         >
           Get Started
         </button>
+        </form>
       </div>
 
       {/* STYLES */}

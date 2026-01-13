@@ -872,7 +872,7 @@
 //             fontWeight: "400",
 //             lineHeight: "28px",
 //             opacity: "60%",
-            
+
 //           }}
 //         >
 //           {job.category}
@@ -908,7 +908,7 @@
 //             ₹{job.budget_from} - ₹{job.budget_to}
 //           </span>
 
-         
+
 
 //           <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
 //             <IoLocationOutline size={18} /> Remote
@@ -1278,7 +1278,7 @@
 //             gap: "16px",
 //             fontSize: "22px",
 //             color: "#444",
-       
+
 //           }}
 //         >
 //           {/* ⭐ SAVE BUTTON */}
@@ -1542,6 +1542,514 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import {
+//   doc,
+//   getDoc,
+//   updateDoc,
+//   arrayUnion,
+//   increment,
+//   collection,
+//   addDoc,
+//   onSnapshot,
+// } from "firebase/firestore";
+// import { getAuth } from "firebase/auth";
+// import { db } from "../firbase/Firebase";
+
+// import { FiX, FiBookmark, FiShare2 } from "react-icons/fi";
+// import { MdAccessTime, MdDateRange } from "react-icons/md";
+// import { IoLocationOutline } from "react-icons/io5";
+// import { FaUsers } from "react-icons/fa";
+// import share from "../assets/share.png";
+
+// // ---- Add Rubik font globally ----
+// const rubikFontStyle = {
+//   fontFamily: "'Rubik', sans-serif",
+// };
+
+// export default function JobFullDetailJobScreen() {
+//   const { id: jobId } = useParams();
+//   const auth = getAuth();
+//   const user = auth.currentUser;
+//   const navigate = useNavigate();
+
+//   const [applicationStatus, setApplicationStatus] = useState("none");
+//   // "none" | "applied" | "accepted"
+//   const [acceptedAt, setAcceptedAt] = useState(null);
+
+
+//   const [job, setJob] = useState(null);
+//   const [isApplied, setIsApplied] = useState(false);
+//   const [isFavorite, setIsFavorite] = useState(false);
+//   const [isSharing, setIsSharing] = useState(false);
+//   const [isMobile, setIsMobile] = useState(
+//     typeof window !== "undefined" ? window.innerWidth <= 768 : false
+//   );
+
+
+//   useEffect(() => {
+//     const handleResize = () => {
+//       setIsMobile(window.innerWidth <= 768);
+//     };
+
+//     window.addEventListener("resize", handleResize);
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+
+//   useEffect(() => {
+//     const unsub = onSnapshot(doc(db, "jobs", jobId), (snap) => {
+//       if (snap.exists()) setJob({ id: snap.id, ...snap.data() });
+//     });
+//     return unsub;
+//   }, [jobId]);
+
+//   useEffect(() => {
+//     if (!user) return;
+//     const unsub = onSnapshot(doc(db, "users", user.uid), (snap) => {
+//       const favorites = snap.data()?.favoriteJobs || [];
+//       setIsFavorite(favorites.includes(jobId));
+//     });
+//     return unsub;
+//   }, [user, jobId]);
+
+
+//   useEffect(() => {
+//     if (!job || !user) return;
+
+//     // Case 1: Accepted freelancer
+//     if (
+//       job.freelancerId === user.uid &&
+//       job.status === "accepted"
+//     ) {
+//       setApplicationStatus("accepted");
+//       setAcceptedAt(job.acceptedAt);
+//       return;
+//     }
+
+//     // Case 2: Applied but not accepted
+//     const applicants = job.applicants || [];
+//     const hasApplied = applicants.some(
+//       (a) => a.freelancerId === user.uid
+//     );
+
+//     if (hasApplied) {
+//       setApplicationStatus("applied");
+//     } else {
+//       setApplicationStatus("none");
+//     }
+//   }, [job, user]);
+
+
+
+//   async function handleSave() {
+//     if (!user) return alert("Login required!");
+
+//     const userRef = doc(db, "users", user.uid);
+//     const userSnap = await getDoc(userRef);
+//     const favorites = userSnap.data()?.favoriteJobs || [];
+
+//     let updated;
+
+//     if (favorites.includes(jobId)) {
+//       updated = favorites.filter((id) => id !== jobId); // ❌ remove
+//     } else {
+//       updated = [...favorites, jobId]; // ✔ add
+//     }
+
+//     await updateDoc(userRef, { favoriteJobs: updated });
+
+//     setIsFavorite(updated.includes(jobId));
+//   }
+
+
+
+//   async function handleApply(jobId) {
+//     if (!user) {
+//       alert("Please login to apply");
+//       return;
+//     }
+
+//     try {
+//       const userId = user?.uid || null;
+
+
+//       const freelancerSnap = await getDoc(doc(db, "users", userId));
+//       const freelancer = freelancerSnap.data() || {};
+//       const freelancerName = `${freelancer.firstName || ""} ${freelancer.lastName || ""
+//         }`.trim();
+//       const freelancerImage = freelancer.profileImage || "";
+
+//       const jobRef = doc(db, "jobs", jobId);
+//       const jobSnap = await getDoc(jobRef);
+//       const jobData = jobSnap.data() || {};
+
+//       if ((jobData.applicants || []).some((a) => a.freelancerId === userId)) {
+//         alert("Already applied!");
+//         return;
+//       }
+
+//       await updateDoc(jobRef, {
+//         applicants: arrayUnion({
+//           freelancerId: userId,
+//           name: freelancerName,
+//           profileImage: freelancerImage,
+//           appliedAt: new Date(),
+//         }),
+//         applicants_count: increment(1),
+//       });
+
+//       await addDoc(collection(db, "notifications"), {
+//         title: jobData.title,
+//         body: `${freelancerName} applied for ${jobData.title}`,
+//         freelancerName,
+//         freelancerImage,
+//         freelancerId: userId,
+//         jobTitle: jobData.title,
+//         jobId,
+//         clientUid: jobData.userId,
+//         timestamp: new Date(),
+//         read: false,
+//       });
+
+//       alert("Applied successfully!");
+//     } catch (e) {
+//       console.error(e);
+//       alert("Error applying.");
+//     }
+//   }
+
+//   const handleShare = async () => {
+
+//     if (isSharing) return; // prevent multiple calls
+//     setIsSharing(true);
+
+//     try {
+//       if (navigator.share) {
+//         await navigator.share({
+//           title: job.title,
+//           text: "Check this project",
+//           url: window.location.href,
+//         });
+//         console.log("Shared successfully");
+//       } else {
+//         alert("Share not supported on this browser");
+//       }
+//     } catch (err) {
+//       if (err.name === "AbortError") {
+//         console.log("Share cancelled");
+//       } else {
+//         console.error("Share failed", err);
+//       }
+//     } finally {
+//       setIsSharing(false); // reset button state
+//     }
+//   };
+//   console.log(job)
+//   if (!job) return <div>Loading...</div>;
+
+//   return (
+//     <div
+//       style={{
+//         ...rubikFontStyle,
+//         width: "100%",
+//         minHeight: "100vh",
+//         display: "flex",
+//         justifyContent: "center",
+//         padding: "20px",
+//         overflowX: "hidden",
+//         background: "#F5F5F5",
+//         boxSizing: "border-box",
+//         marginTop: isMobile ? 60 : 0,
+//       }}
+//     >
+//       <div
+//         style={{
+//           width: "620px",
+//           maxWidth: "100%",
+//           background: "#fff",
+//           borderRadius: "16px",
+//           padding: "30px",
+//           position: "relative",
+//           boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+//           overflowY: "hidden",
+//           boxSizing: "border-box",
+//         }}
+//       >
+//         {/* ===== TOP RIGHT ICONS ===== */}
+//         <div
+//           style={{
+//             position: "absolute",
+//             top: "18px",
+//             right: "18px",
+//             display: "flex",
+//             gap: "16px",
+//             fontSize: "22px",
+//             color: "#444",
+
+//           }}
+//         >
+
+//           <div onClick={handleSave} style={{ cursor: "pointer" }}>
+//             {isFavorite ? (
+//               <FiBookmark style={{ color: "#7B2BFF", fill: "#7B2BFF" }} />
+//             ) : (
+//               <FiBookmark />
+//             )}
+//           </div>
+
+//           <div className="flex items-center gap-3">
+
+//             <img
+//               src={share}
+//               alt="share"
+//               width={18}
+//               style={{ cursor: isSharing ? "not-allowed" : "pointer", opacity: isSharing ? 0.6 : 1 }}
+//               onClick={handleShare}
+//             />
+
+
+//           </div>
+
+//           <FiX onClick={() => navigate(-1)} style={{ cursor: "pointer" }} />
+//         </div>
+
+//         <h2
+//           style={{
+//             fontSize: "24px",
+//             fontWeight: "400",
+//             marginBottom: "-15px",
+//             opacity: "90%",
+//             textAlign: "left",
+//           }}
+//         >
+
+//           Project Details
+//         </h2>
+
+//         {/* MAIN TITLE */}
+//         <div
+//           style={{
+//             display: "flex",
+//             justifyContent: "space-between",
+//             alignItems: "center",
+//             gap: "16px",
+//             marginBottom: "6px",
+//             flexWrap: "wrap", // mobile safe
+//           }}
+//         >
+//           <h1
+//             style={{
+//               fontSize: "36px",
+//               fontWeight: "400",
+//               margin: 1,
+//               paddingTop: 20,
+//               lineHeight: "40px",
+//             }}
+//           >
+//             {job.title}
+//           </h1>
+
+//           <button
+//             onClick={() =>
+//               navigate(
+//                 `/freelance-dashboard/view-profile/${job.userId}/job/${job.id}`
+//               )
+//             }
+//             style={{
+//               cursor: "pointer",
+//               backgroundColor: "#7B2BFF",
+//               color: "white",
+//               fontWeight: 600,
+//               padding: "10px 14px",
+//               borderRadius: "10px",
+//               border: "none",
+//               whiteSpace: "nowrap",
+//             }}
+//           >
+//             View Profile
+//           </button>
+//         </div>
+
+
+//         <p
+//           style={{
+//             fontSize: "20px",
+//             fontWeight: "400",
+//             lineHeight: "28px",
+//             opacity: "60%",
+
+//           }}
+//         >
+//           {job.category}
+//         </p>
+
+//         {/* ===== LABELS ===== */}
+//         <div
+//           style={{
+//             display: "flex",
+//             justifyContent: "space-between",
+//             opacity: "60%",
+//             fontSize: "14px",
+//             marginBottom: "6px",
+//           }}
+//         >
+
+//           <span>budget - {job.budget}</span>
+
+//           <span>Location</span>
+//         </div>
+
+//         {/* ===== VALUES ===== */}
+//         <div
+//           style={{
+//             display: "flex",
+//             justifyContent: "space-between",
+//             fontSize: "16px",
+//             fontWeight: "600",
+//             marginBottom: "18px",
+//           }}
+//         >
+//           <span>
+//             ₹{job.budget_from} - ₹{job.budget_to}
+//           </span>
+
+
+
+//           <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+//             <IoLocationOutline size={18} /> Remote
+//           </span>
+//         </div>
+
+//         {/* ===== APPLICANTS ===== */}
+//         <div
+//           style={{
+//             display: "flex",
+//             gap: "28px",
+//             opacity: "60%",
+//             fontSize: "14px",
+//             marginBottom: "22px",
+//           }}
+//         >
+//           <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+//             <FaUsers size={14} /> {job.applicants_count || 0} Applicants
+//           </span>
+
+//           <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+//             <MdAccessTime size={14} />
+//             {job.created_at?.toDate
+//               ? job.created_at.toDate().toLocaleDateString()
+//               : "Recently"}
+//           </span>
+//         </div>
+
+//         {/* ===== SKILLS ===== */}
+//         <h3
+//           style={{
+//             marginBottom: "10px",
+//             fontSize: "20px",
+//             fontWeight: "400",
+//             lineHeight: "28px",
+//             marginTop: "30px",
+//           }}
+//         >
+//           Skills Required
+//         </h3>
+
+//         <div
+//           style={{
+//             display: "flex",
+//             flexWrap: "wrap",
+//             gap: "10px",
+//             marginBottom: "30px",
+//           }}
+//         >
+//           {job.skills?.map((skill, i) => (
+//             <span
+//               key={i}
+//               style={{
+//                 background: "rgba(255, 240, 133, 0.7)",
+//                 padding: "8px 14px",
+//                 borderRadius: "8px",
+//                 fontSize: "13px",
+//                 fontWeight: "500",
+//                 color: "#000",
+//               }}
+//             >
+//               {skill}
+//             </span>
+//           ))}
+//         </div>
+
+//         {/* ===== DESCRIPTION ===== */}
+//         <h3
+//           style={{
+//             marginBottom: "10px",
+//             fontSize: "20px",
+//             fontWeight: "400",
+//             lineHeight: "28px",
+//           }}
+//         >
+//           Project Description
+//         </h3>
+
+//         <div
+//           style={{
+//             maxHeight: "250px",
+//             overflowY: "auto",
+//             paddingRight: "5px",
+//           }}
+//         >
+//           <p
+//             style={{
+//               color: "#555",
+//               lineHeight: "1.6",
+//               whiteSpace: "pre-line",
+//               marginBottom: "30px",
+//               fontSize: "15px",
+//             }}
+//           >
+//             {job.description}
+//           </p>
+//         </div>
+
+//         <button
+//           onClick={() => handleApply(job.id)}
+//           disabled={applicationStatus !== "none"}
+//           style={{
+//             width: "100%",
+//             padding: "14px 0",
+//             borderRadius: "10px",
+//             border: "none",
+//             fontSize: "16px",
+//             fontWeight: "600",
+//             color: "#fff",
+//             cursor:
+//               applicationStatus === "none" ? "pointer" : "not-allowed",
+//             background:
+//               applicationStatus === "accepted"
+//                 ? "#4CAF50"
+//                 : applicationStatus === "applied"
+//                   ? "#999"
+//                   : "linear-gradient(90deg,#A155FF,#7B2BFF)",
+//             marginTop: "10px",
+//           }}
+//         >
+//           {applicationStatus === "accepted"
+//             ? "Accepted 🎉"
+//             : applicationStatus === "applied"
+//               ? "Application Sent"
+//               : "Apply for this Project"}
+//         </button>
+
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -1720,32 +2228,44 @@ export default function JobFullDetailJobScreen() {
     }
   }
 
-  const handleShare = async () => {
+const handleShare = async () => {
+  if (isSharing) return;
+  setIsSharing(true);
 
-    if (isSharing) return; // prevent multiple calls
-    setIsSharing(true);
+  const shareUrl = window.location.href;
 
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: job.title,
-          text: "Check this project",
-          url: window.location.href,
-        });
-        console.log("Shared successfully");
-      } else {
-        alert("Share not supported on this browser");
-      }
-    } catch (err) {
-      if (err.name === "AbortError") {
-        console.log("Share cancelled");
-      } else {
-        console.error("Share failed", err);
-      }
-    } finally {
-      setIsSharing(false); // reset button state
+  try {
+    // ✅ Check real support
+    if (navigator.canShare && navigator.canShare({ url: shareUrl })) {
+      await navigator.share({
+        title: job?.title || "Project",
+        text: "Check this project",
+        url: shareUrl,
+      });
+      alert("Shared successfully ✅");
+    } 
+    else if (navigator.share) {
+      await navigator.share({
+        title: job?.title || "Project",
+        text: "Check this project",
+        url: shareUrl,
+      });
+    } 
+    else {
+      // 🖥 Desktop fallback
+      await navigator.clipboard.writeText(shareUrl);
+      alert("Link copied! Share manually 👍");
     }
-  };
+
+  } catch (err) {
+    console.log("Share error:", err);
+    alert("Sharing cancelled / failed");
+  } finally {
+    setIsSharing(false);
+  }
+};
+
+
   console.log(job)
   if (!job) return <div>Loading...</div>;
 
@@ -1781,7 +2301,7 @@ export default function JobFullDetailJobScreen() {
         <div
           style={{
             position: "absolute",
-            top: "18px",
+            top: "28px",
             right: "18px",
             display: "flex",
             gap: "16px",
@@ -1793,9 +2313,9 @@ export default function JobFullDetailJobScreen() {
 
           <div onClick={handleSave} style={{ cursor: "pointer" }}>
             {isFavorite ? (
-              <FiBookmark style={{ color: "#7B2BFF", fill: "#7B2BFF" }} />
+              <FiBookmark style={{cursor: "pointer", color: "#000", fill: "#000" }} />
             ) : (
-              <FiBookmark />
+              <FiBookmark  />
             )}
           </div>
 
@@ -1805,9 +2325,12 @@ export default function JobFullDetailJobScreen() {
               src={share}
               alt="share"
               width={18}
-              style={{ cursor: isSharing ? "not-allowed" : "pointer", opacity: isSharing ? 0.6 : 1 }}
+              style={{
+                cursor:"pointer"
+              }}
               onClick={handleShare}
             />
+
 
 
           </div>
@@ -1841,11 +2364,12 @@ export default function JobFullDetailJobScreen() {
         >
           <h1
             style={{
-              fontSize: "36px",
+              fontSize: "34px",
               fontWeight: "400",
               margin: 1,
               paddingTop: 20,
               lineHeight: "40px",
+              textTransform: "uppercase",
             }}
           >
             {job.title}
@@ -1864,8 +2388,11 @@ export default function JobFullDetailJobScreen() {
               fontWeight: 600,
               padding: "10px 14px",
               borderRadius: "10px",
+              paddingLeft: "5px",
               border: "none",
               whiteSpace: "nowrap",
+              marginTop: isMobile ? "-80px" : 30,
+              marginLeft: isMobile ? "65%" : 10,
             }}
           >
             View Profile
@@ -1896,7 +2423,7 @@ export default function JobFullDetailJobScreen() {
           }}
         >
 
-          <span>budget - {job.budget}</span>
+          <span>budget         {job.budget}</span>
 
           <span>Location</span>
         </div>

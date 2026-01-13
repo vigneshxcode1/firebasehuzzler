@@ -1399,31 +1399,9 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Categories.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -1435,6 +1413,7 @@ import {
   orderBy,
   where,
   Timestamp,
+  getDoc,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
@@ -1741,7 +1720,7 @@ const styles = {
     textAlign: "center",
     fontSize: 20,
     fontWeight: 600,
-    marginTop: "70px",
+    marginTop: "0px",
   },
 
   container: {
@@ -1955,10 +1934,10 @@ function normalizeJob(docSnap) {
 /* ---------------------------
    SkillUsersScreen (Jobs screen) - embedded here
    --------------------------- */
-function SkillUsersScreenInline({ skill, onBack,isMobile }) {
+function SkillUsersScreenInline({ skill, onBack, isMobile }) {
   // navigation (for View button)
   const navigate = useNavigate?.() || (() => { });
-  const [selectedTab, setSelectedTab] = useState("Works Jobs");
+  const [selectedTab, setSelectedTab] = useState("Work");
   const [jobs, setJobs] = useState([]);
   const [userDoc, setUserDoc] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -2002,9 +1981,9 @@ function SkillUsersScreenInline({ skill, onBack,isMobile }) {
           <div key={job.id} onClick={() => navigateToDetail(job, selectedTab === "24 Hour Jobs")}>
             <JobCard
               job={job}
-              is24h={selectedTab === "24 Hour Jobs"}
+              is24h={selectedTab === "24 Hours"}
               savedList={userDoc?.favoriteJobs || []}
-                isMobile={isMobile}
+              isMobile={isMobile}
             />
           </div>
         ))}
@@ -2015,7 +1994,7 @@ function SkillUsersScreenInline({ skill, onBack,isMobile }) {
 
 
   useEffect(() => {
-    if (selectedTab !== "Saved Jobs") return;
+    if (selectedTab !== "Saved") return;
 
     if (!userDoc?.favoriteJobs?.length) {
       setSavedJobsList([]);
@@ -2158,7 +2137,7 @@ function SkillUsersScreenInline({ skill, onBack,isMobile }) {
     return h;
   }
 
-function JobCard({ job, is24h = false, savedList = [], isMobile }) {
+  function JobCard({ job, is24h = false, savedList = [], isMobile }) {
     const createdAt = job.created_at;
     const timeText = timeAgo(createdAt);
     const isSaved = (savedList || []).includes(job.id);
@@ -2206,7 +2185,7 @@ function JobCard({ job, is24h = false, savedList = [], isMobile }) {
             ₹ {job.budget}/per day
           </div>
         </div>
-        <div style={{ marginLeft: "auto" }}>
+        <div style={{ marginLeft: "90%" }}>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -2340,7 +2319,7 @@ function JobCard({ job, is24h = false, savedList = [], isMobile }) {
               job={job}
               is24h={false}
               savedList={userDoc.favoriteJobs || []}
-                isMobile={isMobile}
+              isMobile={isMobile}
             />
           </div>
         ))}
@@ -2359,11 +2338,11 @@ function JobCard({ job, is24h = false, savedList = [], isMobile }) {
         <div style={{ width: 36 }} />
       </div>
 
-      <div style={{ padding: 0, borderBottom: "1px solid #eee", background: "#fff" }}>
-        <div style={{ display: "flex", gap: 8,    justifyContent: isMobile ? "flex-start" : "center",  }}>
-          {renderTabButtonInline("Works Jobs")}
-          {renderTabButtonInline("24 Hour Jobs")}
-          {renderTabButtonInline("Saved Jobs")}
+      <div style={{ padding: 0, background: "#fff",marginTop:"20px" }}>
+        <div style={{ display: "flex", gap: 8, justifyContent: isMobile ? "flex-start" : "center", }}>
+          {renderTabButtonInline("Work")}
+          {renderTabButtonInline("24 Hour")}
+          {renderTabButtonInline("Saved")}
         </div>
       </div>
 
@@ -2413,7 +2392,36 @@ const categoryGridResponsiveCSS = `
 `;
 
 export default function Categories() {
+const [userInfo, setUserInfo] = useState({
+      firstName: "",
+      lastName: "",
+      role: "",
+      profileImage: "",
+    });
+    const auth = getAuth();
+    const user = auth.currentUser;
 
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        if (!currentUser) return;
+        try {
+          const userRef = doc(db, "users", currentUser.uid);
+          const snap = await getDoc(userRef);
+          if (snap.exists()) {
+            const data = snap.data();
+            setUserInfo({
+              firstName: data.firstName || "",
+              lastName: data.lastName || "",
+              role: data.role || "",
+              profileImage: data.profileImage || "",
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching user:", err);
+        }
+      });
+      return unsubscribe;
+    }, []);
   const [collapsed, setCollapsed] = useState(
     localStorage.getItem("sidebar-collapsed") === "true"
   );
@@ -2484,6 +2492,7 @@ export default function Categories() {
 
 
   function renderCategories() {
+    
     return (
       <div>
         {/* HEADER */}
@@ -2498,26 +2507,26 @@ export default function Categories() {
               textAlign: "center",
             }}
           >
-           <div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "16px 12px",
-    width: "100%",
-    flexWrap: "nowrap",
-  }}
->
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "16px 12px",
+                width: "100%",
+                flexWrap: "nowrap",
+              }}
+            >
 
               {/* LEFT TEXT */}
-              <div>
+              <div style={{ marginLeft: isMobile ? "-10px" : "0px", }}>
                 <h1
                   style={{
                     margin: 0,
                     fontSize: isMobile ? "22px" : "26px",
                     fontWeight: 400,
-                    marginLeft: isMobile ? 0 : "-110px",
- maxWidth: isMobile ? "70%" : "100%", // 🔥 key fix
+                    marginLeft: isMobile ? "-40px" : "-75px",
+                    maxWidth: isMobile ? "70%" : "100%", // 🔥 key fix
                     ...responsiveText,
                   }}
                 >
@@ -2529,10 +2538,11 @@ export default function Categories() {
                     margin: "2px 0",
                     fontSize: "32px",
                     fontWeight: 600,
-                     maxWidth: isMobile ? "70%" : "100%", // 🔥 key fix
+                    marginLeft: isMobile ? "-90px" : "-90px",
+                    maxWidth: isMobile ? "100%" : "100%", // 🔥 key fix
                   }}
                 >
-                  James Andrew!
+                 {userInfo.firstName || "Huzzlers"}
                 </h1>
 
                 <p
@@ -2547,15 +2557,15 @@ export default function Categories() {
               </div>
 
               {/* RIGHT ICONS */}
-             <div
-  style={{
-    display: "flex",
-    gap: 18,
-    alignItems: "center",
-    marginTop: isMobile ? 0 : "-60px",
-    flexShrink: 0,          // 🔥 prevents hiding
-  }}
->
+              <div
+                style={{
+                  display: "flex",
+                  gap: 18,
+                  alignItems: "center",
+                  marginTop: isMobile ? "-100px" : "-60px",
+                  flexShrink: 0,          // 🔥 prevents hiding
+                }}
+              >
 
                 <img
                   src={message}
@@ -2563,7 +2573,7 @@ export default function Categories() {
                   style={{
                     width: "22px",
                     cursor: "pointer",
-                    display:"block",
+                    display: "block",
                   }}
                 />
 
@@ -2573,7 +2583,7 @@ export default function Categories() {
                   style={{
                     width: "22px",
                     cursor: "pointer",
-                    display:"block",
+                    display: "block",
                   }}
                 />
               </div>
@@ -2622,19 +2632,18 @@ export default function Categories() {
                 style={{ width: 16, height: 16 }}
               />
             </div>
-            <div style={{ marginLeft: 12 }}>
-              <h1 style={{ marginLeft: "-6px", marginTop: "12px" }}>Browse Project</h1>
-              <p style={{
-                fontWeight: "400", size: "24px", marginLeft: isMobile ? 0 : "-37px",
-                marginTop: "20px"
-              }}>
+            <div style={{ paddingLeft: isMobile ? 0 : 6 }}>
+              <h1 style={{ marginTop: "12px" }}>Browse Project</h1>
+
+              <p style={{ marginTop: "20px", fontWeight: 400, marginLeft: isMobile ? "0px" : "-40px" }}>
                 What Are You Looking For?
               </p>
-              <p style={{
-                color: "#0A0A0A", marginLeft: isMobile ? 0 : "-37px",
-                fontSize: "16px", fontWeight: "400"
-              }}>Choose your a category</p>
+
+              <p style={{ color: "#0A0A0A", fontSize: "16px", fontWeight: 400, marginLeft: isMobile ? "0px" : "-40px" }}>
+                Choose your a category
+              </p>
             </div>
+
           </div>
 
           {/* 🔥 CATEGORY CARDS GRID */}
@@ -2720,7 +2729,7 @@ export default function Categories() {
                 fontSize: 36,
                 fontWeight: 400,
                 marginTop: 0,
-               
+
                 gap: 16,
               }}
             >
@@ -2737,17 +2746,17 @@ export default function Categories() {
                   // boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
                   border: "1px solid #0e02020e",
                   cursor: "pointer",
-                marginLeft:isMobile?"-1px": "-70px",
+                  marginLeft: isMobile ? "-1px" : "-70px",
                 }}
               >
                 <img
                   src={backarrow}
                   alt="backarrow"
-                  style={{ width: 20, height: 20,   }}
+                  style={{ width: 20, height: 20, }}
                 />
               </div>
 
-                         <h1 style={{ marginLeft: "0px", marginTop: "12px" }}>Browse Project</h1>
+              <h1 style={{ marginLeft: "0px", marginTop: "12px" }}>Browse Project</h1>
             </div>
 
 
@@ -2770,22 +2779,22 @@ export default function Categories() {
           </div>
 
           {/* 🔥 SKILL CHIPS (IMAGE MATCH) */}
-   <div
-  style={{
-    display: "flex",
-    gap: 12,
-    alignItems: "center",
-    overflowX: isMobile ? "auto" : "visible",
-    overflowY: "hidden",
-    whiteSpace: "nowrap",
-    WebkitOverflowScrolling: "touch",
-    scrollbarWidth: "none",
-    msOverflowStyle: "none",
-    width: "100%",
-   
-  }}
-  className="hide-scrollbar"
->
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              alignItems: "center",
+              overflowX: isMobile ? "auto" : "visible",
+              overflowY: "hidden",
+              whiteSpace: "nowrap",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              width: "100%",
+
+            }}
+            className="hide-scrollbar"
+          >
 
 
             {filteredSubCategories.map((sub) => {
@@ -2809,8 +2818,8 @@ export default function Categories() {
                     color: isActive ? "#fff" : "#444",
                     border: "1px solid #E0E0E0",
                     transition: "all 0.2s ease",
-                     flexShrink:0,
-                     marginTop:5,
+                    flexShrink: 0,
+                    marginTop: 25,
                   }}
                 >
                   {sub}
@@ -2824,10 +2833,10 @@ export default function Categories() {
           {/* 🔥 JOB LIST (SAME AS SCREENSHOT) */}
           {selectedSkill && (
             <SkillUsersScreenInline
-  skill={selectedSkill}
-  onBack={pop}
-  isMobile={isMobile}
-/>
+              skill={selectedSkill}
+              onBack={pop}
+              isMobile={isMobile}
+            />
 
           )}
         </div>
