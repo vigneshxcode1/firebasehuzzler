@@ -547,6 +547,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import google from "../assets/Google.png";
 import facebook from "../assets/facebook.png";
+import backarrow from "../assets/backarrow.png";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -763,17 +764,7 @@ const handleSignup = async () => {
       marginBottom: 24,
       flexWrap: "wrap",
     },
-    backIcon: {
-      width: 38,
-      height: 32,
-      borderRadius: "999px",
-      border: "1px solid #e5e7eb",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      fontSize: 16,
-    },
+
     headerTitle: {
       fontSize: 14,
       fontWeight: 600,
@@ -908,7 +899,7 @@ const handleSignup = async () => {
       <div style={styles.cardWrapper}>
         <div style={styles.headerRow}>
           <div style={styles.backIcon} onClick={() => navigate(-1)} aria-label="Go back">
-            ←
+            <img src={backarrow} style={{width:"18px",marginTop:"7px"}} alt="backarrow" />
           </div>
           <span style={styles.headerTitle}>sign up as freelancer</span>
         </div>
@@ -931,9 +922,11 @@ const handleSignup = async () => {
             />
             <span>
               By signing up, you agree to our{" "}
-              <span style={styles.link}>Terms of service</span> &amp; acknowledge our{" "}
-              <span style={styles.link}>Privacy Policy</span>
+              <span onClick={() => navigate("/termsofservice")} style={styles.link}>Terms of service</span> &amp; acknowledge our{" "}
+              <span onClick={() => navigate("/privacypolicy")} style={styles.link}>Privacy Policy</span>
             </span>
+
+             
           </div>
 
           <button

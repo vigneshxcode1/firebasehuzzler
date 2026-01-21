@@ -260,9 +260,275 @@
 
 
 
+// import React, { useState, useRef, useEffect } from "react";
+// import { useNavigate, useLocation } from "react-router-dom";
+
+// export default function ForgotOtp() {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const email = location.state?.email;
+//   const uid = location.state?.uid;
+
+//   if (!email || !uid) {
+//     navigate("/forgot-password", { replace: true });
+//     return null;
+//   }
+
+//   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+//   const [loading, setLoading] = useState(false);
+//   const [resendLoading, setResendLoading] = useState(false);
+//   const inputsRef = useRef([]);
+
+//   useEffect(() => {
+//     inputsRef.current[0]?.focus();
+//   }, []);
+
+//   const handleChange = (index, value) => {
+//     if (!/^\d?$/.test(value)) return;
+//     const newOtp = [...otp];
+//     newOtp[index] = value;
+//     setOtp(newOtp);
+//     if (value && index < 5) {
+//       inputsRef.current[index + 1].focus();
+//     }
+//   };
+
+//   const handleKeyDown = (index, e) => {
+//     if (e.key === "Backspace" && !otp[index] && index > 0) {
+//       inputsRef.current[index - 1].focus();
+//     }
+//   };
+
+//   const otpValue = otp.join("");
+
+//   const verifyOtp = async () => {
+//     if (otpValue.length !== 6) return alert("Enter valid OTP");
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch("https://huzzler.onrender.com/api/auth/verify-otp", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ email, otp: otpValue }),
+//       });
+
+//       const data = await res.json();
+//       if (res.ok && data.success) {
+//         navigate("/changepassword", { state: { uid } });
+//       } else {
+//         alert(data.message || "OTP failed");
+//       }
+//     } catch (e) {
+//       alert("Something went wrong");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const resendOtp = async () => {
+//     if (resendLoading) return;
+//     setResendLoading(true);
+//     try {
+//       await fetch("https://huzzler.onrender.com/api/auth/send-otp", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ email }),
+//       });
+//       alert("OTP Resent");
+//     } catch {
+//       alert("Resend failed");
+//     } finally {
+//       setResendLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div style={styles.page}>
+//       {/* Header */}
+// <div
+//   style={{
+//     display: "flex",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     width: "26%",
+//     padding: "0 92px",
+//     marginTop:"100px",
+//     marginLeft:"-220px"
+
+//   }}
+// >
+//   <div
+//     onClick={() => navigate(-1)}
+//     style={{
+//       cursor: "pointer",
+//       fontWeight: "600",
+//       // display: "flex",
+//       // alignItems: "center",
+//       gap: "6px",
+//     }}
+//   >
+//     ← BACK
+//   </div>
+
+//   <div
+//     style={{
+//       fontWeight: "700",
+//       fontSize: "24px",
+//       color: "#7B4DFF",
+//     }}
+//   >
+//     Huzzler
+//   </div>
+// </div>
+
+
+//       {/* Card */}
+//       <div style={styles.card}>
+//         <h2 style={styles.heading}>Please verify your email</h2>
+//         <p style={styles.sub}>
+//           Enter the verification code sent to:
+//           <br />
+//           <b>{email}</b>
+//         </p>
+
+//         <div style={styles.otpRow}>
+//           {otp.map((digit, i) => (
+//             <input
+//               key={i}
+//               ref={(el) => (inputsRef.current[i] = el)}
+//               style={styles.otpBox}
+//               value={digit}
+//               maxLength={1}
+//               onChange={(e) => handleChange(i, e.target.value)}
+//               onKeyDown={(e) => handleKeyDown(i, e)}
+//             />
+//           ))}
+//         </div>
+
+//         <div style={styles.resend}>
+//           Didn’t receive OTP?{" "}
+//           <span onClick={resendOtp} style={styles.resendLink}>
+//             {resendLoading ? "Sending..." : "Resend OTP"}
+//           </span>
+//         </div>
+
+//         <button
+//           style={styles.button}
+//           onClick={verifyOtp}
+//           disabled={loading}
+//         >
+//           {loading ? "Verifying..." : "Get Started"}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ======================= STYLES ======================= */
+
+// const styles = {
+//   page: {
+//     minHeight: "100vh",
+//     background: "linear-gradient(135deg,#fff7e8,#efe8ff)",
+//     display: "flex",
+//     flexDirection: "column",
+//     alignItems: "center",
+//     fontFamily: "Inter, sans-serif",
+//   },
+
+// logo: {
+//   color: "#7a3cff",
+//   fontSize: 18,
+//   fontWeight: 700,
+//   marginRight: "10px",     // push little from right edge
+// },
+
+
+//  back: {
+//   fontSize: 14,
+//   cursor: "pointer",
+//   color: "#333",
+//   // marginLeft:ismobile?"-180px":"20px",     
+// },
+
+//   logo: {
+//     color: "#7a3cff",
+//     fontSize: 18,
+//     fontWeight: 700,
+//   },
+
+//   card: {
+//     background: "#fff",
+//     width: 420,
+//     maxWidth: "90%",
+//     marginTop: 60,
+//     padding: 32,
+//     borderRadius: 20,
+//     boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+//     textAlign: "center",
+//   },
+
+//   heading: {
+//     fontSize: 22,
+//     fontWeight: 600,
+//     marginBottom: 12,
+//   },
+
+//   sub: {
+//     fontSize: 14,
+//     color: "#666",
+//     marginBottom: 24,
+//   },
+
+// otpRow: {
+//   display: "flex",
+//   justifyContent: "center",   // 👈 center horizontally
+//   alignItems: "center",
+//   gap: "12px",
+//   marginBottom: 10,
+// },
+
+
+//   otpBox: {
+//     width: 48,
+//     height: 48,
+//     borderRadius: 10,
+//     border: "1px solid #ddd",
+//     textAlign: "center",
+//     fontSize: 18,
+//     outline: "none",
+//   },
+
+//   resend: {
+//     fontSize: 13,
+//     color: "#777",
+//     marginBottom: 24,
+//   },
+
+//   resendLink: {
+//     color: "#7a3cff",
+//     cursor: "pointer",
+//     fontWeight: 500,
+//   },
+
+//   button: {
+//     width: "100%",
+//     height: 48,
+//     background: "#7a3cff",
+//     border: "none",
+//     borderRadius: 12,
+//     color: "#fff",
+//     fontWeight: 600,
+//     cursor: "pointer",
+//     fontSize: 15,
+//   },
+// };
+
+
+
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import backarrow from "../assets/backarrow.png";
 export default function ForgotOtp() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -285,32 +551,45 @@ export default function ForgotOtp() {
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
     if (value && index < 5) {
-      inputsRef.current[index + 1].focus();
+      inputsRef.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1].focus();
-    }
-  };
+ const handleKeyDown = (index, e) => {
+  if (e.key === "Backspace" && !otp[index] && index > 0) {
+    inputsRef.current[index - 1]?.focus();
+  }
 
-  const otpValue = otp.join("");
+  if (e.key === "Enter") {
+    e.preventDefault();
+    verifyOtp(); // 👈 trigger button
+  }
+};
+
 
   const verifyOtp = async () => {
-    if (otpValue.length !== 6) return alert("Enter valid OTP");
+    const otpValue = otp.join("");
+    if (otpValue.length !== 6) {
+      alert("Enter valid OTP");
+      return;
+    }
 
     setLoading(true);
     try {
-      const res = await fetch("https://huzzler.onrender.com/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otpValue }),
-      });
+      const res = await fetch(
+        "https://huzzler.onrender.com/api/auth/verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp: otpValue }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok && data.success) {
@@ -318,7 +597,7 @@ export default function ForgotOtp() {
       } else {
         alert(data.message || "OTP failed");
       }
-    } catch (e) {
+    } catch {
       alert("Something went wrong");
     } finally {
       setLoading(false);
@@ -328,6 +607,7 @@ export default function ForgotOtp() {
   const resendOtp = async () => {
     if (resendLoading) return;
     setResendLoading(true);
+
     try {
       await fetch("https://huzzler.onrender.com/api/auth/send-otp", {
         method: "POST",
@@ -345,60 +625,32 @@ export default function ForgotOtp() {
   return (
     <div style={styles.page}>
       {/* Header */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "26%",
-    padding: "0 92px",
-    marginTop:"100px",
-    marginLeft:"-220px"
-
-  }}
->
-  <div
-    onClick={() => navigate(-1)}
-    style={{
-      cursor: "pointer",
-      fontWeight: "600",
-      // display: "flex",
-      // alignItems: "center",
-      gap: "6px",
-    }}
-  >
-    ← BACK
+      <div style={styles.header}>
+    <div style={styles.back} onClick={() => navigate(-1)}>
+      <img src={backarrow} alt="arrow" width={18}  />Back
+    </div>
   </div>
 
-  <div
-    style={{
-      fontWeight: "700",
-      fontSize: "24px",
-      color: "#7B4DFF",
-    }}
-  >
-    Huzzler
-  </div>
-</div>
+  <div style={styles.topLogo}>Huzzler</div>
 
-
-      {/* Card */}
-      <div style={styles.card}>
-        <h2 style={styles.heading}>Please verify your email</h2>
-        <p style={styles.sub}>
-          Enter the verification code sent to:
-          <br />
-          <b>{email}</b>
-        </p>
-
+  <div style={styles.card}>
+    <h2 style={styles.heading}>Please verify your email</h2>
+    <p style={styles.sub}>
+      Enter the verification code sent to:
+      <br />
+      <b>{email}</b>
+    </p>
         <div style={styles.otpRow}>
           {otp.map((digit, i) => (
             <input
               key={i}
               ref={(el) => (inputsRef.current[i] = el)}
-              style={styles.otpBox}
               value={digit}
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
               maxLength={1}
+              style={styles.otpBox}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
             />
@@ -407,7 +659,7 @@ export default function ForgotOtp() {
 
         <div style={styles.resend}>
           Didn’t receive OTP?{" "}
-          <span onClick={resendOtp} style={styles.resendLink}>
+          <span style={styles.resendLink} onClick={resendOtp}>
             {resendLoading ? "Sending..." : "Resend OTP"}
           </span>
         </div>
@@ -436,37 +688,53 @@ const styles = {
     fontFamily: "Inter, sans-serif",
   },
 
-logo: {
-  color: "#7a3cff",
-  fontSize: 18,
-  fontWeight: 700,
-  marginRight: "10px",     // push little from right edge
-},
+  header: {
+    width: "100%",
+    maxWidth: 420,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "20px",
+    marginTop: 40,
+  },
 
-
- back: {
-  fontSize: 14,
+back: {
   cursor: "pointer",
-  color: "#333",
-  // marginLeft:ismobile?"-180px":"20px",     
+  fontWeight: 600,
+  fontSize: 14,
+  display: "flex",
+  alignItems: "center",   // 👈 vertical alignment
+  gap: 6,                 // 👈 space between arrow and text
 },
+
 
   logo: {
-    color: "#7a3cff",
-    fontSize: 18,
     fontWeight: 700,
+    fontSize: 22,
+    color: "#7B4DFF",
+    textAlign:"center",
   },
+topLogo: {
+  marginTop: 10,
+  marginBottom: -18,     // 👈 pulls card upward
+  fontSize: 26,
+  fontWeight: 700,
+  color: "#7B4DFF",
+  textAlign: "center",
+},
 
-  card: {
-    background: "#fff",
-    width: 420,
-    maxWidth: "90%",
-    marginTop: 60,
-    padding: 32,
-    borderRadius: 20,
-    boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-    textAlign: "center",
-  },
+ card: {
+  width: "100%",
+  maxWidth: 420,
+  background: "#fff",
+  padding: 24,
+  paddingTop: 32,
+  borderRadius: 20,
+  boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+  textAlign: "center",
+  marginTop: 24,
+},
+
 
   heading: {
     fontSize: 22,
@@ -480,23 +748,33 @@ logo: {
     marginBottom: 24,
   },
 
-otpRow: {
-  display: "flex",
-  justifyContent: "center",   // 👈 center horizontally
-  alignItems: "center",
-  gap: "12px",
-  marginBottom: 10,
-},
-
+  otpRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 8,
+    marginBottom: 16,
+  },
 
   otpBox: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
     borderRadius: 10,
     border: "1px solid #ddd",
-    textAlign: "center",
     fontSize: 18,
+    color: "#000",
+    backgroundColor: "#fff",
+    caretColor: "#7a3cff",
     outline: "none",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    padding: 0,
+    textAlign: "center",
+
+    WebkitAppearance: "none",
+    MozAppearance: "textfield",
   },
 
   resend: {

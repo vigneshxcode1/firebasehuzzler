@@ -819,6 +819,7 @@ const styles = {
     height: 18,
     flexShrink: 0,
     marginTop:15,
+    cursor:"pointer"
   },
 
   termsText: {
@@ -830,6 +831,7 @@ const styles = {
   link: {
     color: "#7c3aed",
     textDecoration: "underline",
+    cursor:"pointer"
   },
 
   continueBtn: {

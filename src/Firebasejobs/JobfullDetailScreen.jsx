@@ -2335,7 +2335,7 @@ export default function JobFullDetailJobScreen() {
               fontSize: 20,
             }}
           >
-            🔔
+            
             {notifications.some((n) => !n.read) && (
               <span
                 style={{

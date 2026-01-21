@@ -338,7 +338,7 @@
 //               onChange={(e) => setPassword(e.target.value)}
 //             />
 //             <button
-              
+
 //               type="button"
 //               style={styles.toggleBtn}
 //               onClick={() => setShowPassword((s) => !s)}
@@ -1689,8 +1689,8 @@
 //       marginTop: 10,
 //       fontSize: 16,
 //       color: "#606060",
-      
-     
+
+
 //     },
 //     card: {
 //       width: "100%",
@@ -1857,9 +1857,598 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import backarrow from "../assets/backarrow.png"
+// import {
+//   getAuth,
+//   EmailAuthProvider,
+//   reauthenticateWithCredential,
+// } from "firebase/auth";
+
+// import {
+//   doc,
+//   getDoc,
+//   updateDoc,
+//   deleteDoc,
+//   serverTimestamp,
+// } from "firebase/firestore";
+
+// import { db } from "../firbase/Firebase";
+
+// export default function AccountDetails() {
+//   const navigate = useNavigate();
+//   const auth = getAuth();
+
+//   // ⭐ Responsive flag
+//   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+//   useEffect(() => {
+//     const r = () => setIsMobile(window.innerWidth <= 768);
+//     window.addEventListener("resize", r);
+//     return () => window.removeEventListener("resize", r);
+//   }, []);
+
+//   // ⭐ Sidebar state
+//   const [collapsed, setCollapsed] = useState(
+//     localStorage.getItem("sidebar-collapsed") === "true"
+//   );
+
+//   useEffect(() => {
+//     const handleToggle = (e) => setCollapsed(e.detail);
+//     window.addEventListener("sidebar-toggle", handleToggle);
+//     return () => window.removeEventListener("sidebar-toggle", handleToggle);
+//   }, []);
+
+//   // form state
+//   const [name, setName] = useState("");
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [addr1, setAddr1] = useState("");
+//   const [addr2, setAddr2] = useState("");
+//   const [city, setCity] = useState("");
+//   const [zip, setZip] = useState("");
+//   const [stateReg, setStateReg] = useState("");
+//   const [phone, setPhone] = useState("");
+//   const [countryCode, setCountryCode] = useState("+91");
+
+//   const [loading, setLoading] = useState(false);
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [toast, setToast] = useState("");
+
+//   useEffect(() => {
+//     const load = async () => {
+//       const user = auth.currentUser;
+//       if (!user) return navigate("/firelogin");
+
+//       const snap = await getDoc(doc(db, "users", user.uid));
+//       if (snap.exists()) {
+//         const d = snap.data();
+//         const full =
+//           (d.firstName || "") +
+//           (d.lastName ? " " + d.lastName : "");
+//         setName(full.trim() || d.name || "");
+//         setEmail(d.email || user.email || "");
+//         setPassword(d.password || "");
+//         setAddr1(d.addressLine1 || "");
+//         setAddr2(d.addressLine2 || "");
+//         setCity(d.city || "");
+//         setZip(d.zip || "");
+//         setStateReg(d.state || "");
+//         setPhone(d.phone || "");
+//         setCountryCode(d.countryCode || "+91");
+//       }
+//     };
+//     load();
+//   }, []);
+
+//   const showToast = (m) => {
+//     setToast(m);
+//     setTimeout(() => setToast(""), 3500);
+//   };
+
+//   const saveAll = async () => {
+//     try {
+//       const user = auth.currentUser;
+//       if (!user) return showToast("User not logged in");
+//       setLoading(true);
+
+//       await updateDoc(doc(db, "users", user.uid), {
+//         name,
+//         phone,
+//         countryCode,
+//         addressLine1: addr1,
+//         addressLine2: addr2,
+//         city,
+//         zip,
+//         state: stateReg,
+//         updatedAt: serverTimestamp(),
+//       });
+
+//       showToast("Saved successfully");
+//     } catch {
+//       showToast("Error saving changes");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const deleteAcc = async () => {
+//     const user = auth.currentUser;
+//     if (!user) return showToast("User not logged in");
+
+//     const confirmDelete = window.confirm(
+//       "This will permanently delete your account. This action cannot be undone.\n\nDo you want to continue?"
+//     );
+//     if (!confirmDelete) return;
+
+//     try {
+//       setLoading(true);
+
+//       // 🔐 Re-authentication (required by Firebase)
+//       const isPasswordUser = user.providerData.some(
+//         (p) => p.providerId === "password"
+//       );
+
+//       if (isPasswordUser) {
+//         const pwd = window.prompt("Enter your password to confirm deletion:");
+//         if (!pwd) {
+//           setLoading(false);
+//           return;
+//         }
+
+//         const credential = EmailAuthProvider.credential(user.email, pwd);
+//         await reauthenticateWithCredential(user, credential);
+//       }
+
+//       // 🗑️ Delete user document from Firestore
+//       await deleteDoc(doc(db, "users", user.uid));
+
+//       // 🗑️ Delete Firebase Auth account
+//       await user.delete();
+
+//       showToast("Account deleted successfully");
+
+//       // 🚀 Redirect
+//       navigate("/firelogin", { replace: true });
+
+//     } catch (error) {
+//       console.error(error);
+
+//       if (error.code === "auth/requires-recent-login") {
+//         showToast("Please log in again and try deleting your account.");
+//       } else {
+//         showToast("Failed to delete account");
+//       }
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+// const deleteStyles = {
+//   overlay: {
+//     position: "fixed",
+//     inset: 0,
+//     background: "rgba(0,0,0,0.35)",
+//     display: "flex",
+//     alignItems: "center",
+//     justifyContent: "center",
+//     zIndex: 999,
+//     padding: 16,
+//   },
+
+//   modal: {
+//     background: "#fff",
+//     borderRadius: 22,
+//     padding: "32px 26px",
+//     width: "100%",
+//     maxWidth: 560,
+//     textAlign: "left",
+//     boxShadow: "0 20px 45px rgba(0,0,0,0.15)",
+//   },
+
+//   warnIcon: {
+//     width: 48,
+//     height: 48,
+//     margin: "0 auto 12px",
+//   },
+
+//   title: {
+//     fontSize: 22,
+//     fontWeight: 600,
+//     marginBottom: 8,
+//     color: "#d10000",
+//   },
+//   header: {
+//     display: "flex",
+//     flexDirection: "column",
+//     alignItems: "center",   // ✅ centers icon + title
+//     textAlign: "center",
+//     marginBottom: 12,
+//   },
+
+//   desc: {
+//     fontSize: 14,
+//     color: "#444",
+//     lineHeight: 1.6,
+//     marginBottom: 26,
+//   },
+
+//   box: {
+//     border: "1px solid #facc15",
+//     borderRadius: 14,
+//     padding: 18,
+//     textAlign: "left",
+
+//   },
+
+//   boxTitle: {
+//     fontSize: 12,
+//     fontWeight: 600,
+//     marginBottom: 14,
+//     color: "#6b7280",
+//     letterSpacing: 0.6,
+//   },
+
+
+//   radioRow: {
+//     display: "flex",
+//     alignItems: "flex-start",
+//     gap: 12,
+//     fontSize: 14,
+//     marginBottom: 14,
+//     cursor: "pointer",
+//     width: "100%",        // 👈 CRITICAL
+//   },
+
+//   radio: {
+//     width: 16,          // ✅ fixed column
+//     height: 16,
+//     marginTop: 2,
+//     flexShrink: 0,        // 👈 keeps radios in a straight column
+//   },
+
+//   radioText: {
+//     lineHeight: "20px",
+//     textAlign: "left",
+//   },
+
+
+//   textarea: {
+//     width: "100%",
+//     height: 110,
+//     marginTop: 12,
+//     padding: 14,
+//     borderRadius: 10,
+//     border: "none",
+//     resize: "none",
+//     fontSize: 14,
+//     outline: "none",
+//     background: "#f3f4f6",
+//   },
+
+//   actions: {
+//     display: "flex",
+//     justifyContent: "center",
+//     gap: 18,
+//     marginTop: 28,
+//   },
+
+//   cancel: {
+//     padding: "11px 30px",
+//     borderRadius: 999,
+//     border: "1px solid #d1d5db",
+//     background: "#fff",
+//     cursor: "pointer",
+//     fontSize: 14,
+//   },
+
+//   confirm: {
+//     padding: "11px 34px",
+//     borderRadius: 999,
+//     border: "none",
+//     background: "#6d28d9",
+//     color: "#fff",
+//     fontWeight: 600,
+//     fontSize: 14,
+//     cursor: "pointer",
+//   },
+// };
+//   // styles
+//   const styles = {
+//     root: {
+//       minHeight: "100vh",
+//       padding: isMobile ? "16px" : "28px 24px 60px",
+//       display: "flex",
+//       flexDirection: "column",
+//       alignItems: "center",
+//       fontFamily: "'Rubik', Inter, system-ui",
+//     },
+//     headerWrap: {
+//       width: "100%",
+//       maxWidth: 1200,
+//       marginBottom: 18,
+//       paddingLeft: isMobile ? 0 : 2,
+//     },
+//     topRow: {
+//       display: "flex",
+//       gap: 14,
+//       alignItems: "center",
+//       flexWrap: "wrap",
+//     },
+//     backCircle: {
+//       width: 36,
+//       height: 36,
+//       borderRadius: 10,
+//       background: "#fff",
+//       display: "flex",
+//       alignItems: "center",
+//       justifyContent: "center",
+//       boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+//       cursor: "pointer",
+//       marginTop: isMobile ? 0 : "-25px",
+//     },
+//     title: { fontSize: 30, fontWeight: 400 },
+//     subtitle: {
+//       marginTop: 10,
+//       fontSize: 16,
+//       color: "#606060",
+
+
+//     },
+//     card: {
+//       width: "100%",
+//       maxWidth: 1100,
+//       background: "#fff",
+//       borderRadius: 18,
+//       padding: isMobile ? 18 : "30px 36px",
+//       boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+//     },
+//     label: { fontSize: 20, fontWeight: 400, marginBottom: 8 },
+//     input: {
+//       width: "100%",
+//       padding: "12px 14px",
+//       borderRadius: 10,
+//       border: "1px solid #E6E0E5",
+//     },
+//     twoColRow: {
+//       display: "flex",
+//       gap: 14,
+//       flexDirection: isMobile ? "column" : "row",
+//     },
+//     passwordWrap: { position: "relative" },
+//     toggleBtn: {
+//       position: "absolute",
+//       right: 12,
+//       top: "50%",
+//       transform: "translateY(-50%)",
+//       border: "none",
+//       background: "transparent",
+//       cursor: "pointer",
+//     },
+//     buttonRow: {
+//       display: "flex",
+//       gap: 12,
+//       marginTop: 22,
+//       flexDirection: isMobile ? "column" : "row",
+//       justifyContent: "flex-end",
+//     },
+//     cancelBtn: {
+//       padding: "10px 48px",
+//       borderRadius: 28,
+//       border: "1px solid #D9C8FF",
+//       background: "#fff",
+//       color: "#7c3aed",
+//       fontWeight: 600,
+//       cursor: "pointer"
+//     },
+//     saveBtn: {
+//       padding: "10px 50px",
+//       borderRadius: 28,
+//       border: "none",
+//       background: "#7c3aed",
+//       color: "#fff",
+//       fontWeight: 700,
+//       cursor: "pointer"
+//     },
+//     bottomLeftDeleteWrap: {
+//       width: "100%",
+//       maxWidth: 1100,
+//       marginTop: 18,
+//     },
+//     deleteBtn: {
+//       padding: "10px 38px",
+//       borderRadius: 28,
+//       border: "1px solid #FF0004",
+//       color: "#FF0004",
+//       background: "#fff",
+//       fontWeight: 600,
+//     },
+//   };
+
+//   return (
+//     <div
+//       style={{
+//         marginLeft: isMobile ? "0px" : collapsed ? "-150px" : "80px",
+//         marginTop: isMobile ? "60px" : collapsed ? "10px" : "10px",
+//         transition: "margin-left 0.25s ease",
+//       }}
+//     >
+//       <div style={styles.root}>
+//         <div style={styles.headerWrap}>
+//           <div style={styles.topRow}>
+//             <div style={styles.backCircle} onClick={() => navigate(-1)}>
+//               <img src={backarrow} width={20} />
+//             </div>
+//             <div>
+//               <div style={styles.title}>Account Details</div>
+//               <div style={styles.subtitle}>
+//                 Complete Your Profile to Get Noticed.
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         <div style={styles.card}>
+//           <div style={styles.label}>Name <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span></div>
+//           <input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} />
+
+//           <div style={{ ...styles.label, marginTop: 16 }}>Email <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span></div>
+//           <input style={styles.input} value={email} readOnly />
+
+
+//           {/* //password */}
+//           {/* <div style={{ ...styles.label, marginTop: 16 }}>Password <span style={{color:"rgba(255, 11, 11, 1)"}}>*</span></div>
+//           <div style={styles.passwordWrap}>
+//             <input
+//               type={showPassword ? "text" : "password"}
+//               style={styles.input}
+//               value={password}
+//               onChange={(e) => setPassword(e.target.value)}
+//             />
+//             <button style={styles.toggleBtn} onClick={() => setShowPassword(!showPassword)}>
+//               {showPassword ? "Hide" : "Show"}
+//             </button>
+//           </div> */}
+
+//           <div style={{ ...styles.label, marginTop: 16 }}>Address</div>
+//           <input style={styles.input} value={addr1} onChange={(e) => setAddr1(e.target.value)} />
+//           <input style={{ ...styles.input, marginTop: 8 }} value={addr2} onChange={(e) => setAddr2(e.target.value)} />
+
+//           <input style={{ ...styles.input, marginTop: 12 }} value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
+
+//           <div style={{ marginTop: 12, ...styles.twoColRow }}>
+//             <input style={styles.input} value={zip} onChange={(e) => setZip(e.target.value)} placeholder="Zip" />
+//             <input style={styles.input} value={stateReg} onChange={(e) => setStateReg(e.target.value)} placeholder="State" />
+//           </div>
+
+//           <div style={{ marginTop: 16 }}>
+//             <div style={styles.label}>Phone <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span></div>
+//             <div style={{ display: "flex", gap: 12 }}>
+//               <input style={{ ...styles.input, width: 80 }} value={countryCode} onChange={(e) => setCountryCode(e.target.value)} />
+//               <input style={{ ...styles.input, flex: 1 }} value={phone} onChange={(e) => setPhone(e.target.value)} />
+//             </div>
+//           </div>
+
+//           <div style={styles.buttonRow}>
+//             <button style={styles.cancelBtn} onClick={() => navigate(-1)}>Cancel</button>
+//             <button style={styles.saveBtn} onClick={saveAll}>{loading ? "Saving..." : "Save"}</button>
+//           </div>
+//         </div>
+
+//         <div style={styles.bottomLeftDeleteWrap}>
+//           <button style={styles.deleteBtn} onClick={deleteAcc}>Delete Account</button>
+//         </div>
+//         {showDeleteModal && (
+//           <div style={deleteStyles.overlay}>
+//             <div style={deleteStyles.modal}>
+
+//               {/* WARNING ICON */}
+//               {/* HEADER */}
+//               <div style={deleteStyles.header}>
+//                 <img
+//                   src={delete_Account}
+//                   style={{ width: 30 }}
+//                   alt="delete_Account"
+//                 />
+
+//                 <h2 style={deleteStyles.title}>Delete account</h2>
+//               </div>
+
+
+//               <p style={deleteStyles.desc}>
+//                 Are you sure you want to delete this account? This action{" "}
+//                 <span style={{ color: "#ef4444", fontWeight: 500 }}>
+//                   cannot be undone
+//                 </span>
+//                 . Please tell us why you’d like to delete your huzzler account. this
+//                 information will help us improve
+//               </p>
+
+//               {/* REASON BOX */}
+//               <div style={deleteStyles.box}>
+//                 <p style={deleteStyles.boxTitle}>REASON FOR DELETION</p>
+
+//                 {[
+//                   "Couldn’t find suitable freelancers",
+//                   "Project outcomes didn’t meet expectations",
+//                   "Communication and collaboration issues",
+//                   "Platform experience was not effective",
+//                   "Other (please specify)",
+//                 ].map((r) => (
+//                   <label key={r} style={deleteStyles.radioRow}>
+//                     <input
+//                       type="radio"
+//                       name="deleteReason"
+//                       value={r}
+//                       checked={deleteReason === r}
+//                       onChange={() => setDeleteReason(r)}
+//                       style={deleteStyles.radio}
+//                     />
+//                     <span style={deleteStyles.radioText}>{r}</span>
+//                   </label>
+
+
+//                 ))}
+
+//                 {deleteReason === "Other (please specify)" && (
+//                   <textarea
+//                     style={deleteStyles.textarea}
+//                     placeholder="Tell us a bit more..."
+//                     value={deleteDesc}
+//                     onChange={(e) => setDeleteDesc(e.target.value)}
+//                   />
+//                 )}
+//               </div>
+
+//               {/* ACTIONS */}
+//               <div style={deleteStyles.actions}>
+//                 <button
+//                   style={deleteStyles.cancel}
+//                   onClick={() => setShowDeleteModal(false)}
+//                 >
+//                   Cancel
+//                 </button>
+
+//                 <button
+//                   style={deleteStyles.confirm}
+//                   onClick={handleDeleteAccount}
+//                   disabled={isDeleting}
+//                 >
+//                   {isDeleting ? "Deleting..." : "Confirm Deletion"}
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {toast && (
+//           <div style={{
+//             position: "fixed",
+//             bottom: 24,
+//             left: "50%",
+//             transform: "translateX(-50%)",
+//             background: "#000",
+//             color: "#fff",
+//             padding: "10px 16px",
+//             borderRadius: 10,
+//             fontSize: 13,
+//           }}>
+//             {toast}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import backarrow from "../assets/backarrow.png"
+import backarrow from "../assets/backarrow.png";
+import delete_Account from "../assets/delete_Account.png"; // Add this import
 import {
   getAuth,
   EmailAuthProvider,
@@ -1915,6 +2504,12 @@ export default function AccountDetails() {
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState("");
 
+  // Delete modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteDesc, setDeleteDesc] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     const load = async () => {
       const user = auth.currentUser;
@@ -1924,8 +2519,7 @@ export default function AccountDetails() {
       if (snap.exists()) {
         const d = snap.data();
         const full =
-          (d.firstName || "") +
-          (d.lastName ? " " + d.lastName : "");
+          (d.firstName || "") + (d.lastName ? " " + d.lastName : "");
         setName(full.trim() || d.name || "");
         setEmail(d.email || user.email || "");
         setPassword(d.password || "");
@@ -1939,7 +2533,7 @@ export default function AccountDetails() {
       }
     };
     load();
-  }, []);
+  }, [auth.currentUser, navigate]);
 
   const showToast = (m) => {
     setToast(m);
@@ -1972,17 +2566,17 @@ export default function AccountDetails() {
     }
   };
 
-  const deleteAcc = async () => {
+  const handleDeleteAccount = async () => {
     const user = auth.currentUser;
     if (!user) return showToast("User not logged in");
 
-    const confirmDelete = window.confirm(
-      "This will permanently delete your account. This action cannot be undone.\n\nDo you want to continue?"
-    );
-    if (!confirmDelete) return;
+    if (!deleteReason) {
+      showToast("Please select a reason for deletion");
+      return;
+    }
 
     try {
-      setLoading(true);
+      setIsDeleting(true);
 
       // 🔐 Re-authentication (required by Firebase)
       const isPasswordUser = user.providerData.some(
@@ -1992,7 +2586,7 @@ export default function AccountDetails() {
       if (isPasswordUser) {
         const pwd = window.prompt("Enter your password to confirm deletion:");
         if (!pwd) {
-          setLoading(false);
+          setIsDeleting(false);
           return;
         }
 
@@ -2010,7 +2604,6 @@ export default function AccountDetails() {
 
       // 🚀 Redirect
       navigate("/firelogin", { replace: true });
-
     } catch (error) {
       console.error(error);
 
@@ -2020,10 +2613,136 @@ export default function AccountDetails() {
         showToast("Failed to delete account");
       }
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
+  const deleteStyles = {
+    overlay: {
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.35)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 999,
+      padding: 16,
+    },
+
+    modal: {
+      background: "#fff",
+      borderRadius: 22,
+      padding: "32px 26px",
+      width: "100%",
+      maxWidth: 560,
+      textAlign: "left",
+      boxShadow: "0 20px 45px rgba(0,0,0,0.15)",
+    },
+
+    warnIcon: {
+      width: 48,
+      height: 48,
+      margin: "0 auto 12px",
+    },
+
+    title: {
+      fontSize: 22,
+      fontWeight: 600,
+      marginBottom: 8,
+      color: "#d10000",
+    },
+    header: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      textAlign: "center",
+      marginBottom: 12,
+    },
+
+    desc: {
+      fontSize: 14,
+      color: "#444",
+      lineHeight: 1.6,
+      marginBottom: 26,
+    },
+
+    box: {
+      border: "1px solid #facc15",
+      borderRadius: 14,
+      padding: 18,
+      textAlign: "left",
+    },
+
+    boxTitle: {
+      fontSize: 12,
+      fontWeight: 600,
+      marginBottom: 14,
+      color: "#6b7280",
+      letterSpacing: 0.6,
+    },
+
+    radioRow: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 12,
+      fontSize: 14,
+      marginBottom: 14,
+      cursor: "pointer",
+      width: "100%",
+    },
+
+    radio: {
+      width: 16,
+      height: 16,
+      marginTop: 2,
+      flexShrink: 0,
+    },
+
+    radioText: {
+      lineHeight: "20px",
+      textAlign: "left",
+    },
+
+    textarea: {
+      width: "100%",
+      height: 110,
+      marginTop: 12,
+      padding: 14,
+      borderRadius: 10,
+      border: "none",
+      resize: "none",
+      fontSize: 14,
+      outline: "none",
+      background: "#f3f4f6",
+    },
+
+    actions: {
+      display: "flex",
+      justifyContent: "center",
+      gap: 18,
+      marginTop: 28,
+    },
+
+    cancel: {
+      padding: "11px 30px",
+      borderRadius: 999,
+      border: "1px solid #d1d5db",
+      background: "#fff",
+      cursor: "pointer",
+      fontSize: 14,
+    },
+
+    confirm: {
+      padding: "11px 34px",
+      borderRadius: 999,
+      border: "none",
+      background: "#6d28d9",
+      color: "#fff",
+      fontWeight: 600,
+      fontSize: 14,
+      cursor: "pointer",
+    },
+  };
 
   // styles
   const styles = {
@@ -2064,8 +2783,6 @@ export default function AccountDetails() {
       marginTop: 10,
       fontSize: 16,
       color: "#606060",
-
-
     },
     card: {
       width: "100%",
@@ -2073,7 +2790,8 @@ export default function AccountDetails() {
       background: "#fff",
       borderRadius: 18,
       padding: isMobile ? 18 : "30px 36px",
-      boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+      boxShadow:
+        "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
     },
     label: { fontSize: 20, fontWeight: 400, marginBottom: 8 },
     input: {
@@ -2111,7 +2829,7 @@ export default function AccountDetails() {
       background: "#fff",
       color: "#7c3aed",
       fontWeight: 600,
-      cursor:"pointer"
+      cursor: "pointer",
     },
     saveBtn: {
       padding: "10px 50px",
@@ -2120,7 +2838,7 @@ export default function AccountDetails() {
       background: "#7c3aed",
       color: "#fff",
       fontWeight: 700,
-      cursor:"pointer"
+      cursor: "pointer",
     },
     bottomLeftDeleteWrap: {
       width: "100%",
@@ -2134,6 +2852,7 @@ export default function AccountDetails() {
       color: "#FF0004",
       background: "#fff",
       fontWeight: 600,
+      cursor: "pointer",
     },
   };
 
@@ -2149,7 +2868,7 @@ export default function AccountDetails() {
         <div style={styles.headerWrap}>
           <div style={styles.topRow}>
             <div style={styles.backCircle} onClick={() => navigate(-1)}>
-              <img src={backarrow} width={20} />
+              <img src={backarrow} width={20} alt="Back" />
             </div>
             <div>
               <div style={styles.title}>Account Details</div>
@@ -2161,68 +2880,180 @@ export default function AccountDetails() {
         </div>
 
         <div style={styles.card}>
-          <div style={styles.label}>Name <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span></div>
-          <input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} />
+          <div style={styles.label}>
+            Name <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span>
+          </div>
+          <input
+            style={styles.input}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-          <div style={{ ...styles.label, marginTop: 16 }}>Email <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span></div>
+          <div style={{ ...styles.label, marginTop: 16 }}>
+            Email <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span>
+          </div>
           <input style={styles.input} value={email} readOnly />
 
-
-          {/* //password */}
-          {/* <div style={{ ...styles.label, marginTop: 16 }}>Password <span style={{color:"rgba(255, 11, 11, 1)"}}>*</span></div>
-          <div style={styles.passwordWrap}>
-            <input
-              type={showPassword ? "text" : "password"}
-              style={styles.input}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button style={styles.toggleBtn} onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </div> */}
-
           <div style={{ ...styles.label, marginTop: 16 }}>Address</div>
-          <input style={styles.input} value={addr1} onChange={(e) => setAddr1(e.target.value)} />
-          <input style={{ ...styles.input, marginTop: 8 }} value={addr2} onChange={(e) => setAddr2(e.target.value)} />
+          <input
+            style={styles.input}
+            value={addr1}
+            onChange={(e) => setAddr1(e.target.value)}
+          />
+          <input
+            style={{ ...styles.input, marginTop: 8 }}
+            value={addr2}
+            onChange={(e) => setAddr2(e.target.value)}
+          />
 
-          <input style={{ ...styles.input, marginTop: 12 }} value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
+          <input
+            style={{ ...styles.input, marginTop: 12 }}
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="City"
+          />
 
           <div style={{ marginTop: 12, ...styles.twoColRow }}>
-            <input style={styles.input} value={zip} onChange={(e) => setZip(e.target.value)} placeholder="Zip" />
-            <input style={styles.input} value={stateReg} onChange={(e) => setStateReg(e.target.value)} placeholder="State" />
+            <input
+              style={styles.input}
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+              placeholder="Zip"
+            />
+            <input
+              style={styles.input}
+              value={stateReg}
+              onChange={(e) => setStateReg(e.target.value)}
+              placeholder="State"
+            />
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div style={styles.label}>Phone <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span></div>
+            <div style={styles.label}>
+              Phone <span style={{ color: "rgba(255, 11, 11, 1)" }}>*</span>
+            </div>
             <div style={{ display: "flex", gap: 12 }}>
-              <input style={{ ...styles.input, width: 80 }} value={countryCode} onChange={(e) => setCountryCode(e.target.value)} />
-              <input style={{ ...styles.input, flex: 1 }} value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <input
+                style={{ ...styles.input, width: 80 }}
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+              />
+              <input
+                style={{ ...styles.input, flex: 1 }}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
             </div>
           </div>
 
           <div style={styles.buttonRow}>
-            <button style={styles.cancelBtn} onClick={() => navigate(-1)}>Cancel</button>
-            <button style={styles.saveBtn} onClick={saveAll}>{loading ? "Saving..." : "Save"}</button>
+            <button style={styles.cancelBtn} onClick={() => navigate(-1)}>
+              Cancel
+            </button>
+            <button style={styles.saveBtn} onClick={saveAll}>
+              {loading ? "Saving..." : "Save"}
+            </button>
           </div>
         </div>
 
         <div style={styles.bottomLeftDeleteWrap}>
-          <button style={styles.deleteBtn} onClick={deleteAcc}>Delete Account</button>
+          <button
+            style={styles.deleteBtn}
+            onClick={() => setShowDeleteModal(true)}
+          >
+            Delete Account
+          </button>
         </div>
 
+        {showDeleteModal && (
+          <div style={deleteStyles.overlay}>
+            <div style={deleteStyles.modal}>
+              <div style={deleteStyles.header}>
+                <img
+                  src={delete_Account}
+                  style={{ width: 30 }}
+                  alt="delete_Account"
+                />
+
+                <h2 style={deleteStyles.title}>Delete account</h2>
+              </div>
+
+              <p style={deleteStyles.desc}>
+                Are you sure you want to delete this account? This action{" "}
+                <span style={{ color: "#ef4444", fontWeight: 500 }}>
+                  cannot be undone
+                </span>
+                . Please tell us why you'd like to delete your huzzler account.
+                this information will help us improve
+              </p>
+
+              <div style={deleteStyles.box}>
+                <p style={deleteStyles.boxTitle}>REASON FOR DELETION</p>
+
+                {[
+                  "Couldn't find suitable freelancers",
+                  "Project outcomes didn't meet expectations",
+                  "Communication and collaboration issues",
+                  "Platform experience was not effective",
+                  "Other (please specify)",
+                ].map((r) => (
+                  <label key={r} style={deleteStyles.radioRow}>
+                    <input
+                      type="radio"
+                      name="deleteReason"
+                      value={r}
+                      checked={deleteReason === r}
+                      onChange={() => setDeleteReason(r)}
+                      style={deleteStyles.radio}
+                    />
+                    <span style={deleteStyles.radioText}>{r}</span>
+                  </label>
+                ))}
+
+                {deleteReason === "Other (please specify)" && (
+                  <textarea
+                    style={deleteStyles.textarea}
+                    placeholder="Tell us a bit more..."
+                    value={deleteDesc}
+                    onChange={(e) => setDeleteDesc(e.target.value)}
+                  />
+                )}
+              </div>
+
+              <div style={deleteStyles.actions}>
+                <button
+                  style={deleteStyles.cancel}
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  style={deleteStyles.confirm}
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Confirm Deletion"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {toast && (
-          <div style={{
-            position: "fixed",
-            bottom: 24,
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "#000",
-            color: "#fff",
-            padding: "10px 16px",
-            borderRadius: 10,
-            fontSize: 13,
-          }}>
+          <div
+            style={{
+              position: "fixed",
+              bottom: 24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "#000",
+              color: "#fff",
+              padding: "10px 16px",
+              borderRadius: 10,
+              fontSize: 13,
+            }}
+          >
             {toast}
           </div>
         )}
