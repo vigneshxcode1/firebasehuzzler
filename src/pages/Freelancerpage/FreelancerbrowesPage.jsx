@@ -2441,7 +2441,7 @@ const [userInfo, setUserInfo] = useState({
   const [selectedSkill, setSelectedSkill] = useState(null);
 
 
-
+const navigate = useNavigate();
   // Categories state
   const [catQuery, setCatQuery] = useState("");
 
@@ -2518,7 +2518,7 @@ const [userInfo, setUserInfo] = useState({
               }}
             >
 
-              {/* LEFT TEXT */}
+              {/* LEFT TEXT
               <div style={{ marginLeft: isMobile ? "-10px" : "0px", }}>
                 <h1
                   style={{
@@ -2538,7 +2538,45 @@ const [userInfo, setUserInfo] = useState({
                     margin: "2px 0",
                     fontSize: "32px",
                     fontWeight: 600,
-                    marginLeft: isMobile ? "-90px" : "-90px",
+                    marginLeft: isMobile ? "-30px" : "-30px",
+                    maxWidth: isMobile ? "100%" : "100%", // 🔥 key fix
+                  }}
+                >
+                 {userInfo.firstName || "Huzzlers"}
+                </h1>
+
+                <p
+                  style={{
+                    marginTop: "6px",
+                    color: "#666",
+                    fontSize: "14px",
+                  }}
+                >
+                  Discover projects that match your skills
+                </p>
+              </div> */}
+
+{/* LEFT TEXT */}
+              <div style={{ marginLeft: isMobile ? "-10px" : "0px", }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: isMobile ? "22px" : "26px",
+                    fontWeight: 400,
+                    marginLeft: isMobile ? "-40px" : "-75px",
+                    maxWidth: isMobile ? "70%" : "100%", // 🔥 key fix
+                    ...responsiveText,
+                  }}
+                >
+                  Welcome,
+                </h1>
+
+                <h1
+                  style={{
+                    margin: "2px 0",
+                    fontSize: "32px",
+                    fontWeight: 600,
+                    marginLeft: isMobile ? "-40px" : "-65px",
                     maxWidth: isMobile ? "100%" : "100%", // 🔥 key fix
                   }}
                 >
@@ -2733,22 +2771,23 @@ const [userInfo, setUserInfo] = useState({
                 gap: 16,
               }}
             >
-              {/* BACK ARROW CIRCLE */}
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "14px",
-                  backgroundColor: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  // boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-                  border: "1px solid #0e02020e",
-                  cursor: "pointer",
-                  marginLeft: isMobile ? "-1px" : "-70px",
-                }}
-              >
+{/* BACK ARROW CIRCLE */}
+<div
+  onClick={() => navigate(-1)}
+  style={{
+    width: 44,
+    height: 44,
+    borderRadius: "14px",
+    backgroundColor: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid #0e02020e",
+    cursor: "pointer",
+    marginLeft: isMobile ? "-1px" : "-70px",
+  }}
+>
+
                 <img
                   src={backarrow}
                   alt="backarrow"

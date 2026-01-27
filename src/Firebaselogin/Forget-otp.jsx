@@ -686,6 +686,7 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     fontFamily: "Inter, sans-serif",
+    paddingTop: 110,  
   },
 
   header: {

@@ -2116,7 +2116,7 @@ export default function BuildProfileScreenWithEdit() {
 
             }}
           />
-          <img src={editimg} width={50} style={{ cursor: "pointer", marginLeft: "-55px", paddingTop: "10px", marginTop: "50px" }} />
+          {/* <img src={editimg} width={50} style={{ cursor: "pointer", marginLeft: "-55px", paddingTop: "10px", marginTop: "50px" }} /> */}
 
           <Box>
             <Typography sx={{ fontSize: 24, fontWeight: 700 }}>

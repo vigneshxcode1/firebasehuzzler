@@ -613,6 +613,7 @@ export default function ChangePassword() {
       flexDirection: "column",
       alignItems: "center",
       fontFamily: "Inter, sans-serif",
+      padding:130,
   },
      container: {
   width: 520,
